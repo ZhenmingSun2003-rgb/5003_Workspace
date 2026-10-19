@@ -25,7 +25,7 @@ output:
 - The expected columns are `Q279`, `B_COUNTRY_ALPHA`, `Q260`, `Q262`, `Q270`, `Q273`, `Q274`, `Q275`, `Q286`, `Q287` and `Q288`. Extra original columns must **not** be fed into the model merely because they are available; some may encode employment or survey administration and leak target information.
 
 ```{r configuration, echo=TRUE}
-SEED <- 5003L
+SEED <- 5003
 TRAIN_FRACTION <- 0.80
 TARGET_LEVELS <- as.character(1:8)
 TARGET_LABELS <- c("Full-time", "Part-time", "Self-employed", "Retired",
@@ -128,7 +128,9 @@ knitr::kable(as.data.frame(table(wvs$Income_Group)),
 
 **Why this matters:** national income groups conceal large within-country differences; an economy's GNI group is not an individual's household income. `Unclassified` and the provisional manual crosswalk may encode country identity and affect comparability. The whole-sample table above is merely a deterministic map of external context, **not** an outcome-derived feature.
 
-# 5. One fixed stratified 80/20 train-test split
+# 5. Shared stratified 60/20/20 development-validation-test contract
+
+**Team split contract (seed `5003`):** First create an 80% development pool and an untouched 20% test set by stratifying on `Q279`. Then, using seed `5003 + 2`, partition 75% of that 80% pool for initial model fitting and 25% for model validation: approximately **60% Train / 20% Validation / 20% Test** overall. Following validation-only model selection, refit the chosen model on **Train + Validation (80%)**, and evaluate on Test **once**. The logistic Rmd may further cap its *initial candidate-fitting subset* at 25,000 for feasibility; this cap does not alter the agreed partition or final refit size. For the provided 95,987-row CSV, classwise rounding yields 57,587 initial training rows, 19,199 validation rows and 19,201 test rows. All members must use **the identical CSV row ordering, seeds and algorithm**, not merely equal percentage splits; different libraries can assign different records even with the same seed.
 
 The test set is a single held-out, stratified **individual-level** sample, not a previously unseen-country or future-year sample. The latter tasks would need separately designed group/time splits. No model/feature choice should be tuned against its test score. Splits are calculated deterministically from the cleaned row order and seed, so models can independently reproduce the same indices **provided the identical CSV row order is used**. We report that row order/CSV revisions would invalidate that assumption.
 
@@ -146,10 +148,22 @@ test <- wvs[test_id, , drop = FALSE]
 stopifnot(!length(intersect(train_id, test_id)),
           length(train_id) + length(test_id) == nrow(wvs),
           all(table(train$Outcome) > 0), all(table(test$Outcome) > 0))
+# Shared within-development split. Indices in dev_id and val_id refer to
+# the 80% training pool; train_id and test_id refer to the original CSV.
+dev_id <- stratified_indices(train$Outcome, 0.75, SEED + 2)
+val_id <- setdiff(seq_len(nrow(train)), dev_id)
+stopifnot(!length(intersect(dev_id, val_id)),
+          length(dev_id) + length(val_id) == nrow(train))
+initial_train <- train[dev_id, , drop = FALSE]
+validation <- train[val_id, , drop = FALSE]
 share_table <- data.frame(Class = TARGET_LABELS,
-                          Train = as.integer(table(train$Outcome)),
+                          Train = as.integer(table(initial_train$Outcome)),
+                          Validation = as.integer(table(validation$Outcome)),
                           Test = as.integer(table(test$Outcome)))
-knitr::kable(share_table, caption = "Frozen stratified split")
+knitr::kable(share_table, caption = "Shared stratified Train / Validation / Test (60/20/20)")
+cat("Seed:", SEED, "| Train:", nrow(initial_train),
+    "| Validation:", nrow(validation), "| Test:", nrow(test),
+    "| Final refit Train+Validation:", nrow(train), "\\n")
 ```
 
 # 6. Strict eight-class evaluation function
@@ -191,7 +205,7 @@ The **majority-class** rule predicts the most common label **in the training set
 majority <- names(which.max(table(train$Outcome)))
 pred_majority <- rep(majority, nrow(test))
 majority_eval <- evaluate_8class(test$Outcome, pred_majority, FALSE)
-set.seed(SEED + 1L)
+set.seed(SEED + 1)
 pred_chance <- sample(TARGET_LABELS, nrow(test), replace = TRUE,
                       prob = as.numeric(prop.table(table(train$Outcome))))
 chance_eval <- evaluate_8class(test$Outcome, pred_chance, FALSE)
