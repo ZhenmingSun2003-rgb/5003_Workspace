@@ -24,7 +24,7 @@ A1 hypotheses: age differentiates Student and Retired; gender is associated with
 After cloning, run `git lfs pull` to materialise the approximately 172 MB CSV. Requires base R, `knitr`/`rmarkdown` for rendering, and the recommended R package `nnet`. Input paths are relative to this file or repository; no absolute paths or online downloads. All work stays in memory and the CSV is never overwritten.
 
 ```{r setup}
-SEED <- 5003L
+SEED <- 5003
 TRAIN_FRACTION <- 0.80
 DEV_CAP <- 25000L
 MAXIT <- 250L
@@ -149,6 +149,8 @@ apply_recipe <- function(raw,r) {
 
 # 5. Evaluation and predetermined validation search
 
+**Shared split standard:** With numeric `SEED <- 5003`, stratify on `Q279` to create an initial 80% development pool and a 20% untouched test set. Using `SEED + 2`, split the development pool into 75% initial Train and 25% Validation, giving approximately **60% / 20% / 20%** of the whole dataset. The initial 60% Train partition is 57,587 rows and Validation is 19,199 rows (Test 19,201 rows), for the supplied CSV. Candidate fitting is capped at up to 25,000 stratified training records for computational feasibility; this cap **does not** change which records belong to Train or Validation. After selecting a model solely from validation scores, refit it on the entire original 80% development pool (76,786 rows) and evaluate on Test once. All teammates must use the same ordered CSV and split function: equal proportions and a matching seed alone do not guarantee identical row assignments across distinct implementations.
+
 The **primary metric** is macro-F1 averaged over all eight classes, with zero precision/recall/F1 when undefined. Weighted-F1 and accuracy are secondary. Confusion rows are ground truth and columns are predictions. The search is *small and predetermined*: three feature specifications multiplied by weight-decay choices 0.001 and 0.01 (six models). Search is conducted on a stratified development partition from the training rows; the fitting subset is capped at 25,000 to control the runtime. Rank by validation macro-F1, weighted-F1, simpler specification, then larger penalty. This is **single-holdout validation, not nested/repeated cross-validation**; the selected specification may be unstable.
 
 ```{r evaluation}
@@ -182,10 +184,13 @@ model_formula <- function(name) reformulate(SPECIFICATIONS[[name]],response="Out
 ```
 
 ```{r validation}
-dev_id <- stratified_indices(train$Outcome,0.75,SEED+2L)
+dev_id <- stratified_indices(train$Outcome,0.75,SEED + 2)
 val_id <- setdiff(seq_len(nrow(train)),dev_id)
+cat("Seed:", SEED, "| initial Train:", length(dev_id),
+    "| Validation:", length(val_id), "| Test:", nrow(test),
+    "| Final refit pool:", nrow(train), "\n")
 if(length(dev_id)>DEV_CAP) {
-  short <- stratified_indices(train$Outcome[dev_id],DEV_CAP/length(dev_id),SEED+3L)
+  short <- stratified_indices(train$Outcome[dev_id],DEV_CAP/length(dev_id),SEED + 3)
   dev_id <- dev_id[short]
 }
 development <- train[dev_id,,drop=FALSE]
