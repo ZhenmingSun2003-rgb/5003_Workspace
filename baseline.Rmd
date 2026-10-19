@@ -163,7 +163,7 @@ share_table <- data.frame(Class = TARGET_LABELS,
 knitr::kable(share_table, caption = "Shared stratified Train / Validation / Test (60/20/20)")
 cat("Seed:", SEED, "| Train:", nrow(initial_train),
     "| Validation:", nrow(validation), "| Test:", nrow(test),
-    "| Final refit Train+Validation:", nrow(train), "\\n")
+    "| Final refit Train+Validation:", nrow(train), "\n")
 ```
 
 # 6. Strict eight-class evaluation function
