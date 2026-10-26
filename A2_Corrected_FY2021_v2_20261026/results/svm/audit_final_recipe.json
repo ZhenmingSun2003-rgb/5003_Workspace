@@ -1,0 +1,11 @@
+{
+  "spec": "extended",
+  "numeric": ["Age", "HouseholdSize", "Children"],
+  "categorical": ["Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "Savings", "Income_Group"],
+  "median": [41, 4, 2],
+  "mean": [43.16503008360899, 4.0324538327299244, 1.7873049774698513],
+  "sd": [16.50018962274417, 2.559254478748457, 1.6817288973814375],
+  "keep": ["Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing", "Children", "Children_missing", "Gender__1", "Gender__2", "Marital__1", "Marital__2", "Marital__3", "Marital__4", "Marital__5", "Marital__6", "Education__1", "Education__2", "Education__3", "Education__4", "Education__5", "Education__6", "Education__7", "Education__8", "Education__9", "SocialClass__1", "SocialClass__2", "SocialClass__3", "SocialClass__4", "SocialClass__5", "IncomeBracket__1", "IncomeBracket__2", "IncomeBracket__3", "IncomeBracket__4", "IncomeBracket__5", "IncomeBracket__6", "IncomeBracket__7", "IncomeBracket__8", "IncomeBracket__9", "IncomeBracket__10", "Savings__1", "Savings__2", "Savings__3", "Savings__4", "Income_Group__1", "Income_Group__2", "Income_Group__3", "Income_Group__4"],
+  "removed": ["Gender__3", "Marital__7", "Education__10", "SocialClass__6", "IncomeBracket__11", "Savings__5", "Income_Group__5", "Income_Group__6"],
+  "encoded_before": 54
+}

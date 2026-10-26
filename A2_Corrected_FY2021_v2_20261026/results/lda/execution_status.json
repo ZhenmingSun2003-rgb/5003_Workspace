@@ -1,0 +1,30 @@
+{
+  "Run": "lda",
+  "File": "02_LDA.Rmd",
+  "Mode": "corrected_v2_official",
+  "Success": true,
+  "Error": null,
+  "Elapsed_Seconds": 23.809999999999999,
+  "Started_At": "2026-10-26 11:10:38 +0800",
+  "Finished_At": "2026-10-26 11:11:02 +0800",
+  "Source_MD5": "777a42b4981f9a985b2ff677d14f931f",
+  "Source_Unchanged_During_Render": true,
+  "Output": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/results/lda/02_LDA.html",
+  "Data_Path": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/WVS_Wave7_cleaned_for_modelling.csv",
+  "Data_MD5": "98bf573170f0cb6bd65a4e9a8070d4d8",
+  "RNG": ["Mersenne-Twister", "Inversion", "Rejection"],
+  "Conditions": [
+    {
+      "Type": "message",
+      "Message": "\n\nprocessing file: 02_LDA.Rmd\n"
+    },
+    {
+      "Type": "message",
+      "Message": "output file: 02_LDA.knit.md\n\n"
+    },
+    {
+      "Type": "message",
+      "Message": "\nOutput created: 02_LDA.html\n"
+    }
+  ]
+}

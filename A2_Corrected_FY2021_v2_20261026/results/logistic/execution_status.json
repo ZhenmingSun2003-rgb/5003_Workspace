@@ -1,0 +1,30 @@
+{
+  "Run": "logistic",
+  "File": "01_MultinomialLogisticRegression.Rmd",
+  "Mode": "corrected_v2_official",
+  "Success": true,
+  "Error": null,
+  "Elapsed_Seconds": 207.31999999999999,
+  "Started_At": "2026-10-26 11:14:55 +0800",
+  "Finished_At": "2026-10-26 11:18:22 +0800",
+  "Source_MD5": "942da8967e097bbbe6c381160f887ae5",
+  "Source_Unchanged_During_Render": true,
+  "Output": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/results/logistic/01_MultinomialLogisticRegression.html",
+  "Data_Path": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/WVS_Wave7_cleaned_for_modelling.csv",
+  "Data_MD5": "98bf573170f0cb6bd65a4e9a8070d4d8",
+  "RNG": ["Mersenne-Twister", "Inversion", "Rejection"],
+  "Conditions": [
+    {
+      "Type": "message",
+      "Message": "\n\nprocessing file: 01_MultinomialLogisticRegression.Rmd\n"
+    },
+    {
+      "Type": "message",
+      "Message": "output file: 01_MultinomialLogisticRegression.knit.md\n\n"
+    },
+    {
+      "Type": "message",
+      "Message": "\nOutput created: 01_MultinomialLogisticRegression.html\n"
+    }
+  ]
+}

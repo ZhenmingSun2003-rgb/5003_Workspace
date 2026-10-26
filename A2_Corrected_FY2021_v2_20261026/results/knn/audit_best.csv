@@ -1,0 +1,2 @@
+"Spec","k","Weighting","Dimensions","Train_N","Validation_N","Search_Seconds","Macro_F1","Weighted_F1","Accuracy"
+"extended_linear",21,"distance",54,57587,19199,91.5,0.342989990501879,0.460200977551669,0.507109745299234

@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>STAT5003 A2 Corrected FY2021 v2</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>body{font-family:Arial,'Microsoft YaHei',sans-serif;max-width:1280px;margin:40px auto;padding:0 22px;line-height:1.65;color:#182234}table{border-collapse:collapse;width:100%;font-size:.9em;margin:18px 0;display:block;overflow:auto}th,td{border:1px solid #cad3df;padding:7px 9px;text-align:left}th{background:#edf2f9}tr:nth-child(even){background:#f8fafc}code{overflow-wrap:anywhere;font-size:.9em}h1,h2{color:#16436a}a{color:#1467a0}</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">STAT5003 A2 Corrected FY2021 v2</h1>
+</header>
+<h1 id="stat5003-a2fy2021-修正-v2-实验与独立核验报告">STAT5003
+A2：FY2021 修正 v2 实验与独立核验报告</h1>
+<p>生成时间（Asia/Shanghai）：2026-10-26T12:11:39.369424+08:00。本报告由已保存的正式输出、逐行预测和独立评估生成；主版本目录为
+<code>STAT5003_A2_Corrected_FY2021_v2_20261026</code>。</p>
+<h2 id="执行结论">1. 执行结论</h2>
+<p><strong>总体判断：Ready with minor corrections：可整合 v2
+正式报告，保留以下局限和提交前文字核对。</strong></p>
+<p>按本次相同 Test 的 Macro F1，最高为
+<strong>SVM（0.377763）</strong>。这是点估计排序，不能等同统计显著性、跨国家泛化或未来数据表现。</p>
+<p>此次同时实施两项修正：六份 Rmd 的国家收入组统一改用官方 FY2021
+分类；Logistic 增加优化迭代上限并在候选、选优和最终 Test 计分前强制检查
+convergence。<strong>Logistic的新旧变化不能单独归因于映射或优化；其余四模型的流程未改，新旧差异反映映射更新及其在原流程中的后续影响。相对Logistic的差值还涉及基准模型的变化。</strong>
+未为提升 Test 分数改变候选网格、选优准则、种子、训练 cap
+或共享数据。</p>
+<p>每份修改后的 Rmd 仅安排一次正式执行。Logistic 的训练/验证 preflight
+不调用
+Test预测或计分，不作为第二次正式评估；已有旧版重复执行证据不能替代 v2
+的重复执行。本报告<strong>不声称 v2 已经重复运行复现</strong>。</p>
+<p>计划交付完成性：候选表/状态证据=已核实；5000次、11组配对bootstrap及旧新身份核验=已核实。使用<code>--skip-bootstrap</code>生成的表属于预览，不能据此形成最终Ready判断。</p>
+<p>证据等级：<code>Verified</code>
+为本次运行与独立计算；<code>Source-checked</code>
+为源码检查；<code>Author-reported</code>
+仅指文档自述；<code>Unverified/Pending</code>
+保留缺失。执行成功、指标正确、样本身份一致、优化收敛和重复执行是不同条件。</p>
+<h2 id="环境与实际执行">2. 环境与实际执行</h2>
+<table>
+<thead>
+<tr>
+<th>Rmd / 模型</th>
+<th>正式状态</th>
+<th>秒</th>
+<th>错误</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>baseline.Rmd</td>
+<td>Success</td>
+<td>14.02</td>
+<td>—</td>
+</tr>
+<tr>
+<td>01_MultinomialLogisticRegression.Rmd</td>
+<td>Success</td>
+<td>207.32</td>
+<td>—</td>
+</tr>
+<tr>
+<td>02_LDA.Rmd</td>
+<td>Success</td>
+<td>23.81</td>
+<td>—</td>
+</tr>
+<tr>
+<td>03_kNN.Rmd</td>
+<td>Success</td>
+<td>305.37</td>
+<td>—</td>
+</tr>
+<tr>
+<td>04_SVM.Rmd</td>
+<td>Success</td>
+<td>2944.10</td>
+<td>—</td>
+</tr>
+<tr>
+<td>05_DecisionTree.Rmd</td>
+<td>Success</td>
+<td>37.89</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>运行平台信息依据 <code>detected_environment.json</code> 和各
+<code>results/&lt;model&gt;/sessionInfo.txt</code> /
+<code>package_manifest.csv</code>。Rscript：<code>C:\Program Files\R\R-4.6.1\bin\Rscript.exe</code>。包与版本以本次各运行导出为准，不能仅因沿用机器就假设版本不变。</p>
+<p>R version 4.6.1 (2026-06-24 ucrt)；Platform:
+x86_64-w64-mingw32/x64；Running under: Windows 10 x64 (build 19045)</p>
+<table>
+<thead>
+<tr>
+<th>相关包</th>
+<th>v2版本</th>
+<th>与旧版版本/构建/路径一致</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rmarkdown</td>
+<td>2.32</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>knitr</td>
+<td>1.52</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>nnet</td>
+<td>7.3-20</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>MASS</td>
+<td>7.3-65</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>rpart</td>
+<td>4.1.27</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>ggplot2</td>
+<td>4.0.3</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>FNN</td>
+<td>1.1.4.1</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>e1071</td>
+<td>1.7-17</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>proxy</td>
+<td>0.4-29</td>
+<td>已核实</td>
+</tr>
+</tbody>
+</table>
+<p>独立评估运行环境：Python
+<code>3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]</code>；NumPy
+<code>2.3.2</code>；Pandas <code>2.3.2</code>。bootstrap RNG为NumPy
+default_rng/PCG64，逐模型配对重置seed。</p>
+<p>耗时包含模型搜索、最终拟合、输出及 HTML
+render；若同时运行，受到资源竞争影响，不构成严格的算法速度基准。对象大小不等于进程峰值内存。</p>
+<h2 id="数据种子与共享行身份">3. 数据、种子与共享行身份</h2>
+<p>共享输入：<code>C:\Users\Saberken\Documents\ChatGPT\5003_A1_A2\STAT5003_A2_Corrected_FY2021_v2_20261026\WVS_Wave7_cleaned_for_modelling.csv</code>；95987
+行。完整原始数据列数为519，模型只读取约定源列，未因映射修正增删受访者。独立数据完整性：<strong>已核实</strong>。</p>
+<p>SHA-256：<code>ee392676dbb42dde0ea74ebf643862f3900e7d13a7aa03842ed2d7665ac98ee0</code>；MD5：<code>98bf573170f0cb6bd65a4e9a8070d4d8</code>。对照共享预期哈希及全部
+Q279 标签，均以 <code>independent/evaluation_summary.json</code>
+为准。</p>
+<p>本次新建 reference split 与旧版不可变 reference
+逐行一致：<strong>已核实</strong>。主数字种子5003；outer
+80/20使用5003，内部75/25使用5005；baseline随机预测5004；训练 cap
+抽样5006。</p>
+<p>共享初始
+Train=57,587、Validation=19,199、Test=19,201，最终80%重拟合=76,786。Logistic候选只用24,996条、SVM候选只用9,997条；两者均须来自共同初始Train。Logistic局部dev_id被cap替换，原始Train由不变Validation的补集独立恢复，不能误称共享划分不同。</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th>模型</th>
+<th>Test行/标签</th>
+<th>数字种子</th>
+<th>物理CSV+MD5</th>
+<th>全部所需split</th>
+<th>实际Income map</th>
+<th>本次源码未变</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logistic</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>LDA</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+<td>已核实</td>
+</tr>
+</tbody>
+</table>
+<p>逐partition的实际/预期行数及有序ID SHA256见
+<code>../split_integrity_report.csv</code>（27行）。计数一致不是身份一致的替代证据。</p>
+<h2 id="fy2021-映射版本和修正边界">4. FY2021 映射、版本和修正边界</h2>
+<p>记录的原始仓库base
+commit：<code>9b3db1d3207d9af492af0099848248cee73df918</code>。本v2为隔离文件副本，以各Rmd
+SHA256及完整diff标识，不声称创建新Git
+commit；原始仓库状态保护以主流程manifest为准。</p>
+<p>依据World Bank历史工作簿 <code>Country Analytical History</code>
+的FY21列（AI5=FY21；AI6标注2019
+GNI数据年），而不是当前年度分类。官方经济体名称为来源标签。Northern
+Ireland没有独立工作簿条目，按United
+Kingdom继承High；这项明确假设保持不变。</p>
+<p>来源：<a
+href="https://ddh-openapi.worldbank.org/resources/DR0095334/download">World
+Bank历史分类工作簿</a>、<a
+href="https://blogs.worldbank.org/en/opendata/new-world-bank-country-classifications-income-level-2020-2021">FY2021发布说明</a>、<a
+href="https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups">分类说明页</a>。下载文件、哈希、官方单元格和提取记录均保存在
+<code>../source_evidence/</code>，报告使用已验证的本地证据。</p>
+<table>
+<thead>
+<tr>
+<th>国家代码</th>
+<th>旧组</th>
+<th>FY2021 v2</th>
+<th>影响CSV行数</th>
+<th>官方单元格</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MDV</td>
+<td>High</td>
+<td>Upper-middle</td>
+<td>1019</td>
+<td>AI128</td>
+</tr>
+<tr>
+<td>ROU</td>
+<td>Upper-middle</td>
+<td>High</td>
+<td>1198</td>
+<td>AI167</td>
+</tr>
+<tr>
+<td>TWN</td>
+<td>Unclassified</td>
+<td>High</td>
+<td>1223</td>
+<td>AI197</td>
+</tr>
+<tr>
+<td>UKR</td>
+<td>Upper-middle</td>
+<td>Lower-middle</td>
+<td>1266</td>
+<td>AI211</td>
+</tr>
+<tr>
+<td>VEN</td>
+<td>Unclassified</td>
+<td>Upper-middle</td>
+<td>1187</td>
+<td>AI218</td>
+</tr>
+</tbody>
+</table>
+<p>共改变5个代码、5893行的Income_Group值。六文件源码覆盖66代码（65条官方分类匹配，加1条NIR继承假设），一致性：<strong>已核实</strong>。TWN和VEN分别采用官方High与Upper-middle；Unclassified当前无国家，但保留原factor
+levels以避免附带改变编码契约。</p>
+<p>Logistic
+MAXIT从250增加到2000，目标是达到既有优化问题的收敛条件；weight
+decay、三种spec、cap、Validation选优顺序保持约定。仅根据训练/验证
+preflight确认迭代上限，不利用 Test 选择。</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>文件</th>
+<th>v2 SHA256</th>
+<th>原始SHA256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>baseline.Rmd</td>
+<td><code>8d344a2dc81a34868b81e0562a60f405c8eda3e83aa00288abc01532d8c9ab87</code></td>
+<td><code>d2ce36360dfd74df07f894d04e9ace61448f9ed850543b2db9620c1e140e5efb</code></td>
+</tr>
+<tr>
+<td>01_MultinomialLogisticRegression.Rmd</td>
+<td><code>516d23f073cfff3ded7a107a9d6cbc6904e937cf33bd470bff4789be78364141</code></td>
+<td><code>9dc52ee768e723e349236bf4d3e16fb44b0d9f3210324ee352f3317416bec729</code></td>
+</tr>
+<tr>
+<td>02_LDA.Rmd</td>
+<td><code>f2d9d22cabaa105329de1ad0688887b98749016309bbfcfc34074a5e48cc6c8f</code></td>
+<td><code>d5e5e045ad62da4b31d70f567098693b81c6dd7d5aaf27410b1f20e035c2b1a1</code></td>
+</tr>
+<tr>
+<td>03_kNN.Rmd</td>
+<td><code>9d228929e8887f8855a04b6dcf902c6936ec2cc1822e53ac9d7b97e216d622b0</code></td>
+<td><code>e0c45c31cfacb4c1ca5c215db54d995ccd9527cb58f9cef63d7c48b11aa31a18</code></td>
+</tr>
+<tr>
+<td>04_SVM.Rmd</td>
+<td><code>55a4c54dce1ae72cc1ec6b213147b9ff8677b8ccf803bf3a6ece84849eec2814</code></td>
+<td><code>c420c78bd90c22ad5a6fd9d4cc66de12993463ae28373db83def9111024e07a8</code></td>
+</tr>
+<tr>
+<td>05_DecisionTree.Rmd</td>
+<td><code>0f9740f70cb5222054e54db3f10056d95e2b71ba39aab09aed21cf3eb5747995</code></td>
+<td><code>ed013bf1480eb9a307f44e4aa7ae50f35b47a7443be4110c18f9e41522129442</code></td>
+</tr>
+</tbody>
+</table>
+<p>完整逐行diff见
+<code>../independent/v2_source_diffs/</code>；这些diff是可审阅证据，不代表原始仓库被编辑。原始仓库、原CSV和
+<code>original_sources/</code>
+的前后保护验证由主执行流程单独保存，提交前应与其最终manifest一起核对。</p>
+<h2 id="独立-test-指标与新基准差值">5. 独立 Test 指标与新基准差值</h2>
+<p>从正式输出的逐行 <code>row_id, truth, prediction</code>
+独立构造8×8混淆矩阵；固定上述八类顺序，缺少预测/分母为零的Precision、Recall、F1按0处理。Macro指标包含全部八类；Weighted
+F1用真实support加权。以下Δ均为<strong>本次新版本Macro
+F1差</strong>，不是百分比改善率。</p>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+</colgroup>
+<thead>
+<tr>
+<th>模型</th>
+<th>状态</th>
+<th>Macro F1</th>
+<th>Weighted F1</th>
+<th>Accuracy</th>
+<th>Δ新Majority</th>
+<th>Δ新Logistic</th>
+<th>Validation F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Majority</td>
+<td>Success</td>
+<td>0.066749</td>
+<td>0.194509</td>
+<td>0.364252</td>
+<td>+0.000000</td>
+<td>-0.284165</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Prior random</td>
+<td>Success</td>
+<td>0.129382</td>
+<td>0.209011</td>
+<td>0.209052</td>
+<td>+0.062633</td>
+<td>-0.221532</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Logistic</td>
+<td>Success</td>
+<td>0.350914</td>
+<td>0.471159</td>
+<td>0.530858</td>
+<td>+0.284165</td>
+<td>+0.000000</td>
+<td>0.353359</td>
+</tr>
+<tr>
+<td>LDA</td>
+<td>Success</td>
+<td>0.340672</td>
+<td>0.461671</td>
+<td>0.514817</td>
+<td>+0.273923</td>
+<td>-0.010242</td>
+<td>0.339464</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>Success</td>
+<td>0.339867</td>
+<td>0.457148</td>
+<td>0.502943</td>
+<td>+0.273118</td>
+<td>-0.011047</td>
+<td>0.342990</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>Success</td>
+<td>0.377763</td>
+<td>0.454392</td>
+<td>0.462476</td>
+<td>+0.311013</td>
+<td>+0.026849</td>
+<td>0.365181</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>Success</td>
+<td>0.335269</td>
+<td>0.461998</td>
+<td>0.527108</td>
+<td>+0.268520</td>
+<td>-0.015645</td>
+<td>0.339115</td>
+</tr>
+</tbody>
+</table>
+<p>全精度数值见 <code>../model_comparison.csv</code>。Macro
+Precision和Macro Recall见
+<code>../independent/all_metrics.csv</code>；逐类全部精度/召回/F1/support/预测数见
+<code>../per_class_comparison.csv</code>；完整矩阵和少数类错误去向见
+<code>../independent/all_confusion_matrices.csv</code> 与
+<code>minority_error_flows.csv</code>。</p>
+<p>独立结果与Rmd已计算输出的比较共有196项，核验表为
+<code>../independent/metric_verification.csv</code>。总指标比较容差1e-12；原逐类表若四舍五入4位，容许误差至0.00005；最终排名使用独立未舍入值。</p>
+<p>评估工具经只读同行复核，见
+<code>../independent/evaluator_v2_peer_review.md</code>；数学、异常输入和Ready状态夹具已检查。同行复核时SVM尚未完成，因此不把这份阶段性复核说成对后来SVM数值的第二次独立认证；最终SVM按同一脚本正常核验。</p>
+<h2 id="旧版与新版配对变化">6. 旧版与新版：配对变化</h2>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>旧Macro F1</th>
+<th>新Macro F1</th>
+<th>Δ新−旧</th>
+<th>不同Test预测数</th>
+<th>配对身份</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Majority</td>
+<td>0.066749</td>
+<td>0.066749</td>
+<td>+0.000000</td>
+<td>0</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>Prior random</td>
+<td>0.129382</td>
+<td>0.129382</td>
+<td>+0.000000</td>
+<td>0</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>Logistic</td>
+<td>0.353107</td>
+<td>0.350914</td>
+<td>-0.002193</td>
+<td>485</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>LDA</td>
+<td>0.340248</td>
+<td>0.340672</td>
+<td>+0.000424</td>
+<td>546</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>0.341888</td>
+<td>0.339867</td>
+<td>-0.002020</td>
+<td>1126</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>0.380130</td>
+<td>0.377763</td>
+<td>-0.002367</td>
+<td>1200</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>0.333168</td>
+<td>0.335269</td>
+<td>+0.002101</td>
+<td>568</td>
+<td>已核实</td>
+</tr>
+</tbody>
+</table>
+<p>旧分数来自旧版已核验的原始预测，并重新检查相同Test行/标签与旧CSV数值。旧Logistic最终convergence=1，其旧分数可描述既有预测，但不代表优化完成的线性基准。v2是映射与收敛控制同时变化后的总版本比较，缺少只改单项的对照组，不能作单项因果归因。</p>
+<h2 id="优化候选网格与算法限制">7. 优化、候选网格与算法限制</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>模型</th>
+<th>候选数/约定数</th>
+<th>已选配置</th>
+<th>优化/状态证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logistic</td>
+<td>6 / 6</td>
+<td>Spec=extended_linear; Decay=0.01</td>
+<td>全部候选convergence=0：已核实；最终code=0</td>
+</tr>
+<tr>
+<td>LDA</td>
+<td>6 / 6</td>
+<td>Specification=extended_linear; Prior=empirical</td>
+<td>见运行日志、候选表和数值检查</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>54 / 54</td>
+<td>Spec=extended_linear; k=21; Weighting=distance</td>
+<td>见运行日志、候选表和数值检查</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>48 / 48</td>
+<td>Spec=extended; Kernel=radial; Cost=1; Gamma=0.217391304347826;
+Weight=inverse</td>
+<td>全部candidate status=ok：已核实</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>54 / 54</td>
+<td>Spec=extended_linear; cp=5e-04; maxdepth=8; minsplit=100</td>
+<td>见运行日志、候选表和数值检查</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><strong>Logistic：</strong> 3 specs×2 decay=6；candidate
+cap24,996；最终80%重拟合必须convergence=0。收敛码通过并不证明模型假设正确，也不是统计不确定性的估计。</p></li>
+<li><p><strong>LDA：</strong> 3 specs×2
+priors=6；保留既有零方差/线性相关处理与共享协方差方法。分类类别prior和feature规格由Validation选择；连续多元正态与共同协方差仍是近似假设，分类dummy不满足严格连续正态。</p></li>
+<li><p><strong>kNN：</strong> 3 specs×9 k×2
+weighting=54；全部水平one-hot，dummy乘1/√2，类别不匹配贡献平方距离1；数值缩放仅由拟合分区估计。原平局函数保留；旧版已选distance-k21无实际tie影响的结论不能自动转移为新版结论，新版以所选参数/实际预测为准。</p></li>
+<li><p><strong>SVM：</strong>
+既有48候选，线性/radial、cost/gamma和权重规则不改；候选cap9,997；记录实际P和gamma、inverse
+class
+weights、fit状态及cache签名。新目录避免复用旧版Test输出，不能把旧缓存误记为本次完整拟合。</p></li>
+<li><p><strong>Tree：</strong>
+54候选，Gini，cp/maxdepth/minsplit按既定网格；<code>xval=0</code>，实际是单次holdout
+Validation，不是CV。展示用剪枝图若存在，不是正式评估模型；最终完整树和其重拟合复杂度应以本次model
+bundle与RUN_SUMMARY为准。</p></li>
+</ul>
+<p>从正式导出的完整树rules独立数得：最终31节点、16叶、最大深度8；被选中的Validation拟合有21叶。两者是不同训练样本上的拟合，不能混用叶数。展示剪枝文件存在：False。</p>
+<h2 id="少数类预测分布与错误流向">8. 少数类、预测分布与错误流向</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>类别</th>
+<th>Logistic Recall</th>
+<th>LDA Recall</th>
+<th>kNN Recall</th>
+<th>SVM Recall</th>
+<th>Tree Recall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full-time</td>
+<td>0.7835</td>
+<td>0.7358</td>
+<td>0.7376</td>
+<td>0.4099</td>
+<td>0.7811</td>
+</tr>
+<tr>
+<td>Part-time</td>
+<td>0.0000</td>
+<td>0.0018</td>
+<td>0.0320</td>
+<td>0.1300</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>Self-employed</td>
+<td>0.1625</td>
+<td>0.1687</td>
+<td>0.1778</td>
+<td>0.2912</td>
+<td>0.2116</td>
+</tr>
+<tr>
+<td>Retired</td>
+<td>0.7434</td>
+<td>0.7508</td>
+<td>0.7078</td>
+<td>0.7939</td>
+<td>0.7641</td>
+</tr>
+<tr>
+<td>Housewife</td>
+<td>0.6291</td>
+<td>0.5844</td>
+<td>0.5765</td>
+<td>0.7131</td>
+<td>0.5640</td>
+</tr>
+<tr>
+<td>Student</td>
+<td>0.6543</td>
+<td>0.7190</td>
+<td>0.5771</td>
+<td>0.8271</td>
+<td>0.7030</td>
+</tr>
+<tr>
+<td>Unemployed</td>
+<td>0.0873</td>
+<td>0.1062</td>
+<td>0.0853</td>
+<td>0.2064</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>Other</td>
+<td>0.0000</td>
+<td>0.0043</td>
+<td>0.0000</td>
+<td>0.1034</td>
+<td>0.0000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>模型</th>
+<th>Part-time预测数/Recall</th>
+<th>Unemployed预测数/Recall</th>
+<th>Other预测数/Recall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logistic</td>
+<td>0 / 0.0000</td>
+<td>414 / 0.0873</td>
+<td>0 / 0.0000</td>
+</tr>
+<tr>
+<td>LDA</td>
+<td>5 / 0.0018</td>
+<td>538 / 0.1062</td>
+<td>6 / 0.0043</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>356 / 0.0320</td>
+<td>460 / 0.0853</td>
+<td>19 / 0.0000</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>1192 / 0.1300</td>
+<td>1365 / 0.2064</td>
+<td>507 / 0.1034</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>0 / 0.0000</td>
+<td>0 / 0.0000</td>
+<td>0 / 0.0000</td>
+</tr>
+</tbody>
+</table>
+<p>Logistic：从不预测的类别为Part-time,
+Other；精确零召回类别为Part-time, Other。</p>
+<p>LDA：从不预测的类别为无；精确零召回类别为无。</p>
+<p>kNN：从不预测的类别为无；精确零召回类别为Other。</p>
+<p>SVM：从不预测的类别为无；精确零召回类别为无。</p>
+<p>Tree：从不预测的类别为Part-time, Unemployed,
+Other；精确零召回类别为Part-time, Unemployed, Other。</p>
+<p>少数类旧→新变化如下；它们是整体版本变化的描述，不能从中孤立估计映射修正的作用。</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>模型</th>
+<th>类别</th>
+<th>旧Recall→新Recall</th>
+<th>ΔRecall</th>
+<th>旧F1→新F1</th>
+<th>旧预测数→新预测数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logistic</td>
+<td>Part-time</td>
+<td>0.0000 → 0.0000</td>
+<td>+0.0000</td>
+<td>0.0000 → 0.0000</td>
+<td>0 → 0</td>
+</tr>
+<tr>
+<td>Logistic</td>
+<td>Unemployed</td>
+<td>0.0886 → 0.0873</td>
+<td>-0.0014</td>
+<td>0.1381 → 0.1364</td>
+<td>419 → 414</td>
+</tr>
+<tr>
+<td>Logistic</td>
+<td>Other</td>
+<td>0.0000 → 0.0000</td>
+<td>+0.0000</td>
+<td>0.0000 → 0.0000</td>
+<td>0 → 0</td>
+</tr>
+<tr>
+<td>LDA</td>
+<td>Part-time</td>
+<td>0.0006 → 0.0018</td>
+<td>+0.0012</td>
+<td>0.0012 → 0.0036</td>
+<td>3 → 5</td>
+</tr>
+<tr>
+<td>LDA</td>
+<td>Unemployed</td>
+<td>0.1076 → 0.1062</td>
+<td>-0.0014</td>
+<td>0.1577 → 0.1558</td>
+<td>538 → 538</td>
+</tr>
+<tr>
+<td>LDA</td>
+<td>Other</td>
+<td>0.0043 → 0.0043</td>
+<td>+0.0000</td>
+<td>0.0084 → 0.0084</td>
+<td>6 → 6</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>Part-time</td>
+<td>0.0320 → 0.0320</td>
+<td>+0.0000</td>
+<td>0.0529 → 0.0527</td>
+<td>351 → 356</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>Unemployed</td>
+<td>0.0853 → 0.0853</td>
+<td>+0.0000</td>
+<td>0.1300 → 0.1300</td>
+<td>461 → 460</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>Other</td>
+<td>0.0000 → 0.0000</td>
+<td>+0.0000</td>
+<td>0.0000 → 0.0000</td>
+<td>21 → 19</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>Part-time</td>
+<td>0.1457 → 0.1300</td>
+<td>-0.0157</td>
+<td>0.1679 → 0.1511</td>
+<td>1217 → 1192</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>Unemployed</td>
+<td>0.2064 → 0.2064</td>
+<td>+0.0000</td>
+<td>0.2150 → 0.2146</td>
+<td>1359 → 1365</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>Other</td>
+<td>0.0991 → 0.1034</td>
+<td>+0.0043</td>
+<td>0.0627 → 0.0650</td>
+<td>502 → 507</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>Part-time</td>
+<td>0.0000 → 0.0000</td>
+<td>+0.0000</td>
+<td>0.0000 → 0.0000</td>
+<td>0 → 0</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>Unemployed</td>
+<td>0.0000 → 0.0000</td>
+<td>+0.0000</td>
+<td>0.0000 → 0.0000</td>
+<td>0 → 0</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>Other</td>
+<td>0.0000 → 0.0000</td>
+<td>+0.0000</td>
+<td>0.0000 → 0.0000</td>
+<td>0 → 0</td>
+</tr>
+</tbody>
+</table>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>模型</th>
+<th>真实少数类</th>
+<th>最多的两个错误去向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logistic</td>
+<td>Part-time</td>
+<td>Full-time: 988 (59.7% of support); Housewife: 258 (15.6% of
+support)</td>
+</tr>
+<tr>
+<td>Logistic</td>
+<td>Unemployed</td>
+<td>Full-time: 636 (43.0% of support); Housewife: 245 (16.6% of
+support)</td>
+</tr>
+<tr>
+<td>Logistic</td>
+<td>Other</td>
+<td>Full-time: 125 (53.9% of support); Retired: 38 (16.4% of
+support)</td>
+</tr>
+<tr>
+<td>LDA</td>
+<td>Part-time</td>
+<td>Full-time: 900 (54.4% of support); Housewife: 228 (13.8% of
+support)</td>
+</tr>
+<tr>
+<td>LDA</td>
+<td>Unemployed</td>
+<td>Full-time: 520 (35.2% of support); Student: 330 (22.3% of
+support)</td>
+</tr>
+<tr>
+<td>LDA</td>
+<td>Other</td>
+<td>Full-time: 106 (45.7% of support); Retired: 44 (19.0% of
+support)</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>Part-time</td>
+<td>Full-time: 887 (53.6% of support); Housewife: 274 (16.6% of
+support)</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>Unemployed</td>
+<td>Full-time: 622 (42.1% of support); Housewife: 242 (16.4% of
+support)</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>Other</td>
+<td>Full-time: 113 (48.7% of support); Retired: 40 (17.2% of
+support)</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>Part-time</td>
+<td>Housewife: 345 (20.9% of support); Full-time: 269 (16.3% of
+support)</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>Unemployed</td>
+<td>Student: 313 (21.2% of support); Housewife: 270 (18.3% of
+support)</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>Other</td>
+<td>Retired: 42 (18.1% of support); Full-time: 36 (15.5% of
+support)</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>Part-time</td>
+<td>Full-time: 980 (59.3% of support); Housewife: 215 (13.0% of
+support)</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>Unemployed</td>
+<td>Full-time: 705 (47.7% of support); Student: 250 (16.9% of
+support)</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>Other</td>
+<td>Full-time: 134 (57.8% of support); Retired: 38 (16.4% of
+support)</td>
+</tr>
+</tbody>
+</table>
+<p>零召回与从不预测必须分开：Predicted_Count&gt;0且Recall=0意味着所有该类预测均为假阳性。类别不平衡、特征重叠、类别定义的跨国差异或算法限制是可能解释，但这里没有识别单一原因的因果设计；不能仅凭低召回指责预处理。比较precision/accuracy
+trade-off时应同时引用逐类表。</p>
+<h2 id="评估不确定性">9. 评估不确定性</h2>
+<p>本次按已拟合模型做paired Test-row bootstrap，5000次，evaluation-only
+seed=20261026。每对模型用相同被重抽受访者，joint-pattern
+multinomial与逐行有放回抽样等价；逐对重置相同seed便于重算。</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>比较A−B</th>
+<th>ΔMacro F1</th>
+<th>95% percentile CI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>v2:LDA − v2:Multinomial Logistic Regression</td>
+<td>-0.010242</td>
+<td>[-0.014217, -0.006066]</td>
+</tr>
+<tr>
+<td>v2:kNN − v2:Multinomial Logistic Regression</td>
+<td>-0.011047</td>
+<td>[-0.017237, -0.005129]</td>
+</tr>
+<tr>
+<td>v2:SVM − v2:Multinomial Logistic Regression</td>
+<td>+0.026849</td>
+<td>[+0.020230, +0.033362]</td>
+</tr>
+<tr>
+<td>v2:Decision Tree − v2:Multinomial Logistic Regression</td>
+<td>-0.015645</td>
+<td>[-0.020080, -0.011190]</td>
+</tr>
+<tr>
+<td>v2:Training-majority − v1:Training-majority</td>
+<td>+0.000000</td>
+<td>[+0.000000, +0.000000]</td>
+</tr>
+<tr>
+<td>v2:Training-prior random − v1:Training-prior random</td>
+<td>+0.000000</td>
+<td>[+0.000000, +0.000000]</td>
+</tr>
+<tr>
+<td>v2:Multinomial Logistic Regression − v1:Multinomial Logistic
+Regression</td>
+<td>-0.002193</td>
+<td>[-0.003802, -0.000575]</td>
+</tr>
+<tr>
+<td>v2:LDA − v1:LDA</td>
+<td>+0.000424</td>
+<td>[-0.001200, +0.002147]</td>
+</tr>
+<tr>
+<td>v2:kNN − v1:kNN</td>
+<td>-0.002020</td>
+<td>[-0.004467, +0.000421]</td>
+</tr>
+<tr>
+<td>v2:SVM − v1:SVM</td>
+<td>-0.002367</td>
+<td>[-0.004986, +0.000314]</td>
+</tr>
+<tr>
+<td>v2:Decision Tree − v1:Decision Tree</td>
+<td>+0.002101</td>
+<td>[+0.000681, +0.003561]</td>
+</tr>
+</tbody>
+</table>
+<p>区间仅conditional on本次固定训练/选择结果与split，按individual
+iid抽样，未纳入国家聚类、训练与调参不确定性；多个区间未作多重比较校正，作为描述性证据。不能据Test区间重新调参或从旧/新结果中择优提交，旧/新配对变化也不是映射单项效果的因果检验。</p>
+<h2 id="现存局限与提交前优先事项">10. 现存局限与提交前优先事项</h2>
+<ol type="1">
+<li><p><strong>P0：仅纳入本次完整且核验通过的正式结果。</strong>
+若仍有Pending、失败、缺失导出、split不一致或非零convergence，先解决对应证据，不填入旧数值。禁止利用已看到的Test结果追加网格搜索。</p></li>
+<li><p><strong>P1：最终整合只使用本次结果。</strong>
+LDA和SVM保留的旧数字段已明确标为Legacy
+pre-correction，不应误报为未披露的v2错误；也不能把这些provenance段复制成v2结论。选中配置、Logistic优化状态、Tree零召回/零预测及minority表现均引用本次逐行指标，明确所有Δ基于新Majority和新Logistic。</p></li>
+<li><p><strong>P1：保留完整版本与来源证据。</strong>
+统一引用FY2021及NIR继承假设，附六份源码diff/哈希、实际运行map、数据hash、package/session、候选和预测文件。最终将主流程的原仓库与original_sources前后保护manifest一并归档。</p></li>
+<li><p><strong>P2：准确界定结论。</strong>
+单一固定Validation存在选优偏差，训练cap不同；单一Test仅估计当前个体随机holdout，不代表未见国家、未来年度或加权总体估计。已有Test结果已被团队看到，所以它不保证对研究者完全未见。v2仅一次正式运行，不声称新版本重复执行验证。</p></li>
+<li><p><strong>P2：披露A1原有众数处理。</strong> A1在A2
+split之前众数填补带来原则上的无监督预处理泄漏风险；前次审计曾核对被选变量的整体/训练众数一致，这使已选流程的实际影响较小，但不是删除风险披露的理由。v2共享CSV未重建，也没有声称消除该风险；没有直接目标作为预测变量的证据。</p></li>
+</ol>
+<h2 id="当前异常与缺失证据">11. 当前异常与缺失证据</h2>
+<p>独立评估未发现未解决的执行/契约/指标异常。原始资料保护及额外运行诊断仍以主执行流程的最终证据为准。</p>
+<h2 id="交付文件与最终判断">12. 交付文件与最终判断</h2>
+<ul>
+<li><p><code>../model_comparison.csv</code>：本次七个模型/基准的完整精度分数与新基准差值。</p></li>
+<li><p><code>../per_class_comparison.csv</code>、<code>../split_integrity_report.csv</code>、<code>../old_vs_new_comparison.csv</code>：逐类、行身份和旧新配对比较。</p></li>
+<li><p><code>../independent/</code>：完整混淆、错误流向、原计算比较、map/source检查、bootstrap和机器可读summary。</p></li>
+<li><p><code>../results/&lt;model&gt;/</code>、<code>../execution_logs/</code>：各自一次正式render、实际预测、模型输出、runtime和环境。</p></li>
+<li><p><code>../original_sources/</code>、<code>../source_evidence/</code>：未改动原稿与官方来源证据。</p></li>
+</ul>
+<p><strong>Ready with minor corrections：可整合 v2
+正式报告，保留以下局限和提交前文字核对。</strong></p>
+<h2 id="主执行流程补充核验">主执行流程补充核验</h2>
+<h2
+id="附录冻结源码数据与执行对象的最终复核">附录：冻结源码、数据与执行对象的最终复核</h2>
+<p>本附录只观察已保存对象，没有重新拟合模型、追加Test评分或改变候选选择。</p>
+<ul>
+<li>六份正式执行均成功；每一份执行副本在运行前后都与本目录冻结源文件逐字节一致。原仓库完整非Git文件集、SHA-256、HEAD、main和clean状态与运行前相同，original_sources与原像相同；旧审计六项主要交付物也与旧散列清单一致。证据：environment/all_six_source_contract.json。</li>
+<li>R原生可执行AST比对只允许FY2021映射、明确列出的显示文字，以及Logistic迭代上限和收敛gate；所有函数、种子、切分、cap、features、class
+weights、kernel/formula及候选/排序逻辑均保留。完整差异见environment/source_changes.diff。</li>
+<li>无Income_Group的102个Validation候选新旧Macro F1、Weighted
+F1、Accuracy最大差均为0。该控制仅读取候选表，未额外拟合或评价Test；详见independent/no_income_control_comparison.md。</li>
+<li>独立重算138项median/filled mean/sample
+SD参数，失败0，最大绝对差2.22e-16。SVM
+class-weight检查32项，失败0。相关runtime_contract文件保存在independent。</li>
+<li>LDA最终保留39列，独立within-class rank=39，pooled
+covariance最小特征值0.0041311547；数值满秩不等于已证明Gaussian或相同类内协方差假设。</li>
+<li>SVM实际native
+kernel=radial、C=1、gamma=0.21739130434782608，scaling全部关闭，probability
+flag=False；support
+vectors=67060，全部indices只属于共同80%训练pool。保存对象未保留native
+class.weights时不假称直接恢复该字段；权重依据独立公式、原helper结果和源调用核对。</li>
+<li>Logistic训练内预检与正式运行的selected spec/decay、六行Validation
+ranking、拟合row
+IDs、最终目标函数及全部weights完全一致，weights最大差0；两次final
+convergence均为0。预检没有Test预测，正式Test只按冻结源文件评价一次。2000是迭代上限，并非声称每个模型实际执行了2000步。</li>
+<li>包版本、build和library路径与旧审计九个关键包全部匹配。运行耗时受并行任务、文件缓存和本机负载影响，属于观察到的工程成本，不是控制条件下的算法速度实验。</li>
+</ul>
+<p>输入完整性：</p>
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 40%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th>文件</th>
+<th style="text-align: right;">bytes</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WVS_Wave7_cleaned_for_modelling.csv</td>
+<td style="text-align: right;">171923121</td>
+<td>ee392676dbb42dde0ea74ebf643862f3900e7d13a7aa03842ed2d7665ac98ee0</td>
+</tr>
+<tr>
+<td>WVS_Cross-National_Wave_7_rds_v6_0.csv</td>
+<td style="text-align: right;">279494669</td>
+<td>a20fd7653d1fbcff1014449990a5346c2fb3a994e076fed9e611dd364cb10822</td>
+</tr>
+</tbody>
+</table>
+<p>共享CSV内容未变，收入分组只在六份Rmd运行时按更正表生成。先前A1
+selected11列lineage及五种fitting
+partitions的六分类mode一致性证据副本位于source_evidence/prior_audit_raw_lineage_*；本轮没有重做A1全519列pipeline。</p>
+<p>源Rmd中的旧固定数字均有Legacy标识，仅供溯源。新版结论以本次生成的表、独立预测核验和新报告为准。全五模型本轮只有一轮正式执行，不能把Logistic训练预检说成全模型第二轮Test复现。</p>
+</body>
+</html>

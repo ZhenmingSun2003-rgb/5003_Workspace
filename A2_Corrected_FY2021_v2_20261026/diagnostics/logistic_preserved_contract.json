@@ -1,0 +1,11 @@
+{
+  "preprocessing_recipe_byte_equivalent_after_newline_decode": true,
+  "evaluation_metrics_formulas_feature_specs_unchanged": true,
+  "split_cap_and_validation_data_construction_unchanged": true,
+  "final_recipe_X_train_X_test_multinom_call_unchanged": true,
+  "SEED_unchanged": true,
+  "TRAIN_FRACTION_unchanged": true,
+  "DEV_CAP_unchanged": true,
+  "MAXIT_2000": true,
+  "all_checks_pass": true
+}

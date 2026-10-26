@@ -1,0 +1,67 @@
+--- original_sources/05_DecisionTree.Rmd
++++ 05_DecisionTree.Rmd
+@@ -33,7 +33,7 @@
+ # Split + metric functions below are copied verbatim from baseline.Rmd.
+ # Preprocessing follows the logistic file, including fit-only medians/scaling.
+ # Trees do not require scaling; it is retained for the shared recipe contract.
+-# Income_Group uses the SAME provisional mapping, not an independently audited one.
++# Income_Group uses the SAME verified FY2021 mapping; NIR explicitly inherits UK High.
+ # A1 already imputed the whole CSV: inherited leakage remains a limitation.
+ # Do not claim raw missingness is zero or claim unseen-country generalisation.
+ 
+@@ -254,15 +254,15 @@
+ wvs$Outcome <- factor(as.character(wvs$Q279), levels = TARGET_LEVELS, labels = TARGET_LABELS)
+ WB_GROUPS <- list(
+   Low = c("ETH", "TJK"),
+-  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR",
+-                     "MNG", "NGA", "NIC", "PAK", "PHL", "TUN", "UZB", "VNM", "ZWE"),
+-  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN",
+-                     "IRN", "IRQ", "JOR", "KAZ", "LBN", "LBY", "MEX", "MYS",
+-                     "PER", "ROU", "RUS", "SRB", "THA", "TUR", "UKR"),
+-  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC",
+-           "HKG", "JPN", "KOR", "MAC", "MDV", "NIR", "NLD", "NZL", "PRI",
+-           "SGP", "SVK", "URY", "USA"),
+-  Unclassified = c("TWN", "VEN")
++  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
++                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
++  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
++                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
++                     "RUS", "SRB", "THA", "TUR", "VEN"),
++  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
++           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
++           "USA"),
++  Unclassified = character(0)
+ )
+ country_group <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                           unlist(WB_GROUPS, use.names = FALSE))
+@@ -379,7 +379,7 @@
+ 
+ # Predetermined search; no candidate is selected by looking at Test scores.
+ # Core and extended match the logistic feature sets. The third set isolates
+-# the contribution of the provisional country-income proxy within extended.
++# the contribution of the fixed FY2021 country-income proxy within extended.
+ # Quadratic age is omitted: a tree already makes nonlinear age partitions.
+ SPECIFICATIONS <- list(
+   core_linear = c("Age", "Age_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket"),
+@@ -511,7 +511,7 @@
+   "All candidates used the full 60% Train. No development subsampling and no CV.",
+   "Single holdout Validation selects configuration; Test is not used for selection.",
+   "Inherited limitation: A1 mode imputation used the whole CSV before this split.",
+-  "Income_Group follows the shared provisional map; historical entries require audit.",
++  "Income_Group follows the verified frozen FY2021 map; NIR explicitly inherits UK High.",
+   "Raw missingness audit is optional and skipped unless STAT5003_RAW_PATH is set.",
+   "Descriptive IQR flags are not invalid-value decisions; no observations were removed.",
+   "The illustrative pruned plot, if present, is not the evaluated full model.",
+@@ -556,9 +556,11 @@
+ 
+ ## Interpretation and limitations
+ 
++> **Legacy pre-correction interpretation:** the fixed zero-prediction claim below belongs to the original map; consult newly generated class counts and recall for the corrected run.
++
+ Inspect the per-class results alongside Macro F1: the tested configuration does not predict Part-time, Unemployed or Other, giving zero recall for these classes. The fitted leaf decisions favour the remaining classes. Class imbalance and insufficient separation under the selected features and tree constraints are plausible contributing factors; the results do not establish a single cause.
+ 
+-The shared A1 CSV was already imputed before splitting, so this analysis avoids additional fitted-preprocessing leakage but cannot remove the inherited risk. The country-income mapping is provisional and requires independent verification. Original missingness cannot be reconstructed from the imputed CSV; the optional audit is skipped unless original data are supplied. Random individual-level holdout does not establish performance in unseen countries or future years. This document is a model contribution to the group report, not the complete final submission.
++The shared A1 CSV was already imputed before splitting, so this analysis avoids additional fitted-preprocessing leakage but cannot remove the inherited risk. The country-income mapping is verified against the frozen FY2021 historical table; it is not survey-year-specific and NIR inherits UK High. Original missingness cannot be reconstructed from the imputed CSV; the optional audit is skipped unless original data are supplied. Random individual-level holdout does not establish performance in unseen countries or future years. This document is a model contribution to the group report, not the complete final submission.
+ 
+ ## Reproducibility information
+ 

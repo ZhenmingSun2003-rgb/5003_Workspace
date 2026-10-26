@@ -1,0 +1,102 @@
+--- original_sources/01_MultinomialLogisticRegression.Rmd
++++ 01_MultinomialLogisticRegression.Rmd
+@@ -1,7 +1,7 @@
+ ---
+ title: "STAT5003 A2 | Multinomial Logistic Regression"
+ author: "W08G03"
+-date: "2026-10-19"
++date: "2026-10-26"
+ output:
+   html_document:
+     toc: true
+@@ -27,7 +27,8 @@
+ SEED <- 5003
+ TRAIN_FRACTION <- 0.80
+ DEV_CAP <- 25000L
+-MAXIT <- 250L
++# Iteration-only correction: retain the original model/search, require convergence.
++MAXIT <- 2000L
+ TARGET_LABELS <- c("Full-time", "Part-time", "Self-employed", "Retired",
+                    "Housewife", "Student", "Unemployed", "Other")
+ REQUIRED_COLUMNS <- c("Q279", "B_COUNTRY_ALPHA", "Q260", "Q262", "Q270",
+@@ -73,23 +74,23 @@
+ cat("Train:",nrow(train)," Test:",nrow(test),"\n")
+ ```
+ 
+-# 3. Pre-registered predictors and provisional World Bank context
++# 3. Pre-registered predictors and fixed FY2021 country context
+ 
+ The **core** uses age (Q262), gender (Q260), marital status (Q273), education (Q275), social class (Q287), and within-country household income bracket (Q288). **Extended** adds household size (Q270), children (Q274), savings (Q286), and national `Income_Group`. Raw Country is excluded, as A1 specified. We exclude potential target-proxy questions, identifiers and administrative fields. Numeric age and household counts are kept continuous; other question codes are categorical and never assumed equally spaced.
+ 
+-For reproducibility the following income-group map is an explicitly **provisional FY2021 working approximation**, not an audited historical crosswalk nor a survey-year-specific assignment. `NIR` inherits UK's group by assumption; `TWN` and `VEN` are `Unclassified`, which is *not* a World Bank fifth income tier. **Audit the map against historical World Bank classifications before final submission.** A no-income-group core model is a mandatory sensitivity candidate. References: https://blogs.worldbank.org/en/opendata/new-world-bank-country-classifications-income-level-2020-2021 and https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups .
++For reproducibility this corrected project uses one fixed **FY2021 crosswalk**, rather than a survey-year-specific reconstruction. Relative to the original project map, MDV is Upper-middle, ROU is High, UKR is Lower-middle, TWN is High, and VEN is Upper-middle. `NIR` inherits the UK's High group by documented assumption. `Unclassified` has no mapped countries; its original factor level is retained to preserve the encoding contract. The no-income-group core model remains the original sensitivity candidate. References: https://blogs.worldbank.org/en/opendata/new-world-bank-country-classifications-income-level-2020-2021 and https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups .
+ 
+ ```{r country-map}
+ WB_GROUPS <- list(
+   Low=c("ETH","TJK"),
+   `Lower-middle`=c("BGD","BOL","EGY","IND","KEN","KGZ","MAR","MMR","MNG",
+-                   "NGA","NIC","PAK","PHL","TUN","UZB","VNM","ZWE"),
++                   "NGA","NIC","PAK","PHL","TUN","UKR","UZB","VNM","ZWE"),
+   `Upper-middle`=c("ARG","ARM","BRA","CHN","COL","ECU","GTM","IDN","IRN",
+-                   "IRQ","JOR","KAZ","LBN","LBY","MEX","MYS","PER","ROU",
+-                   "RUS","SRB","THA","TUR","UKR"),
++                   "IRQ","JOR","KAZ","LBN","LBY","MDV","MEX","MYS","PER",
++                   "RUS","SRB","THA","TUR","VEN"),
+   High=c("AND","AUS","CAN","CHL","CYP","CZE","DEU","GBR","GRC","HKG","JPN",
+-         "KOR","MAC","MDV","NIR","NLD","NZL","PRI","SGP","SVK","URY","USA"),
+-  Unclassified=c("TWN","VEN")
++         "KOR","MAC","NIR","NLD","NZL","PRI","ROU","SGP","SVK","TWN","URY","USA"),
++  Unclassified=character(0)
+ )
+ country_map <- setNames(rep(names(WB_GROUPS),lengths(WB_GROUPS)),
+                         unlist(WB_GROUPS,use.names=FALSE))
+@@ -151,7 +152,7 @@
+ 
+ **Shared split standard:** With numeric `SEED <- 5003`, stratify on `Q279` to create an initial 80% development pool and a 20% untouched test set. Using `SEED + 2`, split the development pool into 75% initial Train and 25% Validation, giving approximately **60% / 20% / 20%** of the whole dataset. The initial 60% Train partition is 57,587 rows and Validation is 19,199 rows (Test 19,201 rows), for the supplied CSV. Candidate fitting is capped at up to 25,000 stratified training records for computational feasibility; this cap **does not** change which records belong to Train or Validation. After selecting a model solely from validation scores, refit it on the entire original 80% development pool (76,786 rows) and evaluate on Test once. All teammates must use the same ordered CSV and split function: equal proportions and a matching seed alone do not guarantee identical row assignments across distinct implementations.
+ 
+-The **primary metric** is macro-F1 averaged over all eight classes, with zero precision/recall/F1 when undefined. Weighted-F1 and accuracy are secondary. Confusion rows are ground truth and columns are predictions. The search is *small and predetermined*: three feature specifications multiplied by weight-decay choices 0.001 and 0.01 (six models). Search is conducted on a stratified development partition from the training rows; the fitting subset is capped at 25,000 to control the runtime. Rank by validation macro-F1, weighted-F1, simpler specification, then larger penalty. This is **single-holdout validation, not nested/repeated cross-validation**; the selected specification may be unstable.
++The **primary metric** is macro-F1 averaged over all eight classes, with zero precision/recall/F1 when undefined. Weighted-F1 and accuracy are secondary. Confusion rows are ground truth and columns are predictions. The search is *small and predetermined*: three feature specifications multiplied by weight-decay choices 0.001 and 0.01 (six models). Search is conducted on a stratified development partition from the training rows; the fitting subset is capped at 25,000 to control the runtime. Rank by validation macro-F1, weighted-F1, simpler specification, then larger penalty. The corrected run raises only the optimiser iteration limit from 250 to 2000 and requires convergence before validation scoring, selection and final Test scoring; this limit is checked in a training/validation-only preflight. This is **single-holdout validation, not nested/repeated cross-validation**; the selected specification may be unstable.
+ 
+ ```{r evaluation}
+ evaluate_8class <- function(truth,pred,show_confusion=FALSE) {
+@@ -205,8 +206,9 @@
+   spec <- grid$Spec[[i]];decay <- grid$Decay[[i]]
+   fit <- nnet::multinom(model_formula(spec),data=x_dev,decay=decay,
+                        maxit=MAXIT,MaxNWts=10000,trace=FALSE)
+-  if(!is.null(fit$convergence)&&fit$convergence!=0)
+-    warning("Candidate not fully converged: ",spec," decay=",decay)
++  if(!identical(as.integer(fit$convergence),0L))
++    stop("Candidate did not converge; selection blocked: ",spec," decay=",decay,
++         "; convergence=",fit$convergence,"; MAXIT=",MAXIT)
+   pred <- predict(fit,newdata=x_val,type="class")
+   met <- evaluate_8class(x_val$Outcome,pred)$overall
+   result_rows[[i]] <- data.frame(Spec=spec,Decay=decay,Dev_N=nrow(x_dev),
+@@ -215,6 +217,7 @@
+                                  Accuracy=met$Accuracy)
+ }
+ ranking <- do.call(rbind,result_rows)
++stopifnot(nrow(ranking)==nrow(grid),all(ranking$Convergence==0L))
+ ranking <- ranking[order(-ranking$Macro_F1,-ranking$Weighted_F1,
+                          match(ranking$Spec,names(SPECIFICATIONS)),-ranking$Decay),]
+ knitr::kable(ranking,digits=4,caption="Train-only validation ranking")
+@@ -233,8 +236,9 @@
+ X_test <- apply_recipe(test,recipe_final)
+ final_fit <- nnet::multinom(model_formula(winning_spec),data=X_train,
+                            decay=winning_decay,maxit=MAXIT,MaxNWts=10000,trace=FALSE)
+-if(!is.null(final_fit$convergence)&&final_fit$convergence!=0)
+-  warning("Final optimisation did not fully converge.")
++if(!identical(as.integer(final_fit$convergence),0L))
++  stop("Final optimisation did not converge; Test scoring blocked. convergence=",
++       final_fit$convergence,"; MAXIT=",MAXIT)
+ predicted <- predict(final_fit,newdata=X_test,type="class")
+ met <- evaluate_8class(X_test$Outcome,predicted,show_confusion=TRUE)
+ majority <- names(which.max(table(train$Outcome)))
+@@ -247,7 +251,7 @@
+ 
+ # 7. Interpretation and remaining limitations
+ 
+-The multinomial model uses the Full-time reference category. Exponentiated coefficients describe **conditional relative-risk ratios**, not absolute probability changes. Sparse categories, correlated predictors and imperfect convergence can undermine coefficient stability; uncertainty intervals would require further assessment. A quadratic age term is only a limited response to A1's nonlinearity. The selected income proxy reflects a provisional manual crosswalk and is not a respondent-level income variable; the core specification omitting it provides a sensitivity contrast, **not** proof the extended proxy is correct.
++The multinomial model uses the Full-time reference category. Exponentiated coefficients describe **conditional relative-risk ratios**, not absolute probability changes. Sparse categories and correlated predictors can undermine coefficient stability even when the optimiser reports convergence; uncertainty intervals would require further assessment. A quadratic age term is only a limited response to A1's nonlinearity. The fixed FY2021 country-income proxy is not a respondent-level income variable; the core specification omitting it provides a sensitivity contrast, **not** proof that country context is sufficient or causal.
+ 
+ Survey outcomes and socioeconomic predictors can be jointly determined. No causal interpretation, cross-country transport, fairness assurance, calibrated decision threshold, or nationally representative policy conclusion is supported. The training-only validation uses a capped subset and one split. Full R execution and `sessionInfo()` must be checked before reporting final model performance; these code sections by themselves do not certify runtime success.
+ 

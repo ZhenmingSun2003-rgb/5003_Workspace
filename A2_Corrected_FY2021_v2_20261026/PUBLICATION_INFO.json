@@ -1,0 +1,16 @@
+{
+  "Publication_Prepared_At": "2026-10-26T12:25:10.950568+08:00",
+  "Repository": "https://github.com/ZhenmingSun2003-rgb/5003_Workspace",
+  "Target_Branch": "main",
+  "Pre_Publication_Base_Commit": "9b3db1d3207d9af492af0099848248cee73df918",
+  "Source_Snapshot": "STAT5003_A2_Corrected_FY2021_v2_20261026",
+  "Copied_Experiment_Files": 397,
+  "Copied_Experiment_Bytes": 1081372701,
+  "Excluded": [
+    "Python __pycache__ and compiled bytecode caches only"
+  ],
+  "Frozen_Experiment_Files_Modified": false,
+  "Original_Root_Rmd_And_Data_Modified": false,
+  "Large_File_Storage": "Git LFS; scoped to this directory (*.rds, WVS_*.csv, *.zip)",
+  "Historical_Execution_Assertions": "Old clean-HEAD/no-push assertions describe the experiment before publication."
+}

@@ -1,0 +1,44 @@
+V2 OFFICIAL RENDER knn 03_kNN.Rmd 
+START 2026-10-26 11:11:45 +0800 
+SOURCE MD5 cc4d75e19e82cad33155c207443e76f6 
+DATA C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/WVS_Wave7_cleaned_for_modelling.csv 
+R version 4.6.1 (2026-06-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 10 x64 (build 19045)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] C
+system code page: 65001
+
+time zone: Asia/Shanghai
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] compiler_4.6.1 tools_4.6.1   
+[1] "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/audit_20261024_01/r_library"
+[2] "C:/Users/Saberken/AppData/Local/R/win-library/4.6"                         
+[3] "C:/Program Files/R/R-4.6.1/library"                                        
+[1] "Mersenne-Twister" "Inversion"        "Rejection"       
+$contrasts
+        unordered           ordered 
+"contr.treatment"      "contr.poly" 
+
+
+
+processing file: 03_kNN.Rmd
+1/4             
+2/4 [knn-model] 
+3/4             
+4/4 [knn-tables]
+output file: 03_kNN.knit.md
+
+"C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/pandoc" +RTS -K512m -RTS 03_kNN.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output 03_kNN.html --lua-filter "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmarkdown\lua\latex-div.lua" --lua-filter "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmarkdown\lua\table-classes.lua" --embed-resources --standalone --variable bs3=TRUE --section-divs --template "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmd\h\default.html" --syntax-highlighting none --variable highlightjs=1 --variable theme=bootstrap --mathjax --variable "mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --include-in-header "C:\Users\Saberken\AppData\Local\Temp\RtmpQFgVJ8\rmarkdown-str93fc1c906161.html" --variable code_folding=hide --variable code_menu=1 
+
+Output created: 03_kNN.html
+FINISHED knn SECONDS 305.37 RENDER_SUCCESS TRUE SOURCE_UNCHANGED TRUE 

@@ -1,0 +1,46 @@
+--- original_sources/04_SVM.Rmd
++++ 04_SVM.Rmd
+@@ -118,20 +118,22 @@
+     "\nSelected source columns (target/country included):", length(REQUIRED_COLUMNS), "\n")
+ ```
+ 
+-## Shared country-income crosswalk
++## Shared verified FY2021 country-income crosswalk
++
++The map follows the frozen official FY2021 historical workbook in `source_evidence/`. TWN is High and VEN is Upper-middle. NIR explicitly inherits the UK's High group; it has no independent official row. `Unclassified` remains an unused dictionary level. The fixed FY2021 context is not survey-year-specific.
+ 
+ ```{r income-map}
+ WB_GROUPS <- list(
+   Low = c("ETH", "TJK"),
+-  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR",
+-                     "MNG", "NGA", "NIC", "PAK", "PHL", "TUN", "UZB", "VNM", "ZWE"),
+-  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN",
+-                     "IRN", "IRQ", "JOR", "KAZ", "LBN", "LBY", "MEX", "MYS",
+-                     "PER", "ROU", "RUS", "SRB", "THA", "TUR", "UKR"),
+-  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC",
+-           "HKG", "JPN", "KOR", "MAC", "MDV", "NIR", "NLD", "NZL", "PRI",
+-           "SGP", "SVK", "URY", "USA"),
+-  Unclassified = c("TWN", "VEN")
++  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
++                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
++  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
++                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
++                     "RUS", "SRB", "THA", "TUR", "VEN"),
++  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
++           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
++           "USA"),
++  Unclassified = character(0)
+ )
+ country_group <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                           unlist(WB_GROUPS, use.names = FALSE))
+@@ -621,7 +623,9 @@
+ ```
+ 
+ 
+-# SVM discussion and limitations
++# Legacy pre-correction SVM discussion and limitations
++
++> **Legacy results, not the FY2021-corrected rerun:** the fixed configuration and numerical claims below belong to the original mapping. They are retained for provenance only. Corrected results must come from this run's generated validation and Test tables; do not reuse these old figures.
+ 
+ Validation selected the extended-feature RBF SVM with C = 1,
+ gamma = 0.212766 and inverse-frequency class weights. After refitting

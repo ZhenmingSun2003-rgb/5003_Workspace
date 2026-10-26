@@ -1,0 +1,2 @@
+"Spec","cp","maxdepth","minsplit","Leaves","Train_N","Validation_N","Macro_F1","Weighted_F1","Accuracy"
+"extended_linear",5e-04,8,100,21,57587,19199,0.339115071893784,0.464574311697543,0.527475389343195

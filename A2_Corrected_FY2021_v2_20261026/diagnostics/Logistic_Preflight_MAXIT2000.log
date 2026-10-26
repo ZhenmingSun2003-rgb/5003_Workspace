@@ -1,0 +1,85 @@
+During startup - Warning messages:
+1: Setting LC_COLLATE=C.UTF-8 failed 
+2: Setting LC_CTYPE=C.UTF-8 failed 
+3: Setting LC_MONETARY=C.UTF-8 failed 
+4: Setting LC_TIME=C.UTF-8 failed 
+Tracing function "predict.multinom" in package "namespace:nnet"
+[1] "predict.multinom"
+
+
+processing file: Logistic_Preflight.Rmd
+1/15                           
+2/15 [preflight-options]       
+3/15                           
+4/15 [setup]                   
+5/15                           
+6/15 [country-map]             
+7/15                           
+8/15 [preprocessing]           
+9/15                           
+10/15 [evaluation]              
+11/15                           
+12/15 [validation]              
+13/15                           
+14/15 [preflight-final-training]
+15/15                           
+output file: C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/diagnostics/logistic_preflight_maxit2000/Logistic_Preflight.knit.md
+
+"C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/pandoc" +RTS -K512m -RTS "C:\Users\Saberken\Documents\ChatGPT\5003_A1_A2\STAT5003_A2_Corrected_FY2021_v2_20261026\diagnostics\logistic_preflight_maxit2000\Logistic_Preflight.knit.md" --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output pandoc870038bd63.html --lua-filter "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmarkdown\lua\latex-div.lua" --lua-filter "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmarkdown\lua\table-classes.lua" --embed-resources --standalone --variable bs3=TRUE --section-divs --table-of-contents --toc-depth 3 --template "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmd\h\default.html" --syntax-highlighting none --variable highlightjs=1 --variable theme=bootstrap --mathjax --variable "mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --include-in-header "C:\Users\Saberken\AppData\Local\Temp\RtmpkNjeMZ\rmarkdown-str870023c87609.html" 
+
+Output created: STAT5003_A2_Corrected_FY2021_v2_20261026/diagnostics/logistic_preflight_maxit2000/Logistic_Preflight.html
+Untracing function "predict.multinom" in package "namespace:nnet"
+{
+  "Success": true,
+  "Error": null,
+  "MAXIT": 2000,
+  "Source": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/01_MultinomialLogisticRegression.Rmd",
+  "Source_SHA256_Before": "516d23f073cfff3ded7a107a9d6cbc6904e937cf33bd470bff4789be78364141",
+  "Source_SHA256_After": "516d23f073cfff3ded7a107a9d6cbc6904e937cf33bd470bff4789be78364141",
+  "Source_MD5": "942da8967e097bbbe6c381160f887ae5",
+  "Diagnostic_Source_SHA256": "ff5adf8122f1c1fd6702508f50cde0e187dbd41afff784c688128736ffb6e4ff",
+  "Source_Stayed_Unchanged": true,
+  "Candidate_N": 6,
+  "Candidate_Fitting_N": 24996,
+  "Candidate_Convergence": [0, 0, 0, 0, 0, 0],
+  "Selected_Specification": "extended_linear",
+  "Selected_Decay": 0.01,
+  "Final_Refit_N": 76786,
+  "Final_Convergence": 0,
+  "Final_Objective": 101183.82310294952,
+  "Final_Block_Elapsed_Seconds": 82.579999999999984,
+  "Total_Elapsed_Seconds": 206.88999999999999,
+  "No_Test_Prediction_Or_Scoring": true,
+  "Prediction_Method_Trace": [
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    },
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    },
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    },
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    },
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    },
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    }
+  ],
+  "Expected_Validation_Prediction_Calls": 6,
+  "Observed_Prediction_Calls": 6,
+  "Static_Execution_Code_Has_No_Test_Prediction_Or_Scoring": true,
+  "Model_Hyperparameters_Changed": "Only MAXIT 250 -> current limit; family, six-candidate grid, decay, cap, formula, MaxNWts, seeds, recipes and selection order retained",
+  "Conditions": [],
+  "HTML": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/diagnostics/logistic_preflight_maxit2000/Logistic_Preflight.html"
+} 

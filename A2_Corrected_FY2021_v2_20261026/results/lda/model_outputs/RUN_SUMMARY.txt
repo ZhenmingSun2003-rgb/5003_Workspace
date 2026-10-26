@@ -1,0 +1,16 @@
+STAT5003 B: baseline-aligned LDA analysis
+Document/output revision: 2026-10-24; candidate design retained from 2026-10-21.
+Input: C:\Users\Saberken\Documents\ChatGPT\5003_A1_A2\STAT5003_A2_Corrected_FY2021_v2_20261026\WVS_Wave7_cleaned_for_modelling.csv
+Input MD5: 98bf573170f0cb6bd65a4e9a8070d4d8
+Baseline blob: 7c83716a1f8186a40a17ab124da8bd9b8bfee430
+Seeds: 5003 for 80/20, 5005 for within-development 75/25.
+Train: 57587; Validation: 19199; Test: 19201; final refit: 76786
+Selected: extended_linear empirical
+Validation Macro F1: 0.339464
+Test Macro F1: 0.340672; Weighted F1: 0.461671; Accuracy: 0.514817
+Retained encoded columns: 39
+Dropped constant/dependent columns: GenderMissing, MaritalMissing, EducationMissing, SocialClassMissing, IncomeBracketMissing, SavingsMissing, Income_GroupUnclassified, Income_GroupMissing
+Six candidates use all 57,587 initial training records; no tuning cap or CV.
+Feature/prior choice uses validation only; this revision does not add candidates.
+All test predictions refer to the fixed shared held-out partition.
+Inherited A1 pre-split imputation and fixed-vintage national context remain limitations; NIR inherits UK.

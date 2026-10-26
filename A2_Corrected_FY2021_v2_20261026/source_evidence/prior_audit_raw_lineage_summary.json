@@ -1,0 +1,860 @@
+{
+  "status": "PASS",
+  "checks": {
+    "raw_dimension_97220_by_613": true,
+    "retained_valid_target_cohort_95987": true,
+    "cleaned_519_columns": true,
+    "exact_candidate_caps_all_ids_observed": true,
+    "exact_candidate_caps_within_initial_train": true,
+    "selected_column_lineage_no_mismatches": true,
+    "all_six_categorical_global_mode_imputations_match": true
+  },
+  "raw_path": "C:\\Users\\Saberken\\Documents\\ChatGPT\\5003_A1_A2\\audit_20261024_01\\runs\\WVS_Cross-National_Wave_7_rds_v6_0.csv",
+  "cleaned_path": "C:\\Users\\Saberken\\Documents\\ChatGPT\\5003_A1_A2\\audit_20261024_01\\runs\\WVS_Wave7_cleaned_for_modelling.csv",
+  "raw_dimensions": [
+    97220,
+    613
+  ],
+  "cleaned_columns": 519,
+  "valid_target_retained_rows": 95987,
+  "discarded_raw_invalid_target_rows": 1233,
+  "discarded_target_value_counts": {
+    "-2.0": 792,
+    "-1.0": 118,
+    "-5.0": 323
+  },
+  "selected_columns": [
+    "Q279",
+    "B_COUNTRY_ALPHA",
+    "Q262",
+    "Q270",
+    "Q274",
+    "Q260",
+    "Q273",
+    "Q275",
+    "Q286",
+    "Q287",
+    "Q288"
+  ],
+  "method": "Streaming original raw order, retain only target 1:8, consume cleaned/reference rows in lockstep; compare each selected observed numeric/category value and every target/country. No author cleaning function or model execution.",
+  "selected_column_counts": {
+    "Q262": {
+      "total": 95987,
+      "observed_finite_non_sentinel": 95517,
+      "observed_numeric_value_unchanged": 95517,
+      "raw_special_missing_sentinel": 470,
+      "unavailable_became_Unknown": 470
+    },
+    "Q270": {
+      "total": 95987,
+      "observed_finite_non_sentinel": 95229,
+      "observed_numeric_value_unchanged": 95229,
+      "raw_special_missing_sentinel": 758,
+      "unavailable_became_Unknown": 758
+    },
+    "Q274": {
+      "total": 95987,
+      "observed_finite_non_sentinel": 91398,
+      "observed_numeric_value_unchanged": 91398,
+      "raw_special_missing_sentinel": 4589,
+      "unavailable_became_Unknown": 4589
+    },
+    "Q260": {
+      "total": 95987,
+      "raw_valid_category": 95916,
+      "observed_category_unchanged": 95916,
+      "raw_special_missing_sentinel": 71
+    },
+    "Q273": {
+      "total": 95987,
+      "raw_valid_category": 95608,
+      "observed_category_unchanged": 95608,
+      "raw_special_missing_sentinel": 379
+    },
+    "Q275": {
+      "total": 95987,
+      "raw_valid_category": 95229,
+      "observed_category_unchanged": 95229,
+      "raw_special_missing_sentinel": 758
+    },
+    "Q286": {
+      "total": 95987,
+      "raw_valid_category": 93420,
+      "observed_category_unchanged": 93420,
+      "raw_special_missing_sentinel": 2567
+    },
+    "Q287": {
+      "total": 95987,
+      "raw_valid_category": 90798,
+      "observed_category_unchanged": 90798,
+      "raw_special_missing_sentinel": 5189
+    },
+    "Q288": {
+      "total": 95987,
+      "raw_valid_category": 93374,
+      "observed_category_unchanged": 93374,
+      "raw_special_missing_sentinel": 2613
+    }
+  },
+  "raw_unavailable_or_invalid_tokens": {
+    "Q262": {
+      "-2.0": 199,
+      "-5.0": 254,
+      "-1.0": 16,
+      "-4.0": 1
+    },
+    "Q270": {
+      "-2.0": 640,
+      "-5.0": 117,
+      "-1.0": 1
+    },
+    "Q274": {
+      "-5.0": 999,
+      "-2.0": 395,
+      "-1.0": 177,
+      "-4.0": 3018
+    },
+    "Q260": {
+      "-2.0": 22,
+      "-5.0": 46,
+      "-1.0": 3
+    },
+    "Q273": {
+      "-2.0": 297,
+      "-1.0": 15,
+      "-5.0": 67
+    },
+    "Q275": {
+      "-2.0": 335,
+      "-1.0": 163,
+      "-5.0": 260
+    },
+    "Q286": {
+      "-2.0": 1094,
+      "-1.0": 1191,
+      "-5.0": 282
+    },
+    "Q287": {
+      "-2.0": 659,
+      "-1.0": 1271,
+      "-5.0": 241,
+      "-4.0": 3018
+    },
+    "Q288": {
+      "-2.0": 1430,
+      "-1.0": 998,
+      "-5.0": 185
+    }
+  },
+  "replacement_cleaned_value_counts": {
+    "Q262": {
+      "Unknown": 470
+    },
+    "Q270": {
+      "Unknown": 758
+    },
+    "Q274": {
+      "Unknown": 4589
+    },
+    "Q260": {
+      "2": 71
+    },
+    "Q273": {
+      "1": 379
+    },
+    "Q275": {
+      "3": 758
+    },
+    "Q286": {
+      "2": 2567
+    },
+    "Q287": {
+      "3": 5189
+    },
+    "Q288": {
+      "5": 2613
+    }
+  },
+  "raw_observed_numeric_ranges": {
+    "Q262": [
+      16.0,
+      103.0
+    ],
+    "Q270": [
+      1.0,
+      63.0
+    ],
+    "Q274": [
+      0.0,
+      24.0
+    ]
+  },
+  "categorical_global_modes": {
+    "Q260": {
+      "global_valid_target_cohort_mode": 2,
+      "train_plus_validation_raw_observed_mode": 2,
+      "initial_train_raw_observed_mode": 2,
+      "logistic_24996_raw_observed_mode": 2,
+      "svm_9997_raw_observed_mode": 2,
+      "global_mode_count_before_imputation": 50423,
+      "raw_valid_value_counts": {
+        "2": 50423,
+        "1": 45493
+      },
+      "train_plus_validation_raw_valid_value_counts": {
+        "2": 40287,
+        "1": 36441
+      },
+      "initial_train_raw_valid_value_counts": {
+        "2": 30225,
+        "1": 27312
+      },
+      "candidate_cap_raw_valid_value_counts": {
+        "logistic_candidate_24996": {
+          "1": 11917,
+          "2": 13057
+        },
+        "svm_candidate_9997": {
+          "2": 5256,
+          "1": 4735
+        }
+      },
+      "imputed_cells": 71,
+      "all_imputed_cells_equal_global_mode": true,
+      "global_mode_equals_train_plus_validation_mode": true,
+      "global_mode_equals_initial_train_mode": true,
+      "global_mode_equals_logistic_24996_mode": true,
+      "global_mode_equals_svm_9997_mode": true,
+      "mode_details_including_ties": {
+        "all_valid_target_raw_rows": {
+          "mode": 2,
+          "highest_frequency": 50423,
+          "valid_observed_cells": 95916,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            2
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "train_plus_validation_76786": {
+          "mode": 2,
+          "highest_frequency": 40287,
+          "valid_observed_cells": 76728,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            2
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "initial_train_57587": {
+          "mode": 2,
+          "highest_frequency": 30225,
+          "valid_observed_cells": 57537,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            2
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "logistic_candidate_24996": {
+          "mode": 2,
+          "highest_frequency": 13057,
+          "valid_observed_cells": 24974,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            2
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "svm_candidate_9997": {
+          "mode": 2,
+          "highest_frequency": 5256,
+          "valid_observed_cells": 9991,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            2
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        }
+      }
+    },
+    "Q273": {
+      "global_valid_target_cohort_mode": 1,
+      "train_plus_validation_raw_observed_mode": 1,
+      "initial_train_raw_observed_mode": 1,
+      "logistic_24996_raw_observed_mode": 1,
+      "svm_9997_raw_observed_mode": 1,
+      "global_mode_count_before_imputation": 53352,
+      "raw_valid_value_counts": {
+        "1": 53352,
+        "2": 7589,
+        "4": 2073,
+        "5": 5442,
+        "6": 22918,
+        "3": 4234
+      },
+      "train_plus_validation_raw_valid_value_counts": {
+        "1": 42782,
+        "2": 6083,
+        "4": 1642,
+        "5": 4346,
+        "6": 18272,
+        "3": 3361
+      },
+      "initial_train_raw_valid_value_counts": {
+        "1": 32056,
+        "2": 4551,
+        "4": 1202,
+        "6": 13701,
+        "3": 2544,
+        "5": 3294
+      },
+      "candidate_cap_raw_valid_value_counts": {
+        "logistic_candidate_24996": {
+          "2": 1896,
+          "1": 13992,
+          "6": 5967,
+          "4": 525,
+          "5": 1409,
+          "3": 1106
+        },
+        "svm_candidate_9997": {
+          "2": 781,
+          "1": 5578,
+          "6": 2391,
+          "5": 548,
+          "3": 449,
+          "4": 206
+        }
+      },
+      "imputed_cells": 379,
+      "all_imputed_cells_equal_global_mode": true,
+      "global_mode_equals_train_plus_validation_mode": true,
+      "global_mode_equals_initial_train_mode": true,
+      "global_mode_equals_logistic_24996_mode": true,
+      "global_mode_equals_svm_9997_mode": true,
+      "mode_details_including_ties": {
+        "all_valid_target_raw_rows": {
+          "mode": 1,
+          "highest_frequency": 53352,
+          "valid_observed_cells": 95608,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            1
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "train_plus_validation_76786": {
+          "mode": 1,
+          "highest_frequency": 42782,
+          "valid_observed_cells": 76486,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            1
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "initial_train_57587": {
+          "mode": 1,
+          "highest_frequency": 32056,
+          "valid_observed_cells": 57348,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            1
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "logistic_candidate_24996": {
+          "mode": 1,
+          "highest_frequency": 13992,
+          "valid_observed_cells": 24895,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            1
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "svm_candidate_9997": {
+          "mode": 1,
+          "highest_frequency": 5578,
+          "valid_observed_cells": 9953,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            1
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        }
+      }
+    },
+    "Q275": {
+      "global_valid_target_cohort_mode": 3,
+      "train_plus_validation_raw_observed_mode": 3,
+      "initial_train_raw_observed_mode": 3,
+      "logistic_24996_raw_observed_mode": 3,
+      "svm_9997_raw_observed_mode": 3,
+      "global_mode_count_before_imputation": 24474,
+      "raw_valid_value_counts": {
+        "3": 24474,
+        "7": 6196,
+        "2": 14164,
+        "1": 11151,
+        "4": 8768,
+        "5": 7765,
+        "6": 16775,
+        "0": 4815,
+        "8": 1121
+      },
+      "train_plus_validation_raw_valid_value_counts": {
+        "3": 19545,
+        "7": 4937,
+        "2": 11346,
+        "1": 8918,
+        "4": 7082,
+        "5": 6177,
+        "6": 13451,
+        "0": 3853,
+        "8": 882
+      },
+      "initial_train_raw_valid_value_counts": {
+        "3": 14641,
+        "7": 3755,
+        "2": 8525,
+        "1": 6679,
+        "5": 4635,
+        "6": 10102,
+        "4": 5261,
+        "8": 660,
+        "0": 2877
+      },
+      "candidate_cap_raw_valid_value_counts": {
+        "logistic_candidate_24996": {
+          "2": 3675,
+          "1": 2923,
+          "5": 1971,
+          "3": 6338,
+          "6": 4429,
+          "4": 2277,
+          "7": 1634,
+          "8": 298,
+          "0": 1260
+        },
+        "svm_candidate_9997": {
+          "5": 796,
+          "3": 2483,
+          "1": 1172,
+          "6": 1755,
+          "4": 947,
+          "2": 1487,
+          "0": 488,
+          "7": 668,
+          "8": 124
+        }
+      },
+      "imputed_cells": 758,
+      "all_imputed_cells_equal_global_mode": true,
+      "global_mode_equals_train_plus_validation_mode": true,
+      "global_mode_equals_initial_train_mode": true,
+      "global_mode_equals_logistic_24996_mode": true,
+      "global_mode_equals_svm_9997_mode": true,
+      "mode_details_including_ties": {
+        "all_valid_target_raw_rows": {
+          "mode": 3,
+          "highest_frequency": 24474,
+          "valid_observed_cells": 95229,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            3
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "train_plus_validation_76786": {
+          "mode": 3,
+          "highest_frequency": 19545,
+          "valid_observed_cells": 76191,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            3
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "initial_train_57587": {
+          "mode": 3,
+          "highest_frequency": 14641,
+          "valid_observed_cells": 57135,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            3
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "logistic_candidate_24996": {
+          "mode": 3,
+          "highest_frequency": 6338,
+          "valid_observed_cells": 24805,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            3
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "svm_candidate_9997": {
+          "mode": 3,
+          "highest_frequency": 2483,
+          "valid_observed_cells": 9920,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            3
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        }
+      }
+    },
+    "Q286": {
+      "global_valid_target_cohort_mode": 2,
+      "train_plus_validation_raw_observed_mode": 2,
+      "initial_train_raw_observed_mode": 2,
+      "logistic_24996_raw_observed_mode": 2,
+      "svm_9997_raw_observed_mode": 2,
+      "global_mode_count_before_imputation": 42650,
+      "raw_valid_value_counts": {
+        "3": 14242,
+        "1": 28080,
+        "2": 42650,
+        "4": 8448
+      },
+      "train_plus_validation_raw_valid_value_counts": {
+        "3": 11359,
+        "1": 22462,
+        "2": 34160,
+        "4": 6748
+      },
+      "initial_train_raw_valid_value_counts": {
+        "3": 8503,
+        "1": 16793,
+        "2": 25728,
+        "4": 5048
+      },
+      "candidate_cap_raw_valid_value_counts": {
+        "logistic_candidate_24996": {
+          "1": 7356,
+          "2": 11087,
+          "3": 3688,
+          "4": 2171
+        },
+        "svm_candidate_9997": {
+          "1": 3002,
+          "2": 4417,
+          "4": 880,
+          "3": 1430
+        }
+      },
+      "imputed_cells": 2567,
+      "all_imputed_cells_equal_global_mode": true,
+      "global_mode_equals_train_plus_validation_mode": true,
+      "global_mode_equals_initial_train_mode": true,
+      "global_mode_equals_logistic_24996_mode": true,
+      "global_mode_equals_svm_9997_mode": true,
+      "mode_details_including_ties": {
+        "all_valid_target_raw_rows": {
+          "mode": 2,
+          "highest_frequency": 42650,
+          "valid_observed_cells": 93420,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            2
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "train_plus_validation_76786": {
+          "mode": 2,
+          "highest_frequency": 34160,
+          "valid_observed_cells": 74729,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            2
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "initial_train_57587": {
+          "mode": 2,
+          "highest_frequency": 25728,
+          "valid_observed_cells": 56072,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            2
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "logistic_candidate_24996": {
+          "mode": 2,
+          "highest_frequency": 11087,
+          "valid_observed_cells": 24302,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            2
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "svm_candidate_9997": {
+          "mode": 2,
+          "highest_frequency": 4417,
+          "valid_observed_cells": 9729,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            2
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        }
+      }
+    },
+    "Q287": {
+      "global_valid_target_cohort_mode": 3,
+      "train_plus_validation_raw_observed_mode": 3,
+      "initial_train_raw_observed_mode": 3,
+      "logistic_24996_raw_observed_mode": 3,
+      "svm_9997_raw_observed_mode": 3,
+      "global_mode_count_before_imputation": 35313,
+      "raw_valid_value_counts": {
+        "3": 35313,
+        "2": 19250,
+        "4": 24021,
+        "5": 10417,
+        "1": 1797
+      },
+      "train_plus_validation_raw_valid_value_counts": {
+        "3": 28164,
+        "2": 15315,
+        "4": 19300,
+        "5": 8411,
+        "1": 1456
+      },
+      "initial_train_raw_valid_value_counts": {
+        "3": 21090,
+        "2": 11448,
+        "4": 14521,
+        "5": 6294,
+        "1": 1090
+      },
+      "candidate_cap_raw_valid_value_counts": {
+        "logistic_candidate_24996": {
+          "4": 6291,
+          "3": 9157,
+          "2": 4968,
+          "5": 2746,
+          "1": 493
+        },
+        "svm_candidate_9997": {
+          "3": 3640,
+          "4": 2495,
+          "2": 2006,
+          "5": 1121,
+          "1": 193
+        }
+      },
+      "imputed_cells": 5189,
+      "all_imputed_cells_equal_global_mode": true,
+      "global_mode_equals_train_plus_validation_mode": true,
+      "global_mode_equals_initial_train_mode": true,
+      "global_mode_equals_logistic_24996_mode": true,
+      "global_mode_equals_svm_9997_mode": true,
+      "mode_details_including_ties": {
+        "all_valid_target_raw_rows": {
+          "mode": 3,
+          "highest_frequency": 35313,
+          "valid_observed_cells": 90798,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            3
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "train_plus_validation_76786": {
+          "mode": 3,
+          "highest_frequency": 28164,
+          "valid_observed_cells": 72646,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            3
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "initial_train_57587": {
+          "mode": 3,
+          "highest_frequency": 21090,
+          "valid_observed_cells": 54443,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            3
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "logistic_candidate_24996": {
+          "mode": 3,
+          "highest_frequency": 9157,
+          "valid_observed_cells": 23655,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            3
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "svm_candidate_9997": {
+          "mode": 3,
+          "highest_frequency": 3640,
+          "valid_observed_cells": 9455,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            3
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        }
+      }
+    },
+    "Q288": {
+      "global_valid_target_cohort_mode": 5,
+      "train_plus_validation_raw_observed_mode": 5,
+      "initial_train_raw_observed_mode": 5,
+      "logistic_24996_raw_observed_mode": 5,
+      "svm_9997_raw_observed_mode": 5,
+      "global_mode_count_before_imputation": 22339,
+      "raw_valid_value_counts": {
+        "5": 22339,
+        "9": 1807,
+        "4": 13034,
+        "2": 5419,
+        "6": 14420,
+        "10": 2022,
+        "3": 10486,
+        "7": 10912,
+        "1": 7189,
+        "8": 5746
+      },
+      "train_plus_validation_raw_valid_value_counts": {
+        "5": 17833,
+        "9": 1484,
+        "4": 10389,
+        "2": 4375,
+        "6": 11538,
+        "10": 1608,
+        "3": 8458,
+        "7": 8689,
+        "1": 5773,
+        "8": 4538
+      },
+      "initial_train_raw_valid_value_counts": {
+        "5": 13387,
+        "9": 1099,
+        "4": 7773,
+        "2": 3298,
+        "6": 8616,
+        "10": 1197,
+        "3": 6286,
+        "1": 4317,
+        "8": 3468,
+        "7": 6542
+      },
+      "candidate_cap_raw_valid_value_counts": {
+        "logistic_candidate_24996": {
+          "4": 3337,
+          "5": 5849,
+          "6": 3736,
+          "2": 1463,
+          "3": 2711,
+          "7": 2845,
+          "1": 1868,
+          "8": 1504,
+          "9": 475,
+          "10": 518
+        },
+        "svm_candidate_9997": {
+          "6": 1525,
+          "4": 1318,
+          "5": 2309,
+          "7": 1144,
+          "3": 1084,
+          "2": 584,
+          "8": 600,
+          "9": 194,
+          "1": 754,
+          "10": 210
+        }
+      },
+      "imputed_cells": 2613,
+      "all_imputed_cells_equal_global_mode": true,
+      "global_mode_equals_train_plus_validation_mode": true,
+      "global_mode_equals_initial_train_mode": true,
+      "global_mode_equals_logistic_24996_mode": true,
+      "global_mode_equals_svm_9997_mode": true,
+      "mode_details_including_ties": {
+        "all_valid_target_raw_rows": {
+          "mode": 5,
+          "highest_frequency": 22339,
+          "valid_observed_cells": 93374,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            5
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "train_plus_validation_76786": {
+          "mode": 5,
+          "highest_frequency": 17833,
+          "valid_observed_cells": 74685,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            5
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "initial_train_57587": {
+          "mode": 5,
+          "highest_frequency": 13387,
+          "valid_observed_cells": 55983,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            5
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "logistic_candidate_24996": {
+          "mode": 5,
+          "highest_frequency": 5849,
+          "valid_observed_cells": 24306,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            5
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        },
+        "svm_candidate_9997": {
+          "mode": 5,
+          "highest_frequency": 2309,
+          "valid_observed_cells": 9722,
+          "number_of_tied_mode_values": 1,
+          "tied_mode_values": [
+            5
+          ],
+          "tie_broken_by_first_observed_in_original_cohort_order": false
+        }
+      }
+    }
+  },
+  "mismatch_counts": {},
+  "candidate_caps": {
+    "logistic_candidate_24996": {
+      "path": "C:\\Users\\Saberken\\Documents\\ChatGPT\\5003_A1_A2\\audit_20261024_01\\independent\\reference_cap_25000.csv",
+      "expected_N": 24996,
+      "observed_N": 24996,
+      "outside_initial_train_N": 0
+    },
+    "svm_candidate_9997": {
+      "path": "C:\\Users\\Saberken\\Documents\\ChatGPT\\5003_A1_A2\\audit_20261024_01\\independent\\reference_cap_10000.csv",
+      "expected_N": 9997,
+      "observed_N": 9997,
+      "outside_initial_train_N": 0
+    }
+  },
+  "first_100_mismatch_examples": [],
+  "elapsed_seconds": 11.004727099993033,
+  "scope_limit": "Verifies selected 11 columns and retained raw-row order only, not all 519 columns, original missingness removal policy for every variable, or identity uniqueness of respondents. Global modes coinciding with training-only modes does not turn the historical full-data procedure into split-first preprocessing."
+}

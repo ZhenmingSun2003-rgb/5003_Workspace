@@ -1,0 +1,7 @@
+"Run","train_ids_equal_reference","test_ids_equal_reference","full_refit_N","full_refit_rows_76786","full_refit_labels_match_csv","full_refit_numeric_source_values_match_csv"
+"baseline",TRUE,TRUE,76786,TRUE,TRUE,TRUE
+"logistic",TRUE,TRUE,76786,TRUE,TRUE,TRUE
+"lda",TRUE,TRUE,76786,TRUE,TRUE,TRUE
+"tree",TRUE,TRUE,76786,TRUE,TRUE,TRUE
+"knn",TRUE,TRUE,76786,TRUE,TRUE,TRUE
+"svm",TRUE,TRUE,76786,TRUE,TRUE,TRUE

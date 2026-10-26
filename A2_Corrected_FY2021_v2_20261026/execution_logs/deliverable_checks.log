@@ -1,0 +1,23 @@
+{
+  "Verified_At": "2026-10-26T12:12:40.518770+08:00",
+  "Original_Repository_Unchanged": true,
+  "Old_Audit_Unchanged": true,
+  "Official_Renders_Succeeded": 6,
+  "Logistic_MAXIT": 2000,
+  "Logistic_Candidates_Converged": 6,
+  "Logistic_Final_Convergence": 0,
+  "Data_And_Test_Row_Identity_Verified": true,
+  "Mapping_Changed_Codes": 5,
+  "Mapping_Affected_Rows": 5893,
+  "TWN": "High",
+  "VEN": "Upper-middle",
+  "Recipe_Checks": 138,
+  "Recipe_Failures": 0,
+  "Class_Weight_Checks": 32,
+  "Class_Weight_Failures": 0,
+  "No_Income_Unchanged_Validation_Candidates": 102,
+  "Paired_Bootstrap_Replicates": 5000,
+  "Paired_Bootstrap_Pairs": 11,
+  "Independent_Evaluation_Issues": 0,
+  "Whole_V2_Two_Pass_Claimed": false
+}

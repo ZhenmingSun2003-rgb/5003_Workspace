@@ -1,0 +1,7 @@
+"Spec","Decay"
+"core_linear",0.001
+"extended_linear",0.001
+"extended_quadratic_age",0.001
+"core_linear",0.01
+"extended_linear",0.01
+"extended_quadratic_age",0.01

@@ -1,0 +1,378 @@
+---
+title: "STAT5003 A2 | Multinomial Logistic Regression"
+author: "W08G03"
+date: "2026-10-26"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+# 1. Research aim, hypotheses, and boundaries
+
+**Research question (A1):** To what extent can demographic characteristics, education, and socioeconomic circumstances predict the eight-category employment status `Q279`? This file implements one of the five A2 classifiers, **multinomial logistic regression**, with Full-time as the response reference. All classes are modelled jointly via softmax probabilities; it is not eight independent binary regressions.
+
+A1 hypotheses: age differentiates Student and Retired; gender is associated with Housewife; education, household income, marital status and class carry additional (possibly weak and overlapping) information. The model estimates **conditional associations**, not causal effects. We do not infer intervention effects from these survey responses.
+
+**Evaluation protocol:** same fixed seed, row-order-dependent stratified 80/20 split and eight-class macro-F1 evaluation as `baseline.Rmd`. Candidate selection uses only an internal validation partition drawn from training; the held-out 20% is scored only after final refitting. No tuning on test data.
+
+**A1 preprocessing caveat:** A1 already mode-imputed fixed-choice fields before creating this cleaned CSV. The resulting leakage risk cannot be reversed without regenerating the CSV from raw data. All *new* imputation, scaling and tuning in this file are training-only. The random individual holdout is not evidence of future-year or unseen-country generalisation. Survey weights are intentionally excluded for this individual-prediction experiment, not a population-estimation task.
+
+# 2. Portable data ingestion and locked split
+
+After cloning, run `git lfs pull` to materialise the approximately 172 MB CSV. Requires base R, `knitr`/`rmarkdown` for rendering, and the recommended R package `nnet`. Input paths are relative to this file or repository; no absolute paths or online downloads. All work stays in memory and the CSV is never overwritten.
+
+
+``` r
+SEED <- 5003
+TRAIN_FRACTION <- 0.80
+DEV_CAP <- 25000L
+# Iteration-only correction: retain the original model/search, require convergence.
+MAXIT <- 2000L
+TARGET_LABELS <- c("Full-time", "Part-time", "Self-employed", "Retired",
+                   "Housewife", "Student", "Unemployed", "Other")
+REQUIRED_COLUMNS <- c("Q279", "B_COUNTRY_ALPHA", "Q260", "Q262", "Q270",
+                      "Q273", "Q274", "Q275", "Q286", "Q287", "Q288")
+if (!requireNamespace("nnet", quietly=TRUE)) stop("Install R's recommended package 'nnet'.")
+resolve_dataset <- function(filename="WVS_Wave7_cleaned_for_modelling.csv") {
+  candidates <- getwd()
+  if (requireNamespace("knitr", quietly=TRUE)) {
+    f <- tryCatch(knitr::current_input(dir=TRUE), error=function(e) "")
+    if (length(f)==1L && nzchar(f))
+      candidates <- c(candidates, dirname(normalizePath(f, mustWork=FALSE)))
+  }
+  candidates <- unique(c(candidates, dirname(candidates)))
+  hits <- file.path(candidates, filename)
+  hits <- hits[file.exists(hits)]
+  if (!length(hits)) stop("CSV not beside Rmd / working directory. Run git lfs pull.")
+  p <- normalizePath(hits[1], mustWork=TRUE)
+  if (file.info(p)$size < 1000) stop("LFS pointer found. Run git lfs pull.")
+  p
+}
+read_selected <- function(p, wanted) {
+  cols <- names(read.csv(p, nrows=0, check.names=FALSE))
+  if (!all(wanted %in% cols)) stop("Missing columns: ", paste(setdiff(wanted,cols),collapse=","))
+  types <- rep("NULL", length(cols))
+  types[match(wanted, cols)] <- NA_character_
+  read.csv(p, colClasses=types, check.names=FALSE, stringsAsFactors=FALSE,
+           na.strings=c("", "NA"))
+}
+stratified_indices <- function(y, frac, seed) {
+  set.seed(seed)
+  g <- split(seq_along(y), y, drop=TRUE)
+  sort(unlist(lapply(g, function(ids) sample(ids, floor(length(ids)*frac))), use.names=FALSE))
+}
+wvs <- read_selected(resolve_dataset(), REQUIRED_COLUMNS)
+stopifnot(nrow(wvs)>1000, all(as.character(wvs$Q279) %in% as.character(1:8)))
+wvs$Outcome <- factor(as.character(wvs$Q279),levels=as.character(1:8),labels=TARGET_LABELS)
+train_id <- stratified_indices(wvs$Outcome, TRAIN_FRACTION, SEED)
+test_id <- setdiff(seq_len(nrow(wvs)), train_id)
+train <- wvs[train_id,,drop=FALSE]
+test <- wvs[test_id,,drop=FALSE]
+stopifnot(!length(intersect(train_id,test_id)),all(table(train$Outcome)>0),
+          all(table(test$Outcome)>0))
+cat("Train:",nrow(train)," Test:",nrow(test),"\n")
+```
+
+```
+## Train: 76786  Test: 19201
+```
+
+# 3. Pre-registered predictors and fixed FY2021 country context
+
+The **core** uses age (Q262), gender (Q260), marital status (Q273), education (Q275), social class (Q287), and within-country household income bracket (Q288). **Extended** adds household size (Q270), children (Q274), savings (Q286), and national `Income_Group`. Raw Country is excluded, as A1 specified. We exclude potential target-proxy questions, identifiers and administrative fields. Numeric age and household counts are kept continuous; other question codes are categorical and never assumed equally spaced.
+
+For reproducibility this corrected project uses one fixed **FY2021 crosswalk**, rather than a survey-year-specific reconstruction. Relative to the original project map, MDV is Upper-middle, ROU is High, UKR is Lower-middle, TWN is High, and VEN is Upper-middle. `NIR` inherits the UK's High group by documented assumption. `Unclassified` has no mapped countries; its original factor level is retained to preserve the encoding contract. The no-income-group core model remains the original sensitivity candidate. References: https://blogs.worldbank.org/en/opendata/new-world-bank-country-classifications-income-level-2020-2021 and https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups .
+
+
+``` r
+WB_GROUPS <- list(
+  Low=c("ETH","TJK"),
+  `Lower-middle`=c("BGD","BOL","EGY","IND","KEN","KGZ","MAR","MMR","MNG",
+                   "NGA","NIC","PAK","PHL","TUN","UKR","UZB","VNM","ZWE"),
+  `Upper-middle`=c("ARG","ARM","BRA","CHN","COL","ECU","GTM","IDN","IRN",
+                   "IRQ","JOR","KAZ","LBN","LBY","MDV","MEX","MYS","PER",
+                   "RUS","SRB","THA","TUR","VEN"),
+  High=c("AND","AUS","CAN","CHL","CYP","CZE","DEU","GBR","GRC","HKG","JPN",
+         "KOR","MAC","NIR","NLD","NZL","PRI","ROU","SGP","SVK","TWN","URY","USA"),
+  Unclassified=character(0)
+)
+country_map <- setNames(rep(names(WB_GROUPS),lengths(WB_GROUPS)),
+                        unlist(WB_GROUPS,use.names=FALSE))
+stopifnot(!anyDuplicated(names(country_map)))
+unknown_codes <- setdiff(unique(as.character(wvs$B_COUNTRY_ALPHA)),names(country_map))
+if (length(unknown_codes)) stop("Unmapped countries: ",paste(unknown_codes,collapse=","))
+train$Income_Group <- unname(country_map[as.character(train$B_COUNTRY_ALPHA)])
+test$Income_Group <- unname(country_map[as.character(test$B_COUNTRY_ALPHA)])
+```
+
+# 4. Fit-partition-only preprocessing
+
+Train-derived medians replace nonnumeric `Unknown`/missing numeric responses; missingness flags are retained. Means and SDs are estimated on the fitting partition only. Questionnaire categories use **fixed codebook-compatible factor levels** including a `Missing` fallback (A1 mode imputation itself cannot be undone). The same factor levels are used for the test, so the test cannot modify the design. `Age_sq` is squared standardised age, a controlled curvature candidate rather than a generic nonlinear search.
+
+
+``` r
+NUMERIC_KEYS <- c(Age="Q262",HouseholdSize="Q270",Children="Q274")
+CATEGORY_KEYS <- list(
+  Gender=as.character(1:2),Marital=as.character(1:6),
+  Education=as.character(0:8),SocialClass=as.character(1:5),
+  IncomeBracket=as.character(1:10),Savings=as.character(1:4),
+  Income_Group=c("Low","Lower-middle","Upper-middle","High","Unclassified"))
+CATEGORY_SOURCES <- c(Gender="Q260",Marital="Q273",Education="Q275",
+                      SocialClass="Q287",IncomeBracket="Q288",
+                      Savings="Q286",Income_Group="Income_Group")
+numeric_value <- function(v) {
+  x <- suppressWarnings(as.numeric(as.character(v)))
+  x[!is.finite(x)] <- NA_real_
+  x
+}
+learn_recipe <- function(raw) {
+  num <- lapply(NUMERIC_KEYS,function(k) numeric_value(raw[[k]]))
+  med <- vapply(num,function(x) if(all(is.na(x))) 0 else median(x,na.rm=TRUE),0.0)
+  filled <- Map(function(x,m) {x[is.na(x)] <- m;x},num,med)
+  mu <- vapply(filled,mean,0.0)
+  sigma <- vapply(filled,sd,0.0)
+  sigma[is.na(sigma)|sigma==0] <- 1
+  list(median=med,mean=mu,sd=sigma)
+}
+apply_recipe <- function(raw,r) {
+  out <- data.frame(Outcome=factor(as.character(raw$Outcome),levels=TARGET_LABELS))
+  for (nm in names(NUMERIC_KEYS)) {
+    x <- numeric_value(raw[[NUMERIC_KEYS[[nm]]]])
+    missing <- is.na(x)
+    x[missing] <- r$median[[nm]]
+    out[[nm]] <- (x-r$mean[[nm]])/r$sd[[nm]]
+    out[[paste0(nm,"_missing")]] <- as.integer(missing)
+  }
+  out$Age_sq <- out$Age^2
+  for(nm in names(CATEGORY_KEYS)) {
+    v <- trimws(as.character(raw[[CATEGORY_SOURCES[[nm]]]]))
+    v[is.na(v)|!(v %in% CATEGORY_KEYS[[nm]])] <- "Missing"
+    out[[nm]] <- factor(v,levels=c(CATEGORY_KEYS[[nm]],"Missing"))
+  }
+  out
+}
+```
+
+# 5. Evaluation and predetermined validation search
+
+**Shared split standard:** With numeric `SEED <- 5003`, stratify on `Q279` to create an initial 80% development pool and a 20% untouched test set. Using `SEED + 2`, split the development pool into 75% initial Train and 25% Validation, giving approximately **60% / 20% / 20%** of the whole dataset. The initial 60% Train partition is 57,587 rows and Validation is 19,199 rows (Test 19,201 rows), for the supplied CSV. Candidate fitting is capped at up to 25,000 stratified training records for computational feasibility; this cap **does not** change which records belong to Train or Validation. After selecting a model solely from validation scores, refit it on the entire original 80% development pool (76,786 rows) and evaluate on Test once. All teammates must use the same ordered CSV and split function: equal proportions and a matching seed alone do not guarantee identical row assignments across distinct implementations.
+
+The **primary metric** is macro-F1 averaged over all eight classes, with zero precision/recall/F1 when undefined. Weighted-F1 and accuracy are secondary. Confusion rows are ground truth and columns are predictions. The search is *small and predetermined*: three feature specifications multiplied by weight-decay choices 0.001 and 0.01 (six models). Search is conducted on a stratified development partition from the training rows; the fitting subset is capped at 25,000 to control the runtime. Rank by validation macro-F1, weighted-F1, simpler specification, then larger penalty. The corrected run raises only the optimiser iteration limit from 250 to 2000 and requires convergence before validation scoring, selection and final Test scoring; this limit is checked in a training/validation-only preflight. This is **single-holdout validation, not nested/repeated cross-validation**; the selected specification may be unstable.
+
+
+``` r
+evaluate_8class <- function(truth,pred,show_confusion=FALSE) {
+  a <- factor(as.character(truth),levels=TARGET_LABELS)
+  b <- factor(as.character(pred),levels=TARGET_LABELS)
+  if(anyNA(a)||anyNA(b)) stop("Invalid target class")
+  cm <- table(True=a,Predicted=b)
+  tp <- diag(cm);support <- rowSums(cm);calls <- colSums(cm)
+  precision <- ifelse(calls>0,tp/calls,0)
+  recall <- ifelse(support>0,tp/support,0)
+  f1 <- ifelse(precision+recall>0,2*precision*recall/(precision+recall),0)
+  overall <- data.frame(Macro_F1=mean(f1),Weighted_F1=sum(support*f1)/sum(support),
+                        Accuracy=sum(tp)/sum(cm))
+  per_class <- data.frame(Class=TARGET_LABELS,Support=as.integer(support),
+                          Precision=precision,Recall=recall,F1=f1)
+  if(show_confusion) print(cm)
+  list(overall=overall,per_class=per_class,confusion=cm)
+}
+SPECIFICATIONS <- list(
+ core_linear=c("Age","Age_missing","Gender","Marital","Education","SocialClass",
+               "IncomeBracket"),
+ extended_linear=c("Age","Age_missing","HouseholdSize","HouseholdSize_missing",
+                   "Children","Children_missing","Gender","Marital","Education",
+                   "SocialClass","IncomeBracket","Savings","Income_Group"),
+ extended_quadratic_age=c("Age","Age_missing","Age_sq","HouseholdSize",
+                           "HouseholdSize_missing","Children","Children_missing",
+                           "Gender","Marital","Education","SocialClass",
+                           "IncomeBracket","Savings","Income_Group"))
+model_formula <- function(name) reformulate(SPECIFICATIONS[[name]],response="Outcome")
+```
+
+
+``` r
+dev_id <- stratified_indices(train$Outcome,0.75,SEED + 2)
+val_id <- setdiff(seq_len(nrow(train)),dev_id)
+cat("Seed:", SEED, "| initial Train:", length(dev_id),
+    "| Validation:", length(val_id), "| Test:", nrow(test),
+    "| Final refit pool:", nrow(train), "\n")
+```
+
+```
+## Seed: 5003 | initial Train: 57587 | Validation: 19199 | Test: 19201 | Final refit pool: 76786
+```
+
+``` r
+if(length(dev_id)>DEV_CAP) {
+  short <- stratified_indices(train$Outcome[dev_id],DEV_CAP/length(dev_id),SEED + 3)
+  dev_id <- dev_id[short]
+}
+development <- train[dev_id,,drop=FALSE]
+validation <- train[val_id,,drop=FALSE]
+r_dev <- learn_recipe(development)
+x_dev <- apply_recipe(development,r_dev)
+x_val <- apply_recipe(validation,r_dev)
+grid <- expand.grid(Spec=names(SPECIFICATIONS),Decay=c(0.001,0.01),
+                    stringsAsFactors=FALSE)
+result_rows <- vector("list",nrow(grid))
+for(i in seq_len(nrow(grid))) {
+  spec <- grid$Spec[[i]];decay <- grid$Decay[[i]]
+  fit <- nnet::multinom(model_formula(spec),data=x_dev,decay=decay,
+                       maxit=MAXIT,MaxNWts=10000,trace=FALSE)
+  if(!identical(as.integer(fit$convergence),0L))
+    stop("Candidate did not converge; selection blocked: ",spec," decay=",decay,
+         "; convergence=",fit$convergence,"; MAXIT=",MAXIT)
+  pred <- predict(fit,newdata=x_val,type="class")
+  met <- evaluate_8class(x_val$Outcome,pred)$overall
+  result_rows[[i]] <- data.frame(Spec=spec,Decay=decay,Dev_N=nrow(x_dev),
+                                 Val_N=nrow(x_val),Convergence=fit$convergence,
+                                 Macro_F1=met$Macro_F1,Weighted_F1=met$Weighted_F1,
+                                 Accuracy=met$Accuracy)
+}
+ranking <- do.call(rbind,result_rows)
+stopifnot(nrow(ranking)==nrow(grid),all(ranking$Convergence==0L))
+ranking <- ranking[order(-ranking$Macro_F1,-ranking$Weighted_F1,
+                         match(ranking$Spec,names(SPECIFICATIONS)),-ranking$Decay),]
+knitr::kable(ranking,digits=4,caption="Train-only validation ranking")
+```
+
+
+
+Table: Train-only validation ranking
+
+|   |Spec                   | Decay| Dev_N| Val_N| Convergence| Macro_F1| Weighted_F1| Accuracy|
+|:--|:----------------------|-----:|-----:|-----:|-----------:|--------:|-----------:|--------:|
+|5  |extended_linear        | 0.010| 24996| 19199|           0|   0.3534|      0.4731|   0.5302|
+|2  |extended_linear        | 0.001| 24996| 19199|           0|   0.3533|      0.4731|   0.5302|
+|6  |extended_quadratic_age | 0.010| 24996| 19199|           0|   0.3523|      0.4725|   0.5323|
+|3  |extended_quadratic_age | 0.001| 24996| 19199|           0|   0.3522|      0.4724|   0.5322|
+|1  |core_linear            | 0.001| 24996| 19199|           0|   0.3371|      0.4515|   0.5163|
+|4  |core_linear            | 0.010| 24996| 19199|           0|   0.3370|      0.4515|   0.5163|
+
+``` r
+winning_spec <- ranking$Spec[[1]]
+winning_decay <- ranking$Decay[[1]]
+cat("Chosen before final test:",winning_spec," decay=",winning_decay,"\n")
+```
+
+```
+## Chosen before final test: extended_linear  decay= 0.01
+```
+
+# 6. Final train refit and single held-out test
+
+The winner is fitted once more using all 80% training records with numeric recipes refit on those same rows. The 20% test rows do not affect training, candidate choice, coding or scaling. Outputs include macro-F1, weighted-F1, accuracy, per-class precision/recall/F1 and the 8-by-8 confusion matrix. Compare against the training-majority baseline, whose high accuracy illustrates the harm of assessing only accuracy. **Numbers in this section are generated by actually knitting the Rmd; none are preclaimed here.**
+
+
+``` r
+recipe_final <- learn_recipe(train)
+X_train <- apply_recipe(train,recipe_final)
+X_test <- apply_recipe(test,recipe_final)
+final_fit <- nnet::multinom(model_formula(winning_spec),data=X_train,
+                           decay=winning_decay,maxit=MAXIT,MaxNWts=10000,trace=FALSE)
+if(!identical(as.integer(final_fit$convergence),0L))
+  stop("Final optimisation did not converge; Test scoring blocked. convergence=",
+       final_fit$convergence,"; MAXIT=",MAXIT)
+predicted <- predict(final_fit,newdata=X_test,type="class")
+met <- evaluate_8class(X_test$Outcome,predicted,show_confusion=TRUE)
+```
+
+```
+##                Predicted
+## True            Full-time Part-time Self-employed Retired Housewife Student
+##   Full-time          5480         0           360     273       580     218
+##   Part-time           988         0           127     127       258     121
+##   Self-employed      1259         0           447     200       653     121
+##   Retired             400         0            72    1796       129       4
+##   Housewife           632         0            36     194      1603      39
+##   Student             335         0             7       3        19     738
+##   Unemployed          636         0           157      93       245     218
+##   Other               125         0            22      38        20      14
+##                Predicted
+## True            Unemployed Other
+##   Full-time             83     0
+##   Part-time             33     0
+##   Self-employed         71     0
+##   Retired               15     0
+##   Housewife             44     0
+##   Student               26     0
+##   Unemployed           129     0
+##   Other                 13     0
+```
+
+``` r
+majority <- names(which.max(table(train$Outcome)))
+majority_met <- evaluate_8class(test$Outcome,rep(majority,nrow(test)))
+comparison <- rbind(data.frame(Model="Training-majority",majority_met$overall),
+                    data.frame(Model=paste("Multinomial",winning_spec),met$overall))
+knitr::kable(comparison,digits=4,caption="Held-out comparison; computed during R execution")
+```
+
+
+
+Table: Held-out comparison; computed during R execution
+
+|Model                       | Macro_F1| Weighted_F1| Accuracy|
+|:---------------------------|--------:|-----------:|--------:|
+|Training-majority           |   0.0667|      0.1945|   0.3643|
+|Multinomial extended_linear |   0.3509|      0.4712|   0.5309|
+
+``` r
+knitr::kable(met$per_class,digits=4,caption="Held-out per-class scores")
+```
+
+
+
+Table: Held-out per-class scores
+
+|              |Class         | Support| Precision| Recall|     F1|
+|:-------------|:-------------|-------:|---------:|------:|------:|
+|Full-time     |Full-time     |    6994|    0.5561| 0.7835| 0.6505|
+|Part-time     |Part-time     |    1654|    0.0000| 0.0000| 0.0000|
+|Self-employed |Self-employed |    2751|    0.3640| 0.1625| 0.2247|
+|Retired       |Retired       |    2416|    0.6593| 0.7434| 0.6988|
+|Housewife     |Housewife     |    2548|    0.4571| 0.6291| 0.5295|
+|Student       |Student       |    1128|    0.5010| 0.6543| 0.5675|
+|Unemployed    |Unemployed    |    1478|    0.3116| 0.0873| 0.1364|
+|Other         |Other         |     232|    0.0000| 0.0000| 0.0000|
+
+# 7. Interpretation and remaining limitations
+
+The multinomial model uses the Full-time reference category. Exponentiated coefficients describe **conditional relative-risk ratios**, not absolute probability changes. Sparse categories and correlated predictors can undermine coefficient stability even when the optimiser reports convergence; uncertainty intervals would require further assessment. A quadratic age term is only a limited response to A1's nonlinearity. The fixed FY2021 country-income proxy is not a respondent-level income variable; the core specification omitting it provides a sensitivity contrast, **not** proof that country context is sufficient or causal.
+
+Survey outcomes and socioeconomic predictors can be jointly determined. No causal interpretation, cross-country transport, fairness assurance, calibrated decision threshold, or nationally representative policy conclusion is supported. The training-only validation uses a capped subset and one split. Full R execution and `sessionInfo()` must be checked before reporting final model performance; these code sections by themselves do not certify runtime success.
+
+
+``` r
+sessionInfo()
+```
+
+```
+## R version 4.6.1 (2026-06-24 ucrt)
+## Platform: x86_64-w64-mingw32/x64
+## Running under: Windows 10 x64 (build 19045)
+## 
+## Matrix products: default
+##   LAPACK version 3.12.1
+## 
+## locale:
+## [1] C
+## system code page: 65001
+## 
+## time zone: Asia/Shanghai
+## tzcode source: internal
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## loaded via a namespace (and not attached):
+##  [1] digest_0.6.39   R6_2.6.1        fastmap_1.2.0   xfun_0.60      
+##  [5] nnet_7.3-20     cachem_1.1.0    knitr_1.52      htmltools_0.5.9
+##  [9] rmarkdown_2.32  lifecycle_1.0.5 cli_3.6.6       sass_0.4.10    
+## [13] jquerylib_0.1.4 compiler_4.6.1  tools_4.6.1     evaluate_1.0.5 
+## [17] bslib_0.12.0    yaml_2.3.12     otel_0.2.0      rlang_1.3.0    
+## [21] jsonlite_2.0.0
+```

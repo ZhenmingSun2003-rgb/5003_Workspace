@@ -1,0 +1,300 @@
+--- original_sources/baseline.Rmd
++++ baseline.Rmd
+@@ -99,22 +99,22 @@
+ 
+ **Core hypothesis-driven predictors:** age `Q262` (numeric), gender `Q260`, marital status `Q273`, attained education `Q275`, self-rated class `Q287`, household income bracket `Q288` (categorical, not an interval scale). **Extended predictors:** household size `Q270`, number of children `Q274`, savings `Q286`, and a coarse `Income_Group` proxy. We exclude raw `B_COUNTRY_ALPHA` from the predictive design, although it is required to derive the context proxy. We also exclude interview, weights, respondent identifiers, questionnaire items possibly downstream of employment, and spouse/parental education until their availability and measurement comparability are assessed. **Do not automatically feed all 519 columns into the classifier.**
+ 
+-**WB crosswalk: transparent provisional analytical mapping.** For portability, the crosswalk below is embedded instead of downloaded during knitting. Its reference vintage is **FY2021 (classification released July 2020 using 2019 GNI)**, approximately central to WVS7, but the country-level entries are a **working transcription requiring checking against the official World Bank historical XLS before final submission**. It is *not* a survey-year-specific reconstruction. `TWN` and `VEN` are explicitly marked `Unclassified` rather than inventing an official income label; `NIR` is a documented assumption assigned the UK's group. `Unclassified` is a missing-coverage indicator, **not** a fifth income band. Results using this feature should be labelled exploratory until the mapping is independently audited. The logistic Rmd compares specifications with and without it.
++**WB crosswalk: verified FY2021 historical classification.** The embedded entries follow the frozen official World Bank historical workbook archived in `source_evidence/`; FY2021 was released on 1 July 2020 using 2019 GNI. All 65 independently classified codes match the FY2021 column. `NIR` explicitly inherits the UK's High group because the workbook has no independent NIR row. `TWN` is High and `VEN` is Upper-middle, as the official FY2021 table specifies. The unused `Unclassified` dictionary level is retained for compatibility but no country is assigned to it. This is a fixed-vintage national context proxy, not a survey-year-specific reconstruction or an individual's household income. The logistic Rmd compares specifications with and without this proxy.
+ 
+ Official background: https://blogs.worldbank.org/en/opendata/new-world-bank-country-classifications-income-level-2020-2021 ; historical tables: https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups .
+ 
+ ```{r country-income-crosswalk, echo=TRUE}
+ WB_GROUPS <- list(
+   Low = c("ETH", "TJK"),
+-  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR",
+-                     "MNG", "NGA", "NIC", "PAK", "PHL", "TUN", "UZB", "VNM", "ZWE"),
+-  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN",
+-                     "IRN", "IRQ", "JOR", "KAZ", "LBN", "LBY", "MEX", "MYS",
+-                     "PER", "ROU", "RUS", "SRB", "THA", "TUR", "UKR"),
+-  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC",
+-           "HKG", "JPN", "KOR", "MAC", "MDV", "NIR", "NLD", "NZL", "PRI",
+-           "SGP", "SVK", "URY", "USA"),
+-  Unclassified = c("TWN", "VEN")
++  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
++                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
++  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
++                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
++                     "RUS", "SRB", "THA", "TUR", "VEN"),
++  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
++           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
++           "USA"),
++  Unclassified = character(0)
+ )
+ country_group <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                           unlist(WB_GROUPS, use.names = FALSE))
+@@ -123,10 +123,10 @@
+ if (length(not_mapped)) stop("Country mapping requires review: ", paste(not_mapped, collapse = ", "))
+ wvs$Income_Group <- unname(country_group[as.character(wvs$B_COUNTRY_ALPHA)])
+ knitr::kable(as.data.frame(table(wvs$Income_Group)),
+-             col.names = c("Working FY2021 income proxy", "Respondents"))
+-```
+-
+-**Why this matters:** national income groups conceal large within-country differences; an economy's GNI group is not an individual's household income. `Unclassified` and the provisional manual crosswalk may encode country identity and affect comparability. The whole-sample table above is merely a deterministic map of external context, **not** an outcome-derived feature.
++             col.names = c("Verified FY2021 income proxy", "Respondents"))
++```
++
++**Why this matters:** national income groups conceal large within-country differences; an economy's GNI group is not an individual's household income. The fixed FY2021 context proxy and documented NIR inheritance assumption may encode country context. The whole-sample table above is a deterministic external mapping, not an outcome-derived feature.
+ 
+ # 5. Shared stratified 60/20/20 development-validation-test contract
+ 
+@@ -221,7 +221,7 @@
+ 1. **A1 imputation is irreversible from this CSV:** train-only numeric transformations in later models reduce new leakage, not the inherited risk.
+ 2. **Measurement:** age is numerical, but education, self-rated class and within-country income deciles are *categorical* here; assigning unit distances to all of them would be unjustified. Unknown numeric values must be identified and imputed from training data only.
+ 3. **Temporal/country transport:** random record holdout does not support claims about prediction in an unseen economy or later survey. Countries may dominate pooled distributions; group-level fairness and survey-design sensitivity remain open questions.
+-4. **Income-group audit:** the provisional FY2021 crosswalk must be audited before final reporting. The primary logistic comparison should also include the model **without** this proxy.
++4. **Income-group provenance:** the FY2021 crosswalk is verified against the frozen official historical workbook; retain the NIR-to-UK inheritance assumption and fixed-vintage limitation. The primary logistic comparison also includes the model **without** this proxy.
+ 5. **Interpretation/fairness:** coefficients are conditional associations, not policy effects; gender and household characteristics can encode protected-group disparities. Avoid deployment or individual decision-making based on this classroom model.
+ 6. **Shared contract:** keep identical row order, `SEED`, 80/20 split, class labels and metric definitions across all group members. Do not select predictors by inspecting the held-out test labels.
+ 7. **Reproducibility check:** document `sessionInfo()` and rendering status; results below are not claimed until this Rmd actually runs in R.
+--- original_sources/02_LDA.Rmd
++++ 02_LDA.Rmd
+@@ -165,34 +165,35 @@
+ All initial fitting uses 57,587 records; no training cap is needed for LDA.
+ The final model is refitted on 76,786 development records.
+ 
+-# Pre-registered predictors and provisional World Bank context
++# Pre-registered predictors and verified FY2021 World Bank context
+ 
+ The **core** uses age, gender, marital status, education, self-rated social class
+ and household income bracket. **Extended without context** adds household size,
+ number of children and savings. **Extended with context** additionally includes
+-the shared baseline's provisional national income proxy. Raw country, respondent
++the shared baseline's verified FY2021 national income proxy. Raw country, respondent
+ IDs, survey administration variables, weights and employment-proxy questions
+ are excluded. National income group and household income are distinct concepts.
+ 
+-The country map below is copied from the current shared baseline. It is a
+-provisional FY2021 working crosswalk, not an audited survey-year classification.
+-Taiwan and Venezuela are `Unclassified`; Northern Ireland follows the UK by
+-assumption. `Unclassified` is a coverage indicator, not a fifth World Bank income
+-tier. The candidates without this feature provide sensitivity checks. No claim
+-that the mapping has been independently verified is made here.
++The country map below matches the canonical FY2021 crosswalk verified against
++the frozen official historical workbook in `source_evidence/`. Taiwan is High
++and Venezuela is Upper-middle. Northern Ireland explicitly inherits the UK's
++High group; it has no independent official row. The unused `Unclassified`
++dictionary level is retained without any country assignment. This fixed-vintage
++proxy is not survey-year-specific; candidates without it provide sensitivity checks.
+ 
+ ```{r context}
+ WB_GROUPS <- list(
+   Low = c("ETH", "TJK"),
+-  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR",
+-                     "MNG", "NGA", "NIC", "PAK", "PHL", "TUN", "UZB", "VNM", "ZWE"),
+-  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN",
+-                     "IRN", "IRQ", "JOR", "KAZ", "LBN", "LBY", "MEX", "MYS",
+-                     "PER", "ROU", "RUS", "SRB", "THA", "TUR", "UKR"),
+-  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC",
+-           "HKG", "JPN", "KOR", "MAC", "MDV", "NIR", "NLD", "NZL", "PRI",
+-           "SGP", "SVK", "URY", "USA"),
+-  Unclassified = c("TWN", "VEN"))
++  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
++                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
++  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
++                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
++                     "RUS", "SRB", "THA", "TUR", "VEN"),
++  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
++           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
++           "USA"),
++  Unclassified = character(0)
++)
+ country_map <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                         unlist(WB_GROUPS, use.names = FALSE))
+ stopifnot(!anyDuplicated(names(country_map)))
+@@ -487,6 +488,8 @@
+ These results answer the research question in terms of predictive performance,
+ not causal explanations or evidence that interventions would change employment.
+ 
++> **Legacy pre-correction interpretation:** the numerical claims in this paragraph describe the original map, not the FY2021-corrected rerun. Use the newly generated tables for corrected results.
++
+ The selected model correctly identifies only 1 of 1,654 Part-time records and
+ 1 of 232 Other records. Its relatively stronger performance for Retired and
+ Full-time does not imply adequate discrimination across all eight categories.
+@@ -497,8 +500,8 @@
+ - **Model form:** common covariance and Gaussian assumptions are imperfect for
+   mixed survey variables. Linear boundaries may miss age-related curvature and
+   interactions that teammates' nonlinear models can represent.
+-- **Data limitations:** inherited pre-split mode imputation, a provisional national
+-  income map, self-reported categories and pooling across countries limit interpretation.
++- **Data limitations:** inherited pre-split mode imputation, a fixed-vintage FY2021 national
++  income proxy with a documented NIR inheritance assumption, self-reported categories and pooling across countries limit interpretation.
+ - **Scope and uncertainty:** one fixed random individual holdout cannot establish
+   transportability to future surveys or new countries. Repeated within-development
+   cross-validation would help assess selection stability in a subsequent study.
+@@ -550,6 +553,6 @@
+   "Six candidates use all 57,587 initial training records; no tuning cap or CV.",
+   "Feature/prior choice uses validation only; this revision does not add candidates.",
+   "All test predictions refer to the fixed shared held-out partition.",
+-  "Inherited A1 pre-split mode imputation and provisional income mapping remain limitations."
++  "Inherited A1 pre-split imputation and fixed-vintage national context remain limitations; NIR inherits UK."
+ ), file.path(OUT_DIR, "RUN_SUMMARY.txt"))
+ ```
+--- original_sources/03_kNN.Rmd
++++ 03_kNN.Rmd
+@@ -20,7 +20,7 @@
+ # Split + metric functions below are copied verbatim from baseline.Rmd.
+ # Recipe (train-only medians/scaling, missing flags, fixed factor levels)
+ # is copied verbatim from the logistic / decision-tree files.
+-# Income_Group uses the SAME provisional mapping as the other models.
++# Income_Group uses the SAME verified FY2021 mapping; NIR explicitly inherits UK High.
+ # A1 already imputed the whole CSV: inherited leakage remains a limitation.
+ #
+ # KNN-specific design choices (documented for the report):
+@@ -112,15 +112,15 @@
+ 
+ WB_GROUPS <- list(
+   Low = c("ETH", "TJK"),
+-  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR",
+-                     "MNG", "NGA", "NIC", "PAK", "PHL", "TUN", "UZB", "VNM", "ZWE"),
+-  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN",
+-                     "IRN", "IRQ", "JOR", "KAZ", "LBN", "LBY", "MEX", "MYS",
+-                     "PER", "ROU", "RUS", "SRB", "THA", "TUR", "UKR"),
+-  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC",
+-           "HKG", "JPN", "KOR", "MAC", "MDV", "NIR", "NLD", "NZL", "PRI",
+-           "SGP", "SVK", "URY", "USA"),
+-  Unclassified = c("TWN", "VEN")
++  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
++                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
++  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
++                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
++                     "RUS", "SRB", "THA", "TUR", "VEN"),
++  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
++           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
++           "USA"),
++  Unclassified = character(0)
+ )
+ country_group <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                           unlist(WB_GROUPS, use.names = FALSE))
+@@ -379,7 +379,7 @@
+   "Single holdout Validation selects configuration; Test is not used for selection.",
+   "One-hot keeps all levels; dummies scaled so any categorical mismatch adds 1 to squared distance.",
+   "Inherited limitation: A1 mode imputation used the whole CSV before this split.",
+-  "Income_Group follows the shared provisional map; historical entries require audit.")
++  "Income_Group follows the verified frozen FY2021 map; NIR explicitly inherits UK High.")
+ writeLines(summary_lines, file.path(OUT_DIR, "RUN_SUMMARY.txt"))
+ print(comparison)
+ writeLines(capture.output(sessionInfo()), file.path(OUT_DIR, "sessionInfo.txt"))
+--- original_sources/04_SVM.Rmd
++++ 04_SVM.Rmd
+@@ -118,20 +118,22 @@
+     "\nSelected source columns (target/country included):", length(REQUIRED_COLUMNS), "\n")
+ ```
+ 
+-## Shared country-income crosswalk
++## Shared verified FY2021 country-income crosswalk
++
++The map follows the frozen official FY2021 historical workbook in `source_evidence/`. TWN is High and VEN is Upper-middle. NIR explicitly inherits the UK's High group; it has no independent official row. `Unclassified` remains an unused dictionary level. The fixed FY2021 context is not survey-year-specific.
+ 
+ ```{r income-map}
+ WB_GROUPS <- list(
+   Low = c("ETH", "TJK"),
+-  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR",
+-                     "MNG", "NGA", "NIC", "PAK", "PHL", "TUN", "UZB", "VNM", "ZWE"),
+-  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN",
+-                     "IRN", "IRQ", "JOR", "KAZ", "LBN", "LBY", "MEX", "MYS",
+-                     "PER", "ROU", "RUS", "SRB", "THA", "TUR", "UKR"),
+-  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC",
+-           "HKG", "JPN", "KOR", "MAC", "MDV", "NIR", "NLD", "NZL", "PRI",
+-           "SGP", "SVK", "URY", "USA"),
+-  Unclassified = c("TWN", "VEN")
++  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
++                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
++  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
++                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
++                     "RUS", "SRB", "THA", "TUR", "VEN"),
++  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
++           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
++           "USA"),
++  Unclassified = character(0)
+ )
+ country_group <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                           unlist(WB_GROUPS, use.names = FALSE))
+@@ -621,7 +623,9 @@
+ ```
+ 
+ 
+-# SVM discussion and limitations
++# Legacy pre-correction SVM discussion and limitations
++
++> **Legacy results, not the FY2021-corrected rerun:** the fixed configuration and numerical claims below belong to the original mapping. They are retained for provenance only. Corrected results must come from this run's generated validation and Test tables; do not reuse these old figures.
+ 
+ Validation selected the extended-feature RBF SVM with C = 1,
+ gamma = 0.212766 and inverse-frequency class weights. After refitting
+--- original_sources/05_DecisionTree.Rmd
++++ 05_DecisionTree.Rmd
+@@ -33,7 +33,7 @@
+ # Split + metric functions below are copied verbatim from baseline.Rmd.
+ # Preprocessing follows the logistic file, including fit-only medians/scaling.
+ # Trees do not require scaling; it is retained for the shared recipe contract.
+-# Income_Group uses the SAME provisional mapping, not an independently audited one.
++# Income_Group uses the SAME verified FY2021 mapping; NIR explicitly inherits UK High.
+ # A1 already imputed the whole CSV: inherited leakage remains a limitation.
+ # Do not claim raw missingness is zero or claim unseen-country generalisation.
+ 
+@@ -254,15 +254,15 @@
+ wvs$Outcome <- factor(as.character(wvs$Q279), levels = TARGET_LEVELS, labels = TARGET_LABELS)
+ WB_GROUPS <- list(
+   Low = c("ETH", "TJK"),
+-  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR",
+-                     "MNG", "NGA", "NIC", "PAK", "PHL", "TUN", "UZB", "VNM", "ZWE"),
+-  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN",
+-                     "IRN", "IRQ", "JOR", "KAZ", "LBN", "LBY", "MEX", "MYS",
+-                     "PER", "ROU", "RUS", "SRB", "THA", "TUR", "UKR"),
+-  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC",
+-           "HKG", "JPN", "KOR", "MAC", "MDV", "NIR", "NLD", "NZL", "PRI",
+-           "SGP", "SVK", "URY", "USA"),
+-  Unclassified = c("TWN", "VEN")
++  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
++                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
++  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
++                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
++                     "RUS", "SRB", "THA", "TUR", "VEN"),
++  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
++           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
++           "USA"),
++  Unclassified = character(0)
+ )
+ country_group <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                           unlist(WB_GROUPS, use.names = FALSE))
+@@ -379,7 +379,7 @@
+ 
+ # Predetermined search; no candidate is selected by looking at Test scores.
+ # Core and extended match the logistic feature sets. The third set isolates
+-# the contribution of the provisional country-income proxy within extended.
++# the contribution of the fixed FY2021 country-income proxy within extended.
+ # Quadratic age is omitted: a tree already makes nonlinear age partitions.
+ SPECIFICATIONS <- list(
+   core_linear = c("Age", "Age_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket"),
+@@ -511,7 +511,7 @@
+   "All candidates used the full 60% Train. No development subsampling and no CV.",
+   "Single holdout Validation selects configuration; Test is not used for selection.",
+   "Inherited limitation: A1 mode imputation used the whole CSV before this split.",
+-  "Income_Group follows the shared provisional map; historical entries require audit.",
++  "Income_Group follows the verified frozen FY2021 map; NIR explicitly inherits UK High.",
+   "Raw missingness audit is optional and skipped unless STAT5003_RAW_PATH is set.",
+   "Descriptive IQR flags are not invalid-value decisions; no observations were removed.",
+   "The illustrative pruned plot, if present, is not the evaluated full model.",
+@@ -556,9 +556,11 @@
+ 
+ ## Interpretation and limitations
+ 
++> **Legacy pre-correction interpretation:** the fixed zero-prediction claim below belongs to the original map; consult newly generated class counts and recall for the corrected run.
++
+ Inspect the per-class results alongside Macro F1: the tested configuration does not predict Part-time, Unemployed or Other, giving zero recall for these classes. The fitted leaf decisions favour the remaining classes. Class imbalance and insufficient separation under the selected features and tree constraints are plausible contributing factors; the results do not establish a single cause.
+ 
+-The shared A1 CSV was already imputed before splitting, so this analysis avoids additional fitted-preprocessing leakage but cannot remove the inherited risk. The country-income mapping is provisional and requires independent verification. Original missingness cannot be reconstructed from the imputed CSV; the optional audit is skipped unless original data are supplied. Random individual-level holdout does not establish performance in unseen countries or future years. This document is a model contribution to the group report, not the complete final submission.
++The shared A1 CSV was already imputed before splitting, so this analysis avoids additional fitted-preprocessing leakage but cannot remove the inherited risk. The country-income mapping is verified against the frozen FY2021 historical table; it is not survey-year-specific and NIR inherits UK High. Original missingness cannot be reconstructed from the imputed CSV; the optional audit is skipped unless original data are supplied. Random individual-level holdout does not establish performance in unseen countries or future years. This document is a model contribution to the group report, not the complete final submission.
+ 
+ ## Reproducibility information
+ 

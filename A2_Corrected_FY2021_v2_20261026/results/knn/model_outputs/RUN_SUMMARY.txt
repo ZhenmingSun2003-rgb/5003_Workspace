@@ -1,0 +1,16 @@
+STAT5003 D: completed baseline-aligned KNN run
+Input: C:\Users\Saberken\Documents\ChatGPT\5003_A1_A2\STAT5003_A2_Corrected_FY2021_v2_20261026\WVS_Wave7_cleaned_for_modelling.csv
+Input MD5: 98bf573170f0cb6bd65a4e9a8070d4d8
+Verified input SHA256: ee392676dbb42dde0ea74ebf643862f3900e7d13a7aa03842ed2d7665ac98ee0
+baseline.Rmd blob: 7c83716a1f8186a40a17ab124da8bd9b8bfee430
+Split seeds: 5003 for 80/20; 5005 for within-development 75/25.
+Train: 57587; Validation: 19199; Test: 19201; final refit: 76786
+Selected specification: extended_linear
+Parameters: k=21, weighting=distance, dummy scale=0.7071
+Selection Validation Macro F1: 0.342990
+Test Macro F1: 0.339867; Weighted F1: 0.457148; Accuracy: 0.502943
+All candidates used the full 60% Train. No development subsampling and no CV.
+Single holdout Validation selects configuration; Test is not used for selection.
+One-hot keeps all levels; dummies scaled so any categorical mismatch adds 1 to squared distance.
+Inherited limitation: A1 mode imputation used the whole CSV before this split.
+Income_Group follows the verified frozen FY2021 map; NIR explicitly inherits UK High.

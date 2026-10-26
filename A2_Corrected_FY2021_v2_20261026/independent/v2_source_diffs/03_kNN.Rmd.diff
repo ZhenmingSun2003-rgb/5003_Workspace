@@ -1,0 +1,45 @@
+--- original_sources/03_kNN.Rmd
++++ 03_kNN.Rmd
+@@ -20,7 +20,7 @@
+ # Split + metric functions below are copied verbatim from baseline.Rmd.
+ # Recipe (train-only medians/scaling, missing flags, fixed factor levels)
+ # is copied verbatim from the logistic / decision-tree files.
+-# Income_Group uses the SAME provisional mapping as the other models.
++# Income_Group uses the SAME verified FY2021 mapping; NIR explicitly inherits UK High.
+ # A1 already imputed the whole CSV: inherited leakage remains a limitation.
+ #
+ # KNN-specific design choices (documented for the report):
+@@ -112,15 +112,15 @@
+ 
+ WB_GROUPS <- list(
+   Low = c("ETH", "TJK"),
+-  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR",
+-                     "MNG", "NGA", "NIC", "PAK", "PHL", "TUN", "UZB", "VNM", "ZWE"),
+-  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN",
+-                     "IRN", "IRQ", "JOR", "KAZ", "LBN", "LBY", "MEX", "MYS",
+-                     "PER", "ROU", "RUS", "SRB", "THA", "TUR", "UKR"),
+-  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC",
+-           "HKG", "JPN", "KOR", "MAC", "MDV", "NIR", "NLD", "NZL", "PRI",
+-           "SGP", "SVK", "URY", "USA"),
+-  Unclassified = c("TWN", "VEN")
++  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
++                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
++  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
++                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
++                     "RUS", "SRB", "THA", "TUR", "VEN"),
++  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
++           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
++           "USA"),
++  Unclassified = character(0)
+ )
+ country_group <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                           unlist(WB_GROUPS, use.names = FALSE))
+@@ -379,7 +379,7 @@
+   "Single holdout Validation selects configuration; Test is not used for selection.",
+   "One-hot keeps all levels; dummies scaled so any categorical mismatch adds 1 to squared distance.",
+   "Inherited limitation: A1 mode imputation used the whole CSV before this split.",
+-  "Income_Group follows the shared provisional map; historical entries require audit.")
++  "Income_Group follows the verified frozen FY2021 map; NIR explicitly inherits UK High.")
+ writeLines(summary_lines, file.path(OUT_DIR, "RUN_SUMMARY.txt"))
+ print(comparison)
+ writeLines(capture.output(sessionInfo()), file.path(OUT_DIR, "sessionInfo.txt"))

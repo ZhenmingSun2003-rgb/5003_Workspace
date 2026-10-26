@@ -1,0 +1,90 @@
+{
+  "Verified_At": "2026-10-26T12:12:40.518770+08:00",
+  "Original_Repository_Unchanged": true,
+  "Old_Audit_Unchanged": true,
+  "Official_Renders_Succeeded": 6,
+  "Logistic_MAXIT": 2000,
+  "Logistic_Candidates_Converged": 6,
+  "Logistic_Final_Convergence": 0,
+  "Data_And_Test_Row_Identity_Verified": true,
+  "Mapping_Changed_Codes": 5,
+  "Mapping_Affected_Rows": 5893,
+  "TWN": "High",
+  "VEN": "Upper-middle",
+  "Recipe_Checks": 138,
+  "Recipe_Failures": 0,
+  "Class_Weight_Checks": 32,
+  "Class_Weight_Failures": 0,
+  "No_Income_Unchanged_Validation_Candidates": 102,
+  "Paired_Bootstrap_Replicates": 5000,
+  "Paired_Bootstrap_Pairs": 11,
+  "Independent_Evaluation_Issues": 0,
+  "Whole_V2_Two_Pass_Claimed": false,
+  "Files": [
+    {
+      "File": "baseline.Rmd",
+      "Bytes": 18408,
+      "SHA256": "8d344a2dc81a34868b81e0562a60f405c8eda3e83aa00288abc01532d8c9ab87"
+    },
+    {
+      "File": "01_MultinomialLogisticRegression.Rmd",
+      "Bytes": 17876,
+      "SHA256": "516d23f073cfff3ded7a107a9d6cbc6904e937cf33bd470bff4789be78364141"
+    },
+    {
+      "File": "02_LDA.Rmd",
+      "Bytes": 28911,
+      "SHA256": "f2d9d22cabaa105329de1ad0688887b98749016309bbfcfc34074a5e48cc6c8f"
+    },
+    {
+      "File": "03_kNN.Rmd",
+      "Bytes": 20880,
+      "SHA256": "9d228929e8887f8855a04b6dcf902c6936ec2cc1822e53ac9d7b97e216d622b0"
+    },
+    {
+      "File": "04_SVM.Rmd",
+      "Bytes": 34702,
+      "SHA256": "55a4c54dce1ae72cc1ec6b213147b9ff8677b8ccf803bf3a6ece84849eec2814"
+    },
+    {
+      "File": "05_DecisionTree.Rmd",
+      "Bytes": 33469,
+      "SHA256": "0f9740f70cb5222054e54db3f10056d95e2b71ba39aab09aed21cf3eb5747995"
+    },
+    {
+      "File": "FY2021_crosswalk.json",
+      "Bytes": 26484,
+      "SHA256": "8c21a25a7733300f6ef0ac00363b6d12201a5284ef3b4bfc616cb0c0bd777065"
+    },
+    {
+      "File": "model_comparison.csv",
+      "Bytes": 2071,
+      "SHA256": "05027c928a5cb9a2f0c5442dd99f701d84c4dbf9555e28a347caed89d77fed1b"
+    },
+    {
+      "File": "per_class_comparison.csv",
+      "Bytes": 4582,
+      "SHA256": "b6f69c0f0fc909389ba4fa72fb46a5332cbaaaff0ab8a7252c2b0be5e20a2cf8"
+    },
+    {
+      "File": "split_integrity_report.csv",
+      "Bytes": 11052,
+      "SHA256": "29f54bf4d1c481d6745d2cbc8c2cf3ba3779d524f6932216f5c40e6c19137e22"
+    },
+    {
+      "File": "old_vs_new_comparison.csv",
+      "Bytes": 3264,
+      "SHA256": "12985bda50c52bea3526c4e2f5de136f20346d5e2217af16b3af8a0841b3703d"
+    },
+    {
+      "File": "reports/STAT5003_A2_CORRECTED_V2_REPORT.md",
+      "Bytes": 25970,
+      "SHA256": "f4e366bb5c524e4bf93083a39607e2233edaa493dddcf8afc4565613dd04ad81"
+    },
+    {
+      "File": "reports/STAT5003_A2_CORRECTED_V2_REPORT.html",
+      "Bytes": 40466,
+      "SHA256": "1f5697ef628e289fe1be8625f3986419aa3a1018894eaaa6a1de13af4e1dbbc8"
+    }
+  ]
+}

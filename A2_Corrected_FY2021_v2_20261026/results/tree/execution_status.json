@@ -1,0 +1,30 @@
+{
+  "Run": "tree",
+  "File": "05_DecisionTree.Rmd",
+  "Mode": "corrected_v2_official",
+  "Success": true,
+  "Error": null,
+  "Elapsed_Seconds": 37.890000000000001,
+  "Started_At": "2026-10-26 11:11:04 +0800",
+  "Finished_At": "2026-10-26 11:11:42 +0800",
+  "Source_MD5": "d967bbc347bbc18f27d1ab75cdf45f5a",
+  "Source_Unchanged_During_Render": true,
+  "Output": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/results/tree/05_DecisionTree.html",
+  "Data_Path": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/WVS_Wave7_cleaned_for_modelling.csv",
+  "Data_MD5": "98bf573170f0cb6bd65a4e9a8070d4d8",
+  "RNG": ["Mersenne-Twister", "Inversion", "Rejection"],
+  "Conditions": [
+    {
+      "Type": "message",
+      "Message": "\n\nprocessing file: 05_DecisionTree.Rmd\n"
+    },
+    {
+      "Type": "message",
+      "Message": "output file: 05_DecisionTree.knit.md\n\n"
+    },
+    {
+      "Type": "message",
+      "Message": "\nOutput created: 05_DecisionTree.html\n"
+    }
+  ]
+}

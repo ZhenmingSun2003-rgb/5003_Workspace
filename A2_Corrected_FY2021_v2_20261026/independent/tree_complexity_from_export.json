@@ -1,0 +1,10 @@
+{
+  "Evidence": "Independent node/terminal-marker count from exported full final_tree rules; no fitting",
+  "Path": "C:\\Users\\Saberken\\Documents\\ChatGPT\\5003_A1_A2\\STAT5003_A2_Corrected_FY2021_v2_20261026\\results\\tree\\model_outputs\\decision_tree_rules.txt",
+  "Nodes": 31,
+  "Leaves": 16,
+  "Maximum_Depth": 8,
+  "Node_IDs_Unique": true,
+  "Selected_Validation_Leaves": "21",
+  "Illustrative_Pruning_File_Present": false
+}

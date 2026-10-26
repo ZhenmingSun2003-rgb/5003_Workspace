@@ -1,0 +1,54 @@
+{
+  "Success": true,
+  "Error": null,
+  "MAXIT": 2000,
+  "Source": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/01_MultinomialLogisticRegression.Rmd",
+  "Source_SHA256_Before": "516d23f073cfff3ded7a107a9d6cbc6904e937cf33bd470bff4789be78364141",
+  "Source_SHA256_After": "516d23f073cfff3ded7a107a9d6cbc6904e937cf33bd470bff4789be78364141",
+  "Source_MD5": "942da8967e097bbbe6c381160f887ae5",
+  "Diagnostic_Source_SHA256": "ff5adf8122f1c1fd6702508f50cde0e187dbd41afff784c688128736ffb6e4ff",
+  "Source_Stayed_Unchanged": true,
+  "Candidate_N": 6,
+  "Candidate_Fitting_N": 24996,
+  "Candidate_Convergence": [0, 0, 0, 0, 0, 0],
+  "Selected_Specification": "extended_linear",
+  "Selected_Decay": 0.01,
+  "Final_Refit_N": 76786,
+  "Final_Convergence": 0,
+  "Final_Objective": 101183.82310294952,
+  "Final_Block_Elapsed_Seconds": 82.579999999999984,
+  "Total_Elapsed_Seconds": 206.88999999999999,
+  "No_Test_Prediction_Or_Scoring": true,
+  "Prediction_Method_Trace": [
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    },
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    },
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    },
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    },
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    },
+    {
+      "newdata_rows": 19199,
+      "requested_type": "class"
+    }
+  ],
+  "Expected_Validation_Prediction_Calls": 6,
+  "Observed_Prediction_Calls": 6,
+  "Static_Execution_Code_Has_No_Test_Prediction_Or_Scoring": true,
+  "Model_Hyperparameters_Changed": "Only MAXIT 250 -> current limit; family, six-candidate grid, decay, cap, formula, MaxNWts, seeds, recipes and selection order retained",
+  "Conditions": [],
+  "HTML": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/diagnostics/logistic_preflight_maxit2000/Logistic_Preflight.html"
+}

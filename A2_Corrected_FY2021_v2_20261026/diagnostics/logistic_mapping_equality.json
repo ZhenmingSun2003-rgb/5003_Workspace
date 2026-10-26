@@ -1,0 +1,12 @@
+{
+  "equal_to_canonical": true,
+  "country_count": 66,
+  "group_counts": {
+    "Low": 2,
+    "Lower-middle": 18,
+    "Upper-middle": 23,
+    "High": 23
+  },
+  "Unclassified_empty": true,
+  "differences": {}
+}

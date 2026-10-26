@@ -1,0 +1,394 @@
+---
+title: "STAT5003 A2 | k-Nearest Neighbours"
+author: "W08G03"
+date: "2026-10-23"
+output:
+  html_document:
+    code_folding: hide
+---
+
+```{r knn-model, fig.width = 9, fig.height = 6, message = FALSE, warning = FALSE, results = "hide"}
+# STAT5003 D: k-nearest neighbours aligned with the shared baseline
+# Run using Source in RStudio or execute this file with Rscript.
+# Uses the shared stratified 60/20/20 split and holdout validation for tuning.
+# Fit on Train, select on Validation, refit on 80%, then evaluate once on Test.
+# Only required package: FNN. No automatic installs or network requests.
+# Shared CSV is never overwritten. Results are written to OUT_DIR.
+#
+# Source: https://github.com/ZhenmingSun2003-rgb/5003_Workspace
+# baseline.Rmd blob: 7c83716a1f8186a40a17ab124da8bd9b8bfee430
+# Split + metric functions below are copied verbatim from baseline.Rmd.
+# Recipe (train-only medians/scaling, missing flags, fixed factor levels)
+# is copied verbatim from the logistic / decision-tree files.
+# Income_Group uses the SAME verified FY2021 mapping; NIR explicitly inherits UK High.
+# A1 already imputed the whole CSV: inherited leakage remains a limitation.
+#
+# KNN-specific design choices (documented for the report):
+# 1. Categorical predictors are one-hot encoded with ALL levels kept (no
+#    reference level), so every category is treated symmetrically by distance.
+# 2. Dummy columns are multiplied by DUMMY_SCALE = 1/sqrt(2). Two respondents
+#    in different categories then differ on two dummy columns, giving a
+#    squared-distance contribution of exactly 1, regardless of how many
+#    levels the variable has. Without this, a 10-level variable and a
+#    2-level variable would not be weighted comparably to each other and to
+#    the standardised numeric predictors.
+# 3. Missing-value flags are 0/1 and left unscaled (mismatch contributes 1).
+# 4. Neighbours are found ONCE for the largest k (FNN::get.knnx); each
+#    candidate k then only re-votes, so the k grid is cheap to search.
+# 5. Ties in the vote are broken in favour of the single nearest neighbour.
+
+# ========================== CONFIGURATION ================================
+script_location <- function() {
+  args <- commandArgs(trailingOnly = FALSE)
+  arg <- sub("^--file=", "", args[grepl("^--file=", args)])
+  if (length(arg)) return(dirname(normalizePath(arg[1], mustWork = TRUE)))
+  for (frame in rev(sys.frames())) {
+    if (!is.null(frame$ofile)) return(dirname(normalizePath(frame$ofile, mustWork = TRUE)))
+  }
+  getwd()
+}
+SCRIPT_DIR <- script_location()
+# Optional override: Sys.setenv(STAT5003_DATA_PATH = "/path/to/shared.csv")
+DATA_PATH <- Sys.getenv("STAT5003_DATA_PATH", "")
+if (!nzchar(DATA_PATH)) {
+  choices <- c(file.path(SCRIPT_DIR, "WVS_Wave7_cleaned_for_modelling.csv"),
+    file.path(getwd(), "WVS_Wave7_cleaned_for_modelling.csv"),
+    file.path(dirname(SCRIPT_DIR), "WVS_Wave7_cleaned_for_modelling.csv"))
+  hits <- choices[file.exists(choices)]
+  if (!length(hits)) stop("Put shared CSV beside script, or set STAT5003_DATA_PATH. For a Git clone, run git lfs pull.")
+  DATA_PATH <- hits[1]
+}
+OUT_DIR <- Sys.getenv("STAT5003_OUT_DIR", file.path(SCRIPT_DIR, "STAT5003_D_knn_results"))
+SEED <- 5003
+TRAIN_FRACTION <- 0.80
+TARGET_LEVELS <- as.character(1:8)
+TARGET_LABELS <- c("Full-time", "Part-time", "Self-employed", "Retired",
+                   "Housewife", "Student", "Unemployed", "Other")
+REQUIRED_COLUMNS <- c("Q279", "B_COUNTRY_ALPHA", "Q260", "Q262", "Q270",
+                      "Q273", "Q274", "Q275", "Q286", "Q287", "Q288")
+EXPECTED_MD5 <- "98bf573170f0cb6bd65a4e9a8070d4d8"
+EXPECTED_SHA256 <- "ee392676dbb42dde0ea74ebf643862f3900e7d13a7aa03842ed2d7665ac98ee0"
+
+# KNN search settings (pre-specified; never chosen by looking at Test)
+K_GRID <- c(1L, 5L, 11L, 21L, 31L, 51L, 75L, 101L, 151L)
+WEIGHTINGS <- c("uniform", "distance")
+DUMMY_SCALE <- 1 / sqrt(2)
+KNN_ALGORITHM <- "kd_tree"   # FNN options: "kd_tree", "cover_tree", "brute"
+
+if (!file.exists(DATA_PATH) || file.info(DATA_PATH)$size < 1000) stop("Missing CSV or unmaterialised Git LFS pointer.")
+DATA_PATH <- normalizePath(DATA_PATH)
+input_md5 <- unname(tools::md5sum(DATA_PATH))
+if (!identical(input_md5, EXPECTED_MD5)) stop("CSV differs from verified baseline input. Agree dataset/order with teammates before changing EXPECTED_MD5.")
+status <- "BASELINE_ALIGNED_A1_IMPUTATION_CAVEAT"
+if (!requireNamespace("FNN", quietly = TRUE)) stop("Install package FNN to run modelling: install.packages('FNN')")
+
+dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
+write_table <- function(x, name) write.csv(x, file.path(OUT_DIR, name), row.names = FALSE)
+# Saves each plot as PNG; when knitting, also draws it inline in the HTML.
+save_plot <- function(name, draw, width = 1800, height = 1200) {
+  png(file.path(OUT_DIR, name), width = width, height = height, res = 170)
+  par(mar = c(8, 5, 4, 2) + 0.1)
+  draw()
+  dev.off()
+  if (isTRUE(getOption("knitr.in.progress"))) {
+    par(mar = c(8, 5, 4, 2) + 0.1)
+    draw()
+  }
+}
+
+# ============================== DATA =====================================
+read_selected_columns <- function(path, names_wanted) {
+  names_all <- names(read.csv(path, nrows = 0, check.names = FALSE))
+  missing <- setdiff(names_wanted, names_all)
+  if (length(missing)) stop("Missing CSV columns: ", paste(missing, collapse = ", "))
+  types <- rep("NULL", length(names_all))
+  types[match(names_wanted, names_all)] <- NA_character_
+  read.csv(path, colClasses = types, check.names = FALSE,
+           na.strings = c("", "NA"), stringsAsFactors = FALSE)
+}
+wvs <- read_selected_columns(DATA_PATH, REQUIRED_COLUMNS)
+stopifnot(nrow(wvs) == 95987L, all(as.character(wvs$Q279) %in% TARGET_LEVELS))
+wvs$Outcome <- factor(as.character(wvs$Q279), levels = TARGET_LEVELS, labels = TARGET_LABELS)
+
+WB_GROUPS <- list(
+  Low = c("ETH", "TJK"),
+  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
+                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
+  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
+                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
+                     "RUS", "SRB", "THA", "TUR", "VEN"),
+  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
+           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
+           "USA"),
+  Unclassified = character(0)
+)
+country_group <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                          unlist(WB_GROUPS, use.names = FALSE))
+stopifnot(!anyDuplicated(names(country_group)))
+not_mapped <- setdiff(unique(as.character(wvs$B_COUNTRY_ALPHA)), names(country_group))
+if (length(not_mapped)) stop("Country mapping requires review: ", paste(not_mapped, collapse = ", "))
+wvs$Income_Group <- unname(country_group[as.character(wvs$B_COUNTRY_ALPHA)])
+
+# ===================== VERBATIM BASELINE SPLIT ===========================
+stratified_indices <- function(y, fraction, seed) {
+  set.seed(seed)
+  groups <- split(seq_along(y), y, drop = TRUE)
+  sort(unlist(lapply(groups, function(ii) sample(ii, floor(length(ii) * fraction))),
+              use.names = FALSE))
+}
+train_id <- stratified_indices(wvs$Outcome, TRAIN_FRACTION, SEED)
+test_id <- setdiff(seq_len(nrow(wvs)), train_id)
+train <- wvs[train_id, , drop = FALSE]
+test <- wvs[test_id, , drop = FALSE]
+stopifnot(!length(intersect(train_id, test_id)),
+          length(train_id) + length(test_id) == nrow(wvs),
+          all(table(train$Outcome) > 0), all(table(test$Outcome) > 0))
+dev_id <- stratified_indices(train$Outcome, 0.75, SEED + 2)
+val_id <- setdiff(seq_len(nrow(train)), dev_id)
+stopifnot(!length(intersect(dev_id, val_id)),
+          length(dev_id) + length(val_id) == nrow(train))
+initial_train <- train[dev_id, , drop = FALSE]
+validation <- train[val_id, , drop = FALSE]
+cat("Seed:", SEED, "| Train:", nrow(initial_train),
+    "| Validation:", nrow(validation), "| Test:", nrow(test),
+    "| Final refit Train+Validation:", nrow(train), "\n")
+stopifnot(nrow(initial_train) == 57587L, nrow(validation) == 19199L,
+          nrow(test) == 19201L, nrow(train) == 76786L)
+
+# ================= VERBATIM BASELINE EIGHT-CLASS EVALUATOR ===============
+evaluate_8class <- function(truth, pred, show_confusion = TRUE) {
+  tr <- factor(as.character(truth), levels = TARGET_LABELS)
+  pr <- factor(as.character(pred), levels = TARGET_LABELS)
+  if (anyNA(tr) || anyNA(pr)) stop("Unknown/missing prediction class")
+  cm <- table(True = tr, Predicted = pr)
+  tp <- diag(cm)
+  support <- rowSums(cm)
+  predicted <- colSums(cm)
+  precision <- ifelse(predicted > 0, tp / predicted, 0)
+  recall <- ifelse(support > 0, tp / support, 0)
+  f1 <- ifelse(precision + recall > 0,
+               2 * precision * recall / (precision + recall), 0)
+  by_class <- data.frame(Class = TARGET_LABELS, Support = as.integer(support),
+                         Precision = round(precision, 4), Recall = round(recall, 4),
+                         F1 = round(f1, 4), row.names = NULL)
+  overall <- data.frame(Macro_F1 = mean(f1),
+                        Weighted_F1 = sum(support * f1) / sum(support),
+                        Accuracy = sum(tp) / sum(cm))
+  if (show_confusion) print(cm)
+  list(overall = overall, by_class = by_class, confusion = cm)
+}
+
+# ================= SHARED TRAIN-ONLY RECIPE (verbatim) ===================
+NUMERIC_KEYS <- c(Age="Q262",HouseholdSize="Q270",Children="Q274")
+CATEGORY_KEYS <- list(
+  Gender=as.character(1:2),Marital=as.character(1:6),
+  Education=as.character(0:8),SocialClass=as.character(1:5),
+  IncomeBracket=as.character(1:10),Savings=as.character(1:4),
+  Income_Group=c("Low","Lower-middle","Upper-middle","High","Unclassified"))
+CATEGORY_SOURCES <- c(Gender="Q260",Marital="Q273",Education="Q275",
+                      SocialClass="Q287",IncomeBracket="Q288",
+                      Savings="Q286",Income_Group="Income_Group")
+numeric_value <- function(v) {
+  x <- suppressWarnings(as.numeric(as.character(v)))
+  x[!is.finite(x)] <- NA_real_
+  x
+}
+learn_recipe <- function(raw) {
+  num <- lapply(NUMERIC_KEYS,function(k) numeric_value(raw[[k]]))
+  med <- vapply(num,function(x) if(all(is.na(x))) 0 else median(x,na.rm=TRUE),0.0)
+  filled <- Map(function(x,m) {x[is.na(x)] <- m;x},num,med)
+  mu <- vapply(filled,mean,0.0)
+  sigma <- vapply(filled,sd,0.0)
+  sigma[is.na(sigma)|sigma==0] <- 1
+  list(median=med,mean=mu,sd=sigma)
+}
+apply_recipe <- function(raw,r) {
+  out <- data.frame(Outcome=factor(as.character(raw$Outcome),levels=TARGET_LABELS))
+  for (nm in names(NUMERIC_KEYS)) {
+    x <- numeric_value(raw[[NUMERIC_KEYS[[nm]]]])
+    missing <- is.na(x)
+    x[missing] <- r$median[[nm]]
+    out[[nm]] <- (x-r$mean[[nm]])/r$sd[[nm]]
+    out[[paste0(nm,"_missing")]] <- as.integer(missing)
+  }
+  out$Age_sq <- out$Age^2
+  for(nm in names(CATEGORY_KEYS)) {
+    v <- trimws(as.character(raw[[CATEGORY_SOURCES[[nm]]]]))
+    v[is.na(v)|!(v %in% CATEGORY_KEYS[[nm]])] <- "Missing"
+    out[[nm]] <- factor(v,levels=c(CATEGORY_KEYS[[nm]],"Missing"))
+  }
+  out
+}
+
+# Same three specifications as the decision tree (Age_sq omitted: KNN is
+# already nonlinear in age).
+SPECIFICATIONS <- list(
+  core_linear = c("Age", "Age_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket"),
+  extended_no_income_group = c("Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing",
+    "Children", "Children_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "Savings"),
+  extended_linear = c("Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing",
+    "Children", "Children_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "Savings", "Income_Group"))
+
+# ===================== KNN-SPECIFIC DESIGN MATRIX ========================
+# Factors -> all-level one-hot scaled by DUMMY_SCALE; numerics and flags as-is.
+make_knn_matrix <- function(prepared, spec) {
+  blocks <- lapply(SPECIFICATIONS[[spec]], function(v) {
+    x <- prepared[[v]]
+    if (is.factor(x)) {
+      m <- vapply(levels(x), function(l) as.numeric(x == l), numeric(length(x))) * DUMMY_SCALE
+      m <- matrix(m, nrow = length(x))
+      colnames(m) <- paste0(v, "_", levels(x))
+    } else {
+      m <- matrix(as.numeric(x), ncol = 1, dimnames = list(NULL, v))
+    }
+    m
+  })
+  do.call(cbind, blocks)
+}
+
+# Vote among the first k of the precomputed neighbours.
+vote_knn <- function(nn_index, nn_dist, y_ref, k, weighting) {
+  idx <- nn_index[, seq_len(k), drop = FALSE]
+  labs <- matrix(as.integer(y_ref)[idx], nrow = nrow(idx))
+  w <- if (weighting == "distance") 1 / (nn_dist[, seq_len(k), drop = FALSE] + 1e-6) else
+    matrix(1, nrow(idx), k)
+  votes <- vapply(seq_along(TARGET_LABELS), function(cl) rowSums(w * (labs == cl)),
+                  numeric(nrow(idx)))
+  votes <- matrix(votes, nrow = nrow(idx))
+  # Tie-break: tiny bonus for the class of the single nearest neighbour.
+  votes[cbind(seq_len(nrow(idx)), labs[, 1])] <- votes[cbind(seq_len(nrow(idx)), labs[, 1])] + 1e-9
+  factor(TARGET_LABELS[max.col(votes, ties.method = "first")], levels = TARGET_LABELS)
+}
+
+# ===================== VALIDATION SEARCH (Train -> Validation) ===========
+initial_recipe <- learn_recipe(initial_train)
+X_initial <- apply_recipe(initial_train, initial_recipe)
+X_validation <- apply_recipe(validation, initial_recipe)
+K_MAX <- max(K_GRID)
+GRID <- expand.grid(Spec = names(SPECIFICATIONS), k = K_GRID, Weighting = WEIGHTINGS,
+                    stringsAsFactors = FALSE)
+write_table(GRID, "prespecified_search_grid.csv")
+
+ranking <- list()
+for (spec in names(SPECIFICATIONS)) {
+  M_train <- make_knn_matrix(X_initial, spec)
+  M_val <- make_knn_matrix(X_validation, spec)
+  cat("Spec:", spec, "| dimensions:", ncol(M_train), "| searching neighbours ...\n")
+  timing <- system.time(
+    nn <- FNN::get.knnx(M_train, M_val, k = K_MAX, algorithm = KNN_ALGORITHM)
+  )["elapsed"]
+  cat(sprintf("  neighbour search: %.1f s\n", timing))
+  for (wt in WEIGHTINGS) for (k in K_GRID) {
+    pred <- vote_knn(nn$nn.index, nn$nn.dist, X_initial$Outcome, k, wt)
+    ev <- evaluate_8class(X_validation$Outcome, pred, FALSE)
+    ranking[[length(ranking) + 1]] <- data.frame(Spec = spec, k = k, Weighting = wt,
+      Dimensions = ncol(M_train), Train_N = nrow(M_train), Validation_N = nrow(M_val),
+      Search_Seconds = round(timing, 1), ev$overall)
+  }
+  rm(nn); invisible(gc())
+}
+ranking <- do.call(rbind, ranking)
+# Ties: weighted F1, simpler feature set, larger k (smoother), uniform weights.
+ranking <- ranking[order(-ranking$Macro_F1, -ranking$Weighted_F1,
+  match(ranking$Spec, names(SPECIFICATIONS)), -ranking$k,
+  match(ranking$Weighting, WEIGHTINGS)), ]
+rownames(ranking) <- NULL
+write_table(ranking, "validation_tuning_results.csv")
+best <- ranking[1, , drop = FALSE]
+write_table(best, "selected_validation_configuration.csv")
+best_each <- ranking[!duplicated(ranking$Spec), , drop = FALSE]
+write_table(best_each, "validation_feature_sensitivity.csv")
+cat("Selected using Validation only:\n"); print(best)
+
+# Plot: validation macro-F1 against k for each specification and weighting.
+save_plot("validation_k_curve.png", function() {
+  cols <- c(core_linear = "steelblue", extended_no_income_group = "darkorange",
+            extended_linear = "forestgreen")
+  ltys <- c(uniform = 1, distance = 2)
+  plot(NA, xlim = range(K_GRID), ylim = range(ranking$Macro_F1) * c(0.95, 1.05),
+       log = "x", xlab = "k (log scale)", ylab = "Validation Macro F1",
+       main = "KNN: validation macro-F1 by k")
+  for (spec in names(SPECIFICATIONS)) for (wt in WEIGHTINGS) {
+    r <- ranking[ranking$Spec == spec & ranking$Weighting == wt, ]
+    r <- r[order(r$k), ]
+    lines(r$k, r$Macro_F1, col = cols[[spec]], lty = ltys[[wt]], lwd = 2, type = "b", pch = 19, cex = .6)
+  }
+  legend("bottomright", cex = .7, bty = "n",
+         legend = c("Core", "Extended, no proxy", "Extended + proxy", "Uniform", "Distance-weighted"),
+         col = c(cols, "black", "black"), lty = c(1, 1, 1, 1, 2), lwd = 2)
+})
+
+# ============== FINAL REFIT ON 80% AND SINGLE TEST EVALUATION ===========
+final_recipe <- learn_recipe(train)
+X_train <- apply_recipe(train, final_recipe)
+X_test <- apply_recipe(test, final_recipe)
+M_train_final <- make_knn_matrix(X_train, best$Spec)
+M_test <- make_knn_matrix(X_test, best$Spec)
+nn_test <- FNN::get.knnx(M_train_final, M_test, k = best$k, algorithm = KNN_ALGORITHM)
+# The only Test prediction for the KNN model:
+test_prediction <- vote_knn(nn_test$nn.index, nn_test$nn.dist, X_train$Outcome, best$k, best$Weighting)
+test_eval <- evaluate_8class(X_test$Outcome, test_prediction, TRUE)
+majority <- names(which.max(table(train$Outcome)))
+majority_eval <- evaluate_8class(test$Outcome, rep(majority, nrow(test)), FALSE)
+comparison <- rbind(data.frame(Model = "Training-majority", majority_eval$overall),
+                    data.frame(Model = paste0("KNN ", best$Spec, " k=", best$k, " ", best$Weighting),
+                               test_eval$overall))
+write_table(comparison, "test_model_comparison.csv")
+write_table(test_eval$overall, "knn_test_metrics.csv")
+write_table(test_eval$by_class, "knn_per_class_metrics.csv")
+write_table(as.data.frame(test_eval$confusion), "knn_confusion_matrix.csv")
+write_table(data.frame(row_id = test_id, truth = test$Outcome, prediction = test_prediction),
+            "knn_test_predictions.csv")
+# KNN stores no fitted parameters beyond the training data; save the recipe
+# and configuration so the model can be rebuilt from the shared CSV + split.
+saveRDS(list(recipe = final_recipe, specification = best$Spec,
+  features = SPECIFICATIONS[[best$Spec]], k = best$k, weighting = best$Weighting,
+  dummy_scale = DUMMY_SCALE, algorithm = KNN_ALGORITHM, best = best,
+  country_map = country_group, input_md5 = input_md5,
+  baseline_blob = "7c83716a1f8186a40a17ab124da8bd9b8bfee430",
+  split = list(train_id = train_id, test_id = test_id, dev_id = dev_id, val_id = val_id),
+  status = status), file.path(OUT_DIR, "knn_model_bundle.rds"))
+
+save_plot("knn_confusion_heatmap.png", function() {
+  m <- test_eval$confusion / rowSums(test_eval$confusion)
+  par(mar = c(8, 8, 4, 2))
+  image(1:8, 1:8, t(m[8:1, ]), axes = FALSE,
+    col = colorRampPalette(c("white", "steelblue4"))(100), zlim = c(0, 1),
+    xlab = "", ylab = "", main = "KNN: Test confusion matrix (row-normalised)")
+  axis(1, at = 1:8, labels = TARGET_LABELS, las = 2, cex.axis = .75)
+  axis(2, at = 1:8, labels = rev(TARGET_LABELS), las = 2, cex.axis = .75)
+  for (i in 1:8) for (j in 1:8) text(j, 9-i, sprintf("%.0f%%", 100*m[i,j]),
+    col = if (m[i,j] > .5) "white" else "black", cex = .8)
+  mtext("Predicted class", 1, line = 6); mtext("True class", 2, line = 6)
+})
+
+summary_lines <- c(
+  "STAT5003 D: completed baseline-aligned KNN run",
+  paste("Input:", DATA_PATH), paste("Input MD5:", input_md5),
+  paste("Verified input SHA256:", EXPECTED_SHA256),
+  "baseline.Rmd blob: 7c83716a1f8186a40a17ab124da8bd9b8bfee430",
+  "Split seeds: 5003 for 80/20; 5005 for within-development 75/25.",
+  sprintf("Train: %d; Validation: %d; Test: %d; final refit: %d",
+    nrow(initial_train), nrow(validation), nrow(test), nrow(train)),
+  paste("Selected specification:", best$Spec),
+  sprintf("Parameters: k=%d, weighting=%s, dummy scale=%.4f", best$k, best$Weighting, DUMMY_SCALE),
+  sprintf("Selection Validation Macro F1: %.6f", best$Macro_F1),
+  sprintf("Test Macro F1: %.6f; Weighted F1: %.6f; Accuracy: %.6f",
+    test_eval$overall$Macro_F1, test_eval$overall$Weighted_F1, test_eval$overall$Accuracy),
+  "All candidates used the full 60% Train. No development subsampling and no CV.",
+  "Single holdout Validation selects configuration; Test is not used for selection.",
+  "One-hot keeps all levels; dummies scaled so any categorical mismatch adds 1 to squared distance.",
+  "Inherited limitation: A1 mode imputation used the whole CSV before this split.",
+  "Income_Group follows the verified frozen FY2021 map; NIR explicitly inherits UK High.")
+writeLines(summary_lines, file.path(OUT_DIR, "RUN_SUMMARY.txt"))
+print(comparison)
+writeLines(capture.output(sessionInfo()), file.path(OUT_DIR, "sessionInfo.txt"))
+cat("Done. Results:", normalizePath(OUT_DIR), "\n")
+```
+
+```{r knn-tables, echo = FALSE}
+knitr::kable(comparison, digits = 3, row.names = FALSE,
+             caption = "Test-set performance: KNN versus training-majority baseline")
+knitr::kable(test_eval$by_class, digits = 3, row.names = FALSE,
+             caption = "KNN test-set precision, recall and F1 by class")
+```

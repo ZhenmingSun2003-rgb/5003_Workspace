@@ -1,0 +1,363 @@
+---
+title: "STAT5003 A2 | Shared Baseline and Reproducible Evaluation Contract"
+author: "W08G03 - stage deliverable"
+date: "2026-10-19"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+# 1. Research question and scope
+
+**Question (unchanged from A1).** To what extent can demographic characteristics, education and socioeconomic circumstances predict an individual's employment status (`Q279`)? We model eight mutually exclusive survey response categories: Full-time (1), Part-time (2), Self-employed (3), Retired (4), Housewife (5), Student (6), Unemployed (7), Other (8). This is **prediction, not causal inference**; employment, family structure and reported income may be jointly determined.
+
+**Stage scope.** This shared file is an executable **nonparametric reference benchmark and evaluation contract**, not a sixth competing machine-learning model. It freezes the schema, sample split, evaluation definitions, initial information diagnostics and trivial benchmarks. `01_MultinomialLogisticRegression.Rmd` independently reproduces the same deterministic split and then fits a multinomial model. The same design must be adopted by the other models before comparing results.
+
+**A1 alignment.** A1 found especially strong age separation for Student/Retired, a gender association with Housewife, major between-country heterogeneity and strong class imbalance (largest/smallest approximately 30:1). The A1 plan specifies macro-F1 first; weighted-F1, accuracy, confusion matrices and all eight per-class scores second; a common stratified train/test split; excluding raw Country; and testing an income-group proxy. Survey weights are not used for the individual-record predictive estimand, **not** because they are intrinsically unimportant.
+
+# 2. Execution requirements, reproducibility and data contract
+
+- Knit this file from any clone of the repository after `git lfs pull`. The input is resolved **relative to the Rmd or repository directory**, never from a machine-specific drive or absolute path. The LFS pointer alone (approximately 134 bytes) is not a CSV; the materialised dataset is approximately 172 MB.
+- Requires base R and `rmarkdown`/`knitr` for rendering; no modelling package is needed here. The logistic Rmd additionally needs the recommended R package `nnet`.
+- The file creates **no CSV output** and does not modify the shared dataset. This protects teammates' inputs. All randomly sampled indices are set by a fixed seed (`5003`).
+- The expected columns are `Q279`, `B_COUNTRY_ALPHA`, `Q260`, `Q262`, `Q270`, `Q273`, `Q274`, `Q275`, `Q286`, `Q287` and `Q288`. Extra original columns must **not** be fed into the model merely because they are available; some may encode employment or survey administration and leak target information.
+
+
+``` r
+SEED <- 5003
+TRAIN_FRACTION <- 0.80
+TARGET_LEVELS <- as.character(1:8)
+TARGET_LABELS <- c("Full-time", "Part-time", "Self-employed", "Retired",
+                   "Housewife", "Student", "Unemployed", "Other")
+REQUIRED_COLUMNS <- c("Q279", "B_COUNTRY_ALPHA", "Q260", "Q262", "Q270",
+                      "Q273", "Q274", "Q275", "Q286", "Q287", "Q288")
+set.seed(SEED)
+```
+
+
+``` r
+resolve_dataset <- function(filename = "WVS_Wave7_cleaned_for_modelling.csv") {
+  candidates <- getwd()
+  if (requireNamespace("knitr", quietly = TRUE)) {
+    source_name <- tryCatch(knitr::current_input(dir = TRUE), error = function(e) "")
+    if (length(source_name) == 1L && nzchar(source_name)) {
+      candidates <- c(candidates, dirname(normalizePath(source_name, mustWork = FALSE)))
+    }
+  }
+  candidates <- unique(c(candidates, dirname(candidates)))
+  paths <- file.path(candidates, filename)
+  hits <- paths[file.exists(paths)]
+  if (!length(hits)) stop("Cannot find the CSV beside this Rmd/repository. Run git lfs pull.")
+  p <- normalizePath(hits[1], mustWork = TRUE)
+  if (file.info(p)$size < 1000) stop("CSV is a Git LFS pointer. Run git lfs pull first.")
+  p
+}
+
+read_selected_columns <- function(path, names_wanted) {
+  names_all <- names(read.csv(path, nrows = 0, check.names = FALSE))
+  missing <- setdiff(names_wanted, names_all)
+  if (length(missing)) stop("Missing CSV columns: ", paste(missing, collapse = ", "))
+  types <- rep("NULL", length(names_all))
+  types[match(names_wanted, names_all)] <- NA_character_
+  read.csv(path, colClasses = types, check.names = FALSE,
+           na.strings = c("", "NA"), stringsAsFactors = FALSE)
+}
+
+csv_path <- resolve_dataset()
+wvs <- read_selected_columns(csv_path, REQUIRED_COLUMNS)
+stopifnot(nrow(wvs) > 1000L, all(as.character(wvs$Q279) %in% TARGET_LEVELS))
+wvs$Outcome <- factor(as.character(wvs$Q279), levels = TARGET_LEVELS,
+                      labels = TARGET_LABELS)
+cat("Records:", nrow(wvs), "; selected columns:", length(REQUIRED_COLUMNS), "\n")
+```
+
+```
+## Records: 95987 ; selected columns: 11
+```
+
+``` r
+cat("Input:", basename(csv_path), "\n")
+```
+
+```
+## Input: WVS_Wave7_cleaned_for_modelling.csv
+```
+
+**Historical preprocessing caveat (important).** The A1 report says invalid codes were set to missing, columns with more than 50% missingness were removed, and remaining fixed-choice items were mode-imputed **before** this A2 split. This may incorporate information from the eventual test records, and the original item-level missingness is not recoverable from this exported CSV. We therefore describe the A2 pipeline as *avoiding additional leakage from fitted preprocessing*, **not** as a fully leakage-free reanalysis from raw survey data. Future raw-data reprocessing should split first and estimate all imputations from each training fold only.
+
+# 3. Target imbalance and information content
+
+Shannon entropy in bits, `H(Y) = -sum_k p_k log2(p_k)`, describes the marginal uncertainty of the eight-way label. It is **not** predictive model accuracy, and association measures must not be presented as causal effects. The theoretical maximum for eight equally common classes is `log2(8) = 3` bits. The normalised ratio `H(Y)/3` is descriptive only.
+
+
+``` r
+class_n <- table(wvs$Outcome)
+class_p <- prop.table(class_n)
+entropy_bits <- function(p) {
+  p <- as.numeric(p)
+  p <- p[is.finite(p) & p > 0]
+  -sum(p * log2(p))
+}
+label_entropy <- entropy_bits(class_p)
+class_report <- data.frame(Class = names(class_n), N = as.integer(class_n),
+                           Percent = round(100 * as.numeric(class_p), 2))
+knitr::kable(class_report, caption = "Q279: sample frequencies (whole-file descriptive audit only)")
+```
+
+
+
+Table: Q279: sample frequencies (whole-file descriptive audit only)
+
+|Class         |     N| Percent|
+|:-------------|-----:|-------:|
+|Full-time     | 34969|   36.43|
+|Part-time     |  8266|    8.61|
+|Self-employed | 13752|   14.33|
+|Retired       | 12079|   12.58|
+|Housewife     | 12738|   13.27|
+|Student       |  5638|    5.87|
+|Unemployed    |  7386|    7.69|
+|Other         |  1159|    1.21|
+
+``` r
+cat(sprintf("H(Q279) = %.4f bits of a maximum 3; normalised entropy = %.3f\n",
+            label_entropy, label_entropy / 3))
+```
+
+```
+## H(Q279) = 2.6018 bits of a maximum 3; normalised entropy = 0.867
+```
+
+``` r
+cat(sprintf("Largest/smallest class ratio = %.2f\n", max(class_n) / min(class_n)))
+```
+
+```
+## Largest/smallest class ratio = 30.17
+```
+
+# 4. Pre-registered feature policy and country-income limitation
+
+**Core hypothesis-driven predictors:** age `Q262` (numeric), gender `Q260`, marital status `Q273`, attained education `Q275`, self-rated class `Q287`, household income bracket `Q288` (categorical, not an interval scale). **Extended predictors:** household size `Q270`, number of children `Q274`, savings `Q286`, and a coarse `Income_Group` proxy. We exclude raw `B_COUNTRY_ALPHA` from the predictive design, although it is required to derive the context proxy. We also exclude interview, weights, respondent identifiers, questionnaire items possibly downstream of employment, and spouse/parental education until their availability and measurement comparability are assessed. **Do not automatically feed all 519 columns into the classifier.**
+
+**WB crosswalk: verified FY2021 historical classification.** The embedded entries follow the frozen official World Bank historical workbook archived in `source_evidence/`; FY2021 was released on 1 July 2020 using 2019 GNI. All 65 independently classified codes match the FY2021 column. `NIR` explicitly inherits the UK's High group because the workbook has no independent NIR row. `TWN` is High and `VEN` is Upper-middle, as the official FY2021 table specifies. The unused `Unclassified` dictionary level is retained for compatibility but no country is assigned to it. This is a fixed-vintage national context proxy, not a survey-year-specific reconstruction or an individual's household income. The logistic Rmd compares specifications with and without this proxy.
+
+Official background: https://blogs.worldbank.org/en/opendata/new-world-bank-country-classifications-income-level-2020-2021 ; historical tables: https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups .
+
+
+``` r
+WB_GROUPS <- list(
+  Low = c("ETH", "TJK"),
+  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
+                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
+  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
+                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
+                     "RUS", "SRB", "THA", "TUR", "VEN"),
+  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
+           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
+           "USA"),
+  Unclassified = character(0)
+)
+country_group <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                          unlist(WB_GROUPS, use.names = FALSE))
+stopifnot(!anyDuplicated(names(country_group)))
+not_mapped <- setdiff(unique(as.character(wvs$B_COUNTRY_ALPHA)), names(country_group))
+if (length(not_mapped)) stop("Country mapping requires review: ", paste(not_mapped, collapse = ", "))
+wvs$Income_Group <- unname(country_group[as.character(wvs$B_COUNTRY_ALPHA)])
+knitr::kable(as.data.frame(table(wvs$Income_Group)),
+             col.names = c("Verified FY2021 income proxy", "Respondents"))
+```
+
+
+
+|Verified FY2021 income proxy | Respondents|
+|:----------------------------|-----------:|
+|High                         |       34615|
+|Low                          |        2428|
+|Lower-middle                 |       24311|
+|Upper-middle                 |       34633|
+
+**Why this matters:** national income groups conceal large within-country differences; an economy's GNI group is not an individual's household income. The fixed FY2021 context proxy and documented NIR inheritance assumption may encode country context. The whole-sample table above is a deterministic external mapping, not an outcome-derived feature.
+
+# 5. Shared stratified 60/20/20 development-validation-test contract
+
+**Team split contract (seed `5003`):** First create an 80% development pool and an untouched 20% test set by stratifying on `Q279`. Then, using seed `5003 + 2`, partition 75% of that 80% pool for initial model fitting and 25% for model validation: approximately **60% Train / 20% Validation / 20% Test** overall. Following validation-only model selection, refit the chosen model on **Train + Validation (80%)**, and evaluate on Test **once**. The logistic Rmd may further cap its *initial candidate-fitting subset* at 25,000 for feasibility; this cap does not alter the agreed partition or final refit size. For the provided 95,987-row CSV, classwise rounding yields 57,587 initial training rows, 19,199 validation rows and 19,201 test rows. All members must use **the identical CSV row ordering, seeds and algorithm**, not merely equal percentage splits; different libraries can assign different records even with the same seed.
+
+The test set is a single held-out, stratified **individual-level** sample, not a previously unseen-country or future-year sample. The latter tasks would need separately designed group/time splits. No model/feature choice should be tuned against its test score. Splits are calculated deterministically from the cleaned row order and seed, so models can independently reproduce the same indices **provided the identical CSV row order is used**. We report that row order/CSV revisions would invalidate that assumption.
+
+
+``` r
+stratified_indices <- function(y, fraction, seed) {
+  set.seed(seed)
+  groups <- split(seq_along(y), y, drop = TRUE)
+  sort(unlist(lapply(groups, function(ii) sample(ii, floor(length(ii) * fraction))),
+              use.names = FALSE))
+}
+train_id <- stratified_indices(wvs$Outcome, TRAIN_FRACTION, SEED)
+test_id <- setdiff(seq_len(nrow(wvs)), train_id)
+train <- wvs[train_id, , drop = FALSE]
+test <- wvs[test_id, , drop = FALSE]
+stopifnot(!length(intersect(train_id, test_id)),
+          length(train_id) + length(test_id) == nrow(wvs),
+          all(table(train$Outcome) > 0), all(table(test$Outcome) > 0))
+# Shared within-development split. Indices in dev_id and val_id refer to
+# the 80% training pool; train_id and test_id refer to the original CSV.
+dev_id <- stratified_indices(train$Outcome, 0.75, SEED + 2)
+val_id <- setdiff(seq_len(nrow(train)), dev_id)
+stopifnot(!length(intersect(dev_id, val_id)),
+          length(dev_id) + length(val_id) == nrow(train))
+initial_train <- train[dev_id, , drop = FALSE]
+validation <- train[val_id, , drop = FALSE]
+share_table <- data.frame(Class = TARGET_LABELS,
+                          Train = as.integer(table(initial_train$Outcome)),
+                          Validation = as.integer(table(validation$Outcome)),
+                          Test = as.integer(table(test$Outcome)))
+knitr::kable(share_table, caption = "Shared stratified Train / Validation / Test (60/20/20)")
+```
+
+
+
+Table: Shared stratified Train / Validation / Test (60/20/20)
+
+|Class         | Train| Validation| Test|
+|:-------------|-----:|----------:|----:|
+|Full-time     | 20981|       6994| 6994|
+|Part-time     |  4959|       1653| 1654|
+|Self-employed |  8250|       2751| 2751|
+|Retired       |  7247|       2416| 2416|
+|Housewife     |  7642|       2548| 2548|
+|Student       |  3382|       1128| 1128|
+|Unemployed    |  4431|       1477| 1478|
+|Other         |   695|        232|  232|
+
+``` r
+cat("Seed:", SEED, "| Train:", nrow(initial_train),
+    "| Validation:", nrow(validation), "| Test:", nrow(test),
+    "| Final refit Train+Validation:", nrow(train), "\n")
+```
+
+```
+## Seed: 5003 | Train: 57587 | Validation: 19199 | Test: 19201 | Final refit Train+Validation: 76786
+```
+
+# 6. Strict eight-class evaluation function
+
+- Precision for a class with **zero predicted positives** is set to `0`; recall for a class with **zero true positives** is set to `0`; its F1 is `0` when both are `0`. These are explicit *zero-division conventions*, not omitted classes.
+- `Macro_F1 = mean(F1_1 ... F1_8)` treats classes equally; `Weighted_F1 = sum(test_support_k * F1_k) / N`. Accuracy is supplementary.
+- In a confusion matrix **rows are true classes, columns are predicted classes**. Class ordering is locked.
+- Comparisons require identical rows/splits and the same pre-specified evaluation function. A single split is insufficient for robust uncertainty statements; later work should add within-training repeated CV and confidence intervals without repeatedly inspecting the test set.
+
+
+``` r
+evaluate_8class <- function(truth, pred, show_confusion = TRUE) {
+  tr <- factor(as.character(truth), levels = TARGET_LABELS)
+  pr <- factor(as.character(pred), levels = TARGET_LABELS)
+  if (anyNA(tr) || anyNA(pr)) stop("Unknown/missing prediction class")
+  cm <- table(True = tr, Predicted = pr)
+  tp <- diag(cm)
+  support <- rowSums(cm)
+  predicted <- colSums(cm)
+  precision <- ifelse(predicted > 0, tp / predicted, 0)
+  recall <- ifelse(support > 0, tp / support, 0)
+  f1 <- ifelse(precision + recall > 0,
+               2 * precision * recall / (precision + recall), 0)
+  by_class <- data.frame(Class = TARGET_LABELS, Support = as.integer(support),
+                         Precision = round(precision, 4), Recall = round(recall, 4),
+                         F1 = round(f1, 4), row.names = NULL)
+  overall <- data.frame(Macro_F1 = mean(f1),
+                        Weighted_F1 = sum(support * f1) / sum(support),
+                        Accuracy = sum(tp) / sum(cm))
+  if (show_confusion) print(cm)
+  list(overall = overall, by_class = by_class, confusion = cm)
+}
+```
+
+# 7. Trivial reference models: meaningful lower bounds, not tuned classifiers
+
+The **majority-class** rule predicts the most common label **in the training set** for every test record; it illustrates why accuracy can be deceptive in an imbalanced dataset. The **stratified chance** reference samples labels from **training proportions** with a separate fixed seed. This stochastic reference is descriptive and has non-zero Monte Carlo variation; it is not a threshold to claim statistical significance. No label from the test set is used to form either predictor.
+
+
+``` r
+majority <- names(which.max(table(train$Outcome)))
+pred_majority <- rep(majority, nrow(test))
+majority_eval <- evaluate_8class(test$Outcome, pred_majority, FALSE)
+set.seed(SEED + 1)
+pred_chance <- sample(TARGET_LABELS, nrow(test), replace = TRUE,
+                      prob = as.numeric(prop.table(table(train$Outcome))))
+chance_eval <- evaluate_8class(test$Outcome, pred_chance, FALSE)
+benchmark <- rbind(data.frame(Model = "Training-majority", majority_eval$overall),
+                   data.frame(Model = "Training-prior chance (one draw)", chance_eval$overall))
+knitr::kable(benchmark, digits = 4,
+             caption = "Executable reference scores (computed at render time)")
+```
+
+
+
+Table: Executable reference scores (computed at render time)
+
+|Model                            | Macro_F1| Weighted_F1| Accuracy|
+|:--------------------------------|--------:|-----------:|--------:|
+|Training-majority                |   0.0667|      0.1945|   0.3643|
+|Training-prior chance (one draw) |   0.1294|      0.2090|   0.2091|
+
+``` r
+knitr::kable(majority_eval$by_class, caption = "Per-class behaviour of the majority rule")
+```
+
+
+
+Table: Per-class behaviour of the majority rule
+
+|Class         | Support| Precision| Recall|    F1|
+|:-------------|-------:|---------:|------:|-----:|
+|Full-time     |    6994|    0.3643|      1| 0.534|
+|Part-time     |    1654|    0.0000|      0| 0.000|
+|Self-employed |    2751|    0.0000|      0| 0.000|
+|Retired       |    2416|    0.0000|      0| 0.000|
+|Housewife     |    2548|    0.0000|      0| 0.000|
+|Student       |    1128|    0.0000|      0| 0.000|
+|Unemployed    |    1478|    0.0000|      0| 0.000|
+|Other         |     232|    0.0000|      0| 0.000|
+
+# 8. Implementation boundaries and decision gates
+
+1. **A1 imputation is irreversible from this CSV:** train-only numeric transformations in later models reduce new leakage, not the inherited risk.
+2. **Measurement:** age is numerical, but education, self-rated class and within-country income deciles are *categorical* here; assigning unit distances to all of them would be unjustified. Unknown numeric values must be identified and imputed from training data only.
+3. **Temporal/country transport:** random record holdout does not support claims about prediction in an unseen economy or later survey. Countries may dominate pooled distributions; group-level fairness and survey-design sensitivity remain open questions.
+4. **Income-group provenance:** the FY2021 crosswalk is verified against the frozen official historical workbook; retain the NIR-to-UK inheritance assumption and fixed-vintage limitation. The primary logistic comparison also includes the model **without** this proxy.
+5. **Interpretation/fairness:** coefficients are conditional associations, not policy effects; gender and household characteristics can encode protected-group disparities. Avoid deployment or individual decision-making based on this classroom model.
+6. **Shared contract:** keep identical row order, `SEED`, 80/20 split, class labels and metric definitions across all group members. Do not select predictors by inspecting the held-out test labels.
+7. **Reproducibility check:** document `sessionInfo()` and rendering status; results below are not claimed until this Rmd actually runs in R.
+
+
+``` r
+sessionInfo()
+```
+
+```
+## R version 4.6.1 (2026-06-24 ucrt)
+## Platform: x86_64-w64-mingw32/x64
+## Running under: Windows 10 x64 (build 19045)
+## 
+## Matrix products: default
+##   LAPACK version 3.12.1
+## 
+## locale:
+## [1] C
+## system code page: 65001
+## 
+## time zone: Asia/Shanghai
+## tzcode source: internal
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## loaded via a namespace (and not attached):
+##  [1] digest_0.6.39   R6_2.6.1        fastmap_1.2.0   xfun_0.60      
+##  [5] cachem_1.1.0    knitr_1.52      htmltools_0.5.9 rmarkdown_2.32 
+##  [9] lifecycle_1.0.5 cli_3.6.6       sass_0.4.10     jquerylib_0.1.4
+## [13] compiler_4.6.1  tools_4.6.1     evaluate_1.0.5  bslib_0.12.0   
+## [17] yaml_2.3.12     otel_0.2.0      rlang_1.3.0     jsonlite_2.0.0
+```

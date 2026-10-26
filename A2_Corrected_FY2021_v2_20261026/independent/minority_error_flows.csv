@@ -1,0 +1,148 @@
+﻿Model,True_Class,Predicted_Class,Count,Row_Percent
+Training-majority,Part-time,Full-time,1654,100.0
+Training-majority,Part-time,Self-employed,0,0.0
+Training-majority,Part-time,Retired,0,0.0
+Training-majority,Part-time,Housewife,0,0.0
+Training-majority,Part-time,Student,0,0.0
+Training-majority,Part-time,Unemployed,0,0.0
+Training-majority,Part-time,Other,0,0.0
+Training-majority,Unemployed,Full-time,1478,100.0
+Training-majority,Unemployed,Part-time,0,0.0
+Training-majority,Unemployed,Self-employed,0,0.0
+Training-majority,Unemployed,Retired,0,0.0
+Training-majority,Unemployed,Housewife,0,0.0
+Training-majority,Unemployed,Student,0,0.0
+Training-majority,Unemployed,Other,0,0.0
+Training-majority,Other,Full-time,232,100.0
+Training-majority,Other,Part-time,0,0.0
+Training-majority,Other,Self-employed,0,0.0
+Training-majority,Other,Retired,0,0.0
+Training-majority,Other,Housewife,0,0.0
+Training-majority,Other,Student,0,0.0
+Training-majority,Other,Unemployed,0,0.0
+Training-prior random,Part-time,Full-time,583,35.24788391777509
+Training-prior random,Part-time,Self-employed,255,15.417170495767836
+Training-prior random,Part-time,Retired,211,12.75695284159613
+Training-prior random,Part-time,Housewife,214,12.938331318016928
+Training-prior random,Part-time,Student,89,5.380894800483676
+Training-prior random,Part-time,Unemployed,127,7.678355501813785
+Training-prior random,Part-time,Other,25,1.5114873035066505
+Training-prior random,Unemployed,Full-time,528,35.723951285520975
+Training-prior random,Unemployed,Part-time,127,8.592692828146143
+Training-prior random,Unemployed,Self-employed,223,15.087956698240866
+Training-prior random,Unemployed,Retired,181,12.246278755074425
+Training-prior random,Unemployed,Housewife,190,12.855209742895806
+Training-prior random,Unemployed,Student,78,5.2774018944519625
+Training-prior random,Unemployed,Other,20,1.3531799729364005
+Training-prior random,Other,Full-time,66,28.448275862068964
+Training-prior random,Other,Part-time,37,15.948275862068966
+Training-prior random,Other,Self-employed,46,19.82758620689655
+Training-prior random,Other,Retired,21,9.051724137931034
+Training-prior random,Other,Housewife,23,9.913793103448276
+Training-prior random,Other,Student,14,6.0344827586206895
+Training-prior random,Other,Unemployed,22,9.482758620689655
+Multinomial Logistic Regression,Part-time,Full-time,988,59.73397823458283
+Multinomial Logistic Regression,Part-time,Self-employed,127,7.678355501813785
+Multinomial Logistic Regression,Part-time,Retired,127,7.678355501813785
+Multinomial Logistic Regression,Part-time,Housewife,258,15.598548972188633
+Multinomial Logistic Regression,Part-time,Student,121,7.315598548972188
+Multinomial Logistic Regression,Part-time,Unemployed,33,1.9951632406287787
+Multinomial Logistic Regression,Part-time,Other,0,0.0
+Multinomial Logistic Regression,Unemployed,Full-time,636,43.031123139377534
+Multinomial Logistic Regression,Unemployed,Part-time,0,0.0
+Multinomial Logistic Regression,Unemployed,Self-employed,157,10.622462787550745
+Multinomial Logistic Regression,Unemployed,Retired,93,6.292286874154263
+Multinomial Logistic Regression,Unemployed,Housewife,245,16.576454668470905
+Multinomial Logistic Regression,Unemployed,Student,218,14.749661705006766
+Multinomial Logistic Regression,Unemployed,Other,0,0.0
+Multinomial Logistic Regression,Other,Full-time,125,53.87931034482759
+Multinomial Logistic Regression,Other,Part-time,0,0.0
+Multinomial Logistic Regression,Other,Self-employed,22,9.482758620689655
+Multinomial Logistic Regression,Other,Retired,38,16.379310344827587
+Multinomial Logistic Regression,Other,Housewife,20,8.620689655172415
+Multinomial Logistic Regression,Other,Student,14,6.0344827586206895
+Multinomial Logistic Regression,Other,Unemployed,13,5.603448275862069
+LDA,Part-time,Full-time,900,54.41354292623942
+LDA,Part-time,Self-employed,124,7.496977025392987
+LDA,Part-time,Retired,159,9.613059250302298
+LDA,Part-time,Housewife,228,13.784764207980652
+LDA,Part-time,Student,186,11.24546553808948
+LDA,Part-time,Unemployed,54,3.264812575574365
+LDA,Part-time,Other,0,0.0
+LDA,Unemployed,Full-time,520,35.182679296346414
+LDA,Unemployed,Part-time,0,0.0
+LDA,Unemployed,Self-employed,144,9.742895805142084
+LDA,Unemployed,Retired,107,7.2395128552097425
+LDA,Unemployed,Housewife,218,14.749661705006766
+LDA,Unemployed,Student,330,22.32746955345061
+LDA,Unemployed,Other,2,0.13531799729364005
+LDA,Other,Full-time,106,45.689655172413794
+LDA,Other,Part-time,1,0.43103448275862066
+LDA,Other,Self-employed,27,11.637931034482758
+LDA,Other,Retired,44,18.96551724137931
+LDA,Other,Housewife,12,5.172413793103448
+LDA,Other,Student,25,10.775862068965518
+LDA,Other,Unemployed,16,6.896551724137931
+kNN,Part-time,Full-time,887,53.62756952841596
+kNN,Part-time,Self-employed,146,8.82708585247884
+kNN,Part-time,Retired,128,7.738814993954051
+kNN,Part-time,Housewife,274,16.56590084643289
+kNN,Part-time,Student,123,7.4365175332527205
+kNN,Part-time,Unemployed,39,2.357920193470375
+kNN,Part-time,Other,4,0.2418379685610641
+kNN,Unemployed,Full-time,622,42.08389715832206
+kNN,Unemployed,Part-time,29,1.9621109607577807
+kNN,Unemployed,Self-employed,162,10.960757780784844
+kNN,Unemployed,Retired,85,5.7510148849797025
+kNN,Unemployed,Housewife,242,16.373477672530445
+kNN,Unemployed,Student,208,14.073071718538566
+kNN,Unemployed,Other,4,0.2706359945872801
+kNN,Other,Full-time,113,48.706896551724135
+kNN,Other,Part-time,5,2.1551724137931036
+kNN,Other,Self-employed,19,8.189655172413794
+kNN,Other,Retired,40,17.24137931034483
+kNN,Other,Housewife,29,12.5
+kNN,Other,Student,14,6.0344827586206895
+kNN,Other,Unemployed,12,5.172413793103448
+SVM,Part-time,Full-time,269,16.26360338573156
+SVM,Part-time,Self-employed,246,14.873035066505441
+SVM,Part-time,Retired,160,9.673518742442564
+SVM,Part-time,Housewife,345,20.858524788391776
+SVM,Part-time,Student,215,12.998790810157194
+SVM,Part-time,Unemployed,144,8.706166868198308
+SVM,Part-time,Other,60,3.6275695284159615
+SVM,Unemployed,Full-time,147,9.945872801082544
+SVM,Unemployed,Part-time,77,5.209742895805142
+SVM,Unemployed,Self-employed,203,13.734776725304465
+SVM,Unemployed,Retired,102,6.901217861975643
+SVM,Unemployed,Housewife,270,18.26792963464141
+SVM,Unemployed,Student,313,21.17726657645467
+SVM,Unemployed,Other,61,4.127198917456021
+SVM,Other,Full-time,36,15.517241379310345
+SVM,Other,Part-time,18,7.758620689655173
+SVM,Other,Self-employed,25,10.775862068965518
+SVM,Other,Retired,42,18.103448275862068
+SVM,Other,Housewife,32,13.793103448275861
+SVM,Other,Student,24,10.344827586206897
+SVM,Other,Unemployed,31,13.362068965517242
+Decision Tree,Part-time,Full-time,980,59.2503022974607
+Decision Tree,Part-time,Self-employed,183,11.064087061668681
+Decision Tree,Part-time,Retired,123,7.4365175332527205
+Decision Tree,Part-time,Housewife,215,12.998790810157194
+Decision Tree,Part-time,Student,153,9.250302297460701
+Decision Tree,Part-time,Unemployed,0,0.0
+Decision Tree,Part-time,Other,0,0.0
+Decision Tree,Unemployed,Full-time,705,47.699594046008116
+Decision Tree,Unemployed,Part-time,0,0.0
+Decision Tree,Unemployed,Self-employed,218,14.749661705006766
+Decision Tree,Unemployed,Retired,101,6.833558863328823
+Decision Tree,Unemployed,Housewife,204,13.802435723951286
+Decision Tree,Unemployed,Student,250,16.914749661705006
+Decision Tree,Unemployed,Other,0,0.0
+Decision Tree,Other,Full-time,134,57.758620689655174
+Decision Tree,Other,Part-time,0,0.0
+Decision Tree,Other,Self-employed,30,12.931034482758621
+Decision Tree,Other,Retired,38,16.379310344827587
+Decision Tree,Other,Housewife,14,6.0344827586206895
+Decision Tree,Other,Student,16,6.896551724137931
+Decision Tree,Other,Unemployed,0,0.0

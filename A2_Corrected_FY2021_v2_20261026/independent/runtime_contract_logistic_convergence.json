@@ -1,0 +1,82 @@
+{
+  "selected_spec": "extended_linear",
+  "selected_decay": 0.01,
+  "candidate_fitting_N": 24996,
+  "all_candidate_convergence": [
+    {
+      "Spec": "extended_linear",
+      "Decay": 0.01,
+      "Dev_N": 24996,
+      "Val_N": 19199,
+      "Convergence": 0,
+      "Macro_F1": 0.35335939810876221,
+      "Weighted_F1": 0.47314283796731749,
+      "Accuracy": 0.53023594978905153
+    },
+    {
+      "Spec": "extended_linear",
+      "Decay": 0.001,
+      "Dev_N": 24996,
+      "Val_N": 19199,
+      "Convergence": 0,
+      "Macro_F1": 0.35328840562420455,
+      "Weighted_F1": 0.47311098687075498,
+      "Accuracy": 0.53018386374290327
+    },
+    {
+      "Spec": "extended_quadratic_age",
+      "Decay": 0.01,
+      "Dev_N": 24996,
+      "Val_N": 19199,
+      "Convergence": 0,
+      "Macro_F1": 0.35228471255828742,
+      "Weighted_F1": 0.4724916051793433,
+      "Accuracy": 0.53226730558883273
+    },
+    {
+      "Spec": "extended_quadratic_age",
+      "Decay": 0.001,
+      "Dev_N": 24996,
+      "Val_N": 19199,
+      "Convergence": 0,
+      "Macro_F1": 0.3521935675025385,
+      "Weighted_F1": 0.47241138338333089,
+      "Accuracy": 0.53216313349653632
+    },
+    {
+      "Spec": "core_linear",
+      "Decay": 0.001,
+      "Dev_N": 24996,
+      "Val_N": 19199,
+      "Convergence": 0,
+      "Macro_F1": 0.33707480266025308,
+      "Weighted_F1": 0.45148488516129487,
+      "Accuracy": 0.51627688942132399
+    },
+    {
+      "Spec": "core_linear",
+      "Decay": 0.01,
+      "Dev_N": 24996,
+      "Val_N": 19199,
+      "Convergence": 0,
+      "Macro_F1": 0.33703766703310789,
+      "Weighted_F1": 0.45145843153747112,
+      "Accuracy": 0.51627688942132399
+    }
+  ],
+  "final_convergence": 0,
+  "final_value": 101183.82310294952,
+  "final_decay": 0.01,
+  "final_fitted_rows": 76786,
+  "final_fitted_rows_76786": true,
+  "stored_model_contrasts": {
+    "Gender": "contr.treatment",
+    "Marital": "contr.treatment",
+    "Education": "contr.treatment",
+    "SocialClass": "contr.treatment",
+    "IncomeBracket": "contr.treatment",
+    "Savings": "contr.treatment",
+    "Income_Group": "contr.treatment"
+  },
+  "actual_formula_terms": ["Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing", "Children", "Children_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "Savings", "Income_Group"]
+}

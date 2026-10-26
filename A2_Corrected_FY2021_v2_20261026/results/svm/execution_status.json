@@ -1,0 +1,30 @@
+{
+  "Run": "svm",
+  "File": "04_SVM.Rmd",
+  "Mode": "corrected_v2_official",
+  "Success": true,
+  "Error": null,
+  "Elapsed_Seconds": 2944.0999999999999,
+  "Started_At": "2026-10-26 11:08:45 +0800",
+  "Finished_At": "2026-10-26 11:57:49 +0800",
+  "Source_MD5": "aba0ed6072a4ee50c84f191bca3f8003",
+  "Source_Unchanged_During_Render": true,
+  "Output": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/results/svm/04_SVM.html",
+  "Data_Path": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/WVS_Wave7_cleaned_for_modelling.csv",
+  "Data_MD5": "98bf573170f0cb6bd65a4e9a8070d4d8",
+  "RNG": ["Mersenne-Twister", "Inversion", "Rejection"],
+  "Conditions": [
+    {
+      "Type": "message",
+      "Message": "\n\nprocessing file: 04_SVM.Rmd\n"
+    },
+    {
+      "Type": "message",
+      "Message": "output file: 04_SVM.knit.md\n\n"
+    },
+    {
+      "Type": "message",
+      "Message": "\nOutput created: 04_SVM.html\n"
+    }
+  ]
+}

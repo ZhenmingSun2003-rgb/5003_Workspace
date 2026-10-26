@@ -1,0 +1,537 @@
+{
+  "status": "PASS",
+  "evidence": "Direct frozen workbook cell re-read, independent of CSV-to-JSON mapping construction",
+  "workbook_sha256": "a4024eb8052150155034559daf053aabbc16336d8290efeb5629e6eeb6515a60",
+  "checks": [
+    {
+      "code": "AND",
+      "source_code": "AND",
+      "cell": "AI11",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "ARG",
+      "source_code": "ARG",
+      "cell": "AI14",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "ARM",
+      "source_code": "ARM",
+      "cell": "AI15",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "AUS",
+      "source_code": "AUS",
+      "cell": "AI17",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "BGD",
+      "source_code": "BGD",
+      "cell": "AI22",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "BOL",
+      "source_code": "BOL",
+      "cell": "AI30",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "BRA",
+      "source_code": "BRA",
+      "cell": "AI33",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "CAN",
+      "source_code": "CAN",
+      "cell": "AI42",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "CHL",
+      "source_code": "CHL",
+      "cell": "AI47",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "CHN",
+      "source_code": "CHN",
+      "cell": "AI48",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "COL",
+      "source_code": "COL",
+      "cell": "AI49",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "CYP",
+      "source_code": "CYP",
+      "cell": "AI58",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "CZE",
+      "source_code": "CZE",
+      "cell": "AI59",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "DEU",
+      "source_code": "DEU",
+      "cell": "AI80",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "ECU",
+      "source_code": "ECU",
+      "cell": "AI64",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "EGY",
+      "source_code": "EGY",
+      "cell": "AI65",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "ETH",
+      "source_code": "ETH",
+      "cell": "AI71",
+      "group": "Low",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "GBR",
+      "source_code": "GBR",
+      "cell": "AI213",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "GRC",
+      "source_code": "GRC",
+      "cell": "AI83",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "GTM",
+      "source_code": "GTM",
+      "cell": "AI87",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "HKG",
+      "source_code": "HKG",
+      "cell": "AI93",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "IDN",
+      "source_code": "IDN",
+      "cell": "AI97",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "IND",
+      "source_code": "IND",
+      "cell": "AI96",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "IRN",
+      "source_code": "IRN",
+      "cell": "AI98",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "IRQ",
+      "source_code": "IRQ",
+      "cell": "AI99",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "JOR",
+      "source_code": "JOR",
+      "cell": "AI106",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "JPN",
+      "source_code": "JPN",
+      "cell": "AI105",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "KAZ",
+      "source_code": "KAZ",
+      "cell": "AI107",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "KEN",
+      "source_code": "KEN",
+      "cell": "AI108",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "KGZ",
+      "source_code": "KGZ",
+      "cell": "AI114",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "KOR",
+      "source_code": "KOR",
+      "cell": "AI111",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "LBN",
+      "source_code": "LBN",
+      "cell": "AI117",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "LBY",
+      "source_code": "LBY",
+      "cell": "AI120",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "MAC",
+      "source_code": "MAC",
+      "cell": "AI124",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "MAR",
+      "source_code": "MAR",
+      "cell": "AI140",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "MDV",
+      "source_code": "MDV",
+      "cell": "AI128",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "MEX",
+      "source_code": "MEX",
+      "cell": "AI134",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "MMR",
+      "source_code": "MMR",
+      "cell": "AI142",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "MNG",
+      "source_code": "MNG",
+      "cell": "AI138",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "MYS",
+      "source_code": "MYS",
+      "cell": "AI127",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "NGA",
+      "source_code": "NGA",
+      "cell": "AI151",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "NIC",
+      "source_code": "NIC",
+      "cell": "AI149",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "NIR",
+      "source_code": "GBR",
+      "cell": "AI213",
+      "group": "High",
+      "NIR_assumption": true,
+      "pass": true
+    },
+    {
+      "code": "NLD",
+      "source_code": "NLD",
+      "cell": "AI146",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "NZL",
+      "source_code": "NZL",
+      "cell": "AI148",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "PAK",
+      "source_code": "PAK",
+      "cell": "AI156",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "PER",
+      "source_code": "PER",
+      "cell": "AI161",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "PHL",
+      "source_code": "PHL",
+      "cell": "AI162",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "PRI",
+      "source_code": "PRI",
+      "cell": "AI165",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "ROU",
+      "source_code": "ROU",
+      "cell": "AI167",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "RUS",
+      "source_code": "RUS",
+      "cell": "AI168",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "SGP",
+      "source_code": "SGP",
+      "cell": "AI178",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "SRB",
+      "source_code": "SRB",
+      "cell": "AI175",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "SVK",
+      "source_code": "SVK",
+      "cell": "AI180",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "THA",
+      "source_code": "THA",
+      "cell": "AI200",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "TJK",
+      "source_code": "TJK",
+      "cell": "AI198",
+      "group": "Low",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "TUN",
+      "source_code": "TUN",
+      "cell": "AI205",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "TUR",
+      "source_code": "TUR",
+      "cell": "AI206",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "TWN",
+      "source_code": "TWN",
+      "cell": "AI197",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "UKR",
+      "source_code": "UKR",
+      "cell": "AI211",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "URY",
+      "source_code": "URY",
+      "cell": "AI215",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "USA",
+      "source_code": "USA",
+      "cell": "AI214",
+      "group": "High",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "UZB",
+      "source_code": "UZB",
+      "cell": "AI216",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "VEN",
+      "source_code": "VEN",
+      "cell": "AI218",
+      "group": "Upper-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "VNM",
+      "source_code": "VNM",
+      "cell": "AI219",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    },
+    {
+      "code": "ZWE",
+      "source_code": "ZWE",
+      "cell": "AI224",
+      "group": "Lower-middle",
+      "NIR_assumption": false,
+      "pass": true
+    }
+  ],
+  "direct_official_country_rows": 65,
+  "explicit_NIR_GBR_inheritance": 1
+}

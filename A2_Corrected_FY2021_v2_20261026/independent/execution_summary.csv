@@ -1,0 +1,7 @@
+﻿Model,Run,File,Execution_Status,Elapsed_Seconds,Error,Official_Executions_Requested,Source_MD5
+Training-majority,baseline,baseline.Rmd,Success,14.02,,1,438e34dd7bfab1b8d13d32fa22f9f62a
+Multinomial Logistic Regression,logistic,01_MultinomialLogisticRegression.Rmd,Success,207.32,,1,942da8967e097bbbe6c381160f887ae5
+LDA,lda,02_LDA.Rmd,Success,23.81,,1,777a42b4981f9a985b2ff677d14f931f
+kNN,knn,03_kNN.Rmd,Success,305.37,,1,cc4d75e19e82cad33155c207443e76f6
+SVM,svm,04_SVM.Rmd,Success,2944.1,,1,aba0ed6072a4ee50c84f191bca3f8003
+Decision Tree,tree,05_DecisionTree.Rmd,Success,37.89,,1,d967bbc347bbc18f27d1ab75cdf45f5a

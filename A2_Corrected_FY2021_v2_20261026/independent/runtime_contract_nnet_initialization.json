@@ -1,0 +1,7 @@
+{
+  "package_version": "7.3.20",
+  "multinom_calls_nnet_with_rang_zero": true,
+  "relevant_source_lines": ["            fit <- nnet.default(X, Y, w, Wts = Wts, mask = mask, ", "                size = 0, skip = TRUE, softmax = TRUE, censored = censored, ", "                rang = 0, ...)", "            fit <- nnet.default(X, Y, w, mask = mask, size = 0, ", "                skip = TRUE, softmax = TRUE, censored = censored, ", "                rang = 0, ...)", "            fit <- nnet.default(X, Y, w, mask = mask, size = 0, ", "                skip = TRUE, entropy = TRUE, rang = 0, ...)", "            fit <- nnet.default(X, Y, w, Wts = Wts, mask = mask, ", "                size = 0, skip = TRUE, entropy = TRUE, rang = 0, "],
+  "contrasts_in_verifier_vanilla_session": ["contr.treatment", "contr.poly"],
+  "note": "multinom uses size=0, skip=TRUE and rang=0 for the multiclass nnet call. The loaded implementation is preserved, so a hidden-layer random start must not be assumed. The audit saved environment does not preserve the render process's global options; model-stored contrasts and the vanilla verification options are recorded separately."
+}

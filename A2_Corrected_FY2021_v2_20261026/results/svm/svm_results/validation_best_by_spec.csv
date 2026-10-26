@@ -1,0 +1,3 @@
+"Spec","Kernel","Cost","Gamma_factor","Weight","Gamma","Fit_N","Validation_N","P","Macro_F1","Weighted_F1","Accuracy","Fit_seconds","Predict_seconds","Support_vectors","Status","Notes"
+"core","radial",10,1,"inverse",0.0294117647058824,9997,19199,34,0.339866217954386,0.406289308224693,0.417938434293453,15.19,7.82999999999998,8752,"ok",""
+"extended","radial",1,10,"inverse",0.217391304347826,9997,19199,46,0.365180848966698,0.440810958424181,0.451013073597583,18.21,10.3099999999999,9123,"ok",""

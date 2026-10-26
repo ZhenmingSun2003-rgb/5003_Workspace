@@ -1,0 +1,14 @@
+[
+  {
+    "File": "WVS_Wave7_cleaned_for_modelling.csv",
+    "Bytes": 171923121,
+    "SHA256": "ee392676dbb42dde0ea74ebf643862f3900e7d13a7aa03842ed2d7665ac98ee0",
+    "MD5": "98bf573170f0cb6bd65a4e9a8070d4d8"
+  },
+  {
+    "File": "WVS_Cross-National_Wave_7_rds_v6_0.csv",
+    "Bytes": 279494669,
+    "SHA256": "a20fd7653d1fbcff1014449990a5346c2fb3a994e076fed9e611dd364cb10822",
+    "MD5": "60c53424ffa3eb1518ca07aeb1fab0a0"
+  }
+]

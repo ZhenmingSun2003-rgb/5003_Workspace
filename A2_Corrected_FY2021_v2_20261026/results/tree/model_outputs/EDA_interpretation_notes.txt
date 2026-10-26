@@ -1,0 +1,4 @@
+EDA describes DATA_PATH, which may already be imputed.
+IQR flags are descriptive screening only. No observations were removed.
+Use the codebook and subject-matter reasoning to assess extreme values.
+Unavailable includes Unknown, NA and recognised special missing codes; it does NOT recover previously mode-imputed values.

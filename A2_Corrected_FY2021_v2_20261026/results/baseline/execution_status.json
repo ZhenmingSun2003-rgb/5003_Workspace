@@ -1,0 +1,30 @@
+{
+  "Run": "baseline",
+  "File": "baseline.Rmd",
+  "Mode": "corrected_v2_official",
+  "Success": true,
+  "Error": null,
+  "Elapsed_Seconds": 14.02,
+  "Started_At": "2026-10-26 11:10:22 +0800",
+  "Finished_At": "2026-10-26 11:10:36 +0800",
+  "Source_MD5": "438e34dd7bfab1b8d13d32fa22f9f62a",
+  "Source_Unchanged_During_Render": true,
+  "Output": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/results/baseline/baseline.html",
+  "Data_Path": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/WVS_Wave7_cleaned_for_modelling.csv",
+  "Data_MD5": "98bf573170f0cb6bd65a4e9a8070d4d8",
+  "RNG": ["Mersenne-Twister", "Inversion", "Rejection"],
+  "Conditions": [
+    {
+      "Type": "message",
+      "Message": "\n\nprocessing file: baseline.Rmd\n"
+    },
+    {
+      "Type": "message",
+      "Message": "output file: baseline.knit.md\n\n"
+    },
+    {
+      "Type": "message",
+      "Message": "\nOutput created: baseline.html\n"
+    }
+  ]
+}

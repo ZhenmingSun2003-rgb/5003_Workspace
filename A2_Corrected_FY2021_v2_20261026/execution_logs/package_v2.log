@@ -1,0 +1,8 @@
+{
+  "Created_At": "2026-10-26T12:12:42.730919+08:00",
+  "Archive": "C:\\Users\\Saberken\\Documents\\ChatGPT\\5003_A1_A2\\STAT5003_A2_Corrected_FY2021_v2_20261026\\STAT5003_A2_Corrected_FY2021_v2_REVIEW.zip",
+  "Files": 379,
+  "Bytes": 8830032,
+  "SHA256": "99f6deb384857d7c32e918fc7073b96c373045f420c43a87199f192310d6c031",
+  "Excluded": "Large dataset CSVs, RDS model/runtime files and R libraries remain in full revision folder"
+}

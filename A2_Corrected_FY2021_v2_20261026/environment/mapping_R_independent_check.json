@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "scope": "Parse/evaluate mapping only; no model fitting or dataset processing",
+  "files": [
+    {
+      "file": "baseline.Rmd",
+      "R_chunks_parse": true,
+      "canonical_66_map_equal": true,
+      "unused_Unclassified_character0": true,
+      "all_function_bodies_identical": true,
+      "protected_contract_assignments_identical": true,
+      "function_count": 7,
+      "protected_assignment_count": 5
+    },
+    {
+      "file": "02_LDA.Rmd",
+      "R_chunks_parse": true,
+      "canonical_66_map_equal": true,
+      "unused_Unclassified_character0": true,
+      "all_function_bodies_identical": true,
+      "protected_contract_assignments_identical": true,
+      "function_count": 23,
+      "protected_assignment_count": 9
+    },
+    {
+      "file": "03_kNN.Rmd",
+      "R_chunks_parse": true,
+      "canonical_66_map_equal": true,
+      "unused_Unclassified_character0": true,
+      "all_function_bodies_identical": true,
+      "protected_contract_assignments_identical": true,
+      "function_count": 20,
+      "protected_assignment_count": 12
+    },
+    {
+      "file": "04_SVM.Rmd",
+      "R_chunks_parse": true,
+      "canonical_66_map_equal": true,
+      "unused_Unclassified_character0": true,
+      "all_function_bodies_identical": true,
+      "protected_contract_assignments_identical": true,
+      "function_count": 28,
+      "protected_assignment_count": 11
+    },
+    {
+      "file": "05_DecisionTree.Rmd",
+      "R_chunks_parse": true,
+      "canonical_66_map_equal": true,
+      "unused_Unclassified_character0": true,
+      "all_function_bodies_identical": true,
+      "protected_contract_assignments_identical": true,
+      "function_count": 28,
+      "protected_assignment_count": 10
+    }
+  ]
+}

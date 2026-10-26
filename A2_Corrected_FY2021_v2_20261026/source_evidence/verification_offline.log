@@ -1,0 +1,70 @@
+{
+  "offline_verification": "PASS",
+  "all_six_maps_identical": true,
+  "country_codes": 66,
+  "csv_rows": 95987,
+  "csv_sha256": "ee392676dbb42dde0ea74ebf643862f3900e7d13a7aa03842ed2d7665ac98ee0",
+  "source_group_counts": {
+    "Low": 2,
+    "Lower-middle": 17,
+    "Upper-middle": 23,
+    "High": 22,
+    "Unclassified": 2
+  },
+  "comparison_status_counts": {
+    "match": 60,
+    "classification_mismatch": 3,
+    "documented_UK_inheritance_assumption": 1,
+    "explicit_coverage_choice_despite_official_classification": 2
+  },
+  "classification_mismatch_csv_rows": 3483,
+  "coverage_choice_csv_rows": 2410,
+  "canonical_map_sha256": "95eb27ca989721a5209716c08a2ec148c7e63369136ee4ebc52c609c0f2c0c25",
+  "fiscal_header_cell": "AI5",
+  "fiscal_header_value": "FY21",
+  "data_year_cell": "AI6",
+  "data_year_value": 2019,
+  "sheet": "Country Analytical History",
+  "source_rmd_hashes": [
+    {
+      "file": "baseline.Rmd",
+      "bytes": 18444,
+      "sha256": "d2ce36360dfd74df07f894d04e9ace61448f9ed850543b2db9620c1e140e5efb",
+      "md5": "87f89a8de3bbeb27e9819db19722b351"
+    },
+    {
+      "file": "01_MultinomialLogisticRegression.Rmd",
+      "bytes": 17307,
+      "sha256": "9dc52ee768e723e349236bf4d3e16fb44b0d9f3210324ee352f3317416bec729",
+      "md5": "8dbe3b5897da71c77b5685d4cc01f0d0"
+    },
+    {
+      "file": "02_LDA.Rmd",
+      "bytes": 28602,
+      "sha256": "d5e5e045ad62da4b31d70f567098693b81c6dd7d5aaf27410b1f20e035c2b1a1",
+      "md5": "9a913d6a538bc19baf7200adb79ae53a"
+    },
+    {
+      "file": "03_kNN.Rmd",
+      "bytes": 20849,
+      "sha256": "e0c45c31cfacb4c1ca5c215db54d995ccd9527cb58f9cef63d7c48b11aa31a18",
+      "md5": "64dad2942a5ff5c914227fa8cb3137c2"
+    },
+    {
+      "file": "04_SVM.Rmd",
+      "bytes": 34048,
+      "sha256": "c420c78bd90c22ad5a6fd9d4cc66de12993463ae28373db83def9111024e07a8",
+      "md5": "5daa857a6189f502faa0b0d882321659"
+    },
+    {
+      "file": "05_DecisionTree.Rmd",
+      "bytes": 33207,
+      "sha256": "ed013bf1480eb9a307f44e4aa7ae50f35b47a7443be4110c18f9e41522129442",
+      "md5": "254ac06498c342a217b29fd95beb8170"
+    }
+  ],
+  "workbook_hashes": {
+    "sha256": "a4024eb8052150155034559daf053aabbc16336d8290efeb5629e6eeb6515a60",
+    "md5": "03152ef89adde26a2264df8aab198c4c"
+  }
+}

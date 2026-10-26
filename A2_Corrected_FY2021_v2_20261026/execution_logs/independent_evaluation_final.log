@@ -1,0 +1,15 @@
+{
+  "Verified_Models": [
+    "Training-majority",
+    "Training-prior random",
+    "Multinomial Logistic Regression",
+    "LDA",
+    "kNN",
+    "SVM",
+    "Decision Tree"
+  ],
+  "Data_Integrity_Verified": true,
+  "Maps_Verified": true,
+  "Issue_Count": 0,
+  "Bootstrap_Pairs": 11
+}

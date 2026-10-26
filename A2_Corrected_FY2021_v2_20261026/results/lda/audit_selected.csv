@@ -1,0 +1,2 @@
+"Candidate","Specification","Prior","Columns","Macro_F1","Weighted_F1","Accuracy","Seconds"
+3,"extended_linear","empirical",39,0.339464254402466,0.459165717566807,0.510130735975832,1

@@ -1,0 +1,851 @@
+{
+  "Status": "PASS",
+  "Verified_At_Asia_Shanghai": "2026-10-26T12:12:22.852442+08:00",
+  "Scope": "All six frozen Rmd sources and existing executed copies; parse-only AST, authority/preimage hashes; no model fit/data transformation",
+  "FY2021_Authority_Workbook_SHA256": "a4024eb8052150155034559daf053aabbc16336d8290efeb5629e6eeb6515a60",
+  "Canonical_Workbook_Cells": [
+    {
+      "Code": "AND",
+      "Group": "High",
+      "Source_Cell": "AI11",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "ARG",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI14",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "ARM",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI15",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "AUS",
+      "Group": "High",
+      "Source_Cell": "AI17",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "BGD",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI22",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "BOL",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI30",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "BRA",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI33",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "CAN",
+      "Group": "High",
+      "Source_Cell": "AI42",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "CHL",
+      "Group": "High",
+      "Source_Cell": "AI47",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "CHN",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI48",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "COL",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI49",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "CYP",
+      "Group": "High",
+      "Source_Cell": "AI58",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "CZE",
+      "Group": "High",
+      "Source_Cell": "AI59",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "DEU",
+      "Group": "High",
+      "Source_Cell": "AI80",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "ECU",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI64",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "EGY",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI65",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "ETH",
+      "Group": "Low",
+      "Source_Cell": "AI71",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "GBR",
+      "Group": "High",
+      "Source_Cell": "AI213",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "GRC",
+      "Group": "High",
+      "Source_Cell": "AI83",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "GTM",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI87",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "HKG",
+      "Group": "High",
+      "Source_Cell": "AI93",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "IDN",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI97",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "IND",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI96",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "IRN",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI98",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "IRQ",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI99",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "JOR",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI106",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "JPN",
+      "Group": "High",
+      "Source_Cell": "AI105",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "KAZ",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI107",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "KEN",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI108",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "KGZ",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI114",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "KOR",
+      "Group": "High",
+      "Source_Cell": "AI111",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "LBN",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI117",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "LBY",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI120",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "MAC",
+      "Group": "High",
+      "Source_Cell": "AI124",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "MAR",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI140",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "MDV",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI128",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "MEX",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI134",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "MMR",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI142",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "MNG",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI138",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "MYS",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI127",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "NGA",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI151",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "NIC",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI149",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "NIR",
+      "Group": "High",
+      "Source_Cell": "AI213",
+      "NIR_Assumption": true,
+      "Pass": true
+    },
+    {
+      "Code": "NLD",
+      "Group": "High",
+      "Source_Cell": "AI146",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "NZL",
+      "Group": "High",
+      "Source_Cell": "AI148",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "PAK",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI156",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "PER",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI161",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "PHL",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI162",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "PRI",
+      "Group": "High",
+      "Source_Cell": "AI165",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "ROU",
+      "Group": "High",
+      "Source_Cell": "AI167",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "RUS",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI168",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "SGP",
+      "Group": "High",
+      "Source_Cell": "AI178",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "SRB",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI175",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "SVK",
+      "Group": "High",
+      "Source_Cell": "AI180",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "THA",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI200",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "TJK",
+      "Group": "Low",
+      "Source_Cell": "AI198",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "TUN",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI205",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "TUR",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI206",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "TWN",
+      "Group": "High",
+      "Source_Cell": "AI197",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "UKR",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI211",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "URY",
+      "Group": "High",
+      "Source_Cell": "AI215",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "USA",
+      "Group": "High",
+      "Source_Cell": "AI214",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "UZB",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI216",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "VEN",
+      "Group": "Upper-middle",
+      "Source_Cell": "AI218",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "VNM",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI219",
+      "NIR_Assumption": false,
+      "Pass": true
+    },
+    {
+      "Code": "ZWE",
+      "Group": "Lower-middle",
+      "Source_Cell": "AI224",
+      "NIR_Assumption": false,
+      "Pass": true
+    }
+  ],
+  "Source_Contracts": [
+    {
+      "File": "baseline.Rmd",
+      "Frozen_SHA256": "8d344a2dc81a34868b81e0562a60f405c8eda3e83aa00288abc01532d8c9ab87",
+      "Actual_SHA256": "8d344a2dc81a34868b81e0562a60f405c8eda3e83aa00288abc01532d8c9ab87",
+      "Matches_Frozen": true,
+      "Canonical_66_Map_Matches": true,
+      "Explicit_Executable_Whitelist": [
+        "WB_GROUPS only: validated separately against all66 canonical/workbook cells",
+        "Original presentation string: Working FY2021 income proxy",
+        "Corrected presentation string: Verified FY2021 income proxy"
+      ],
+      "Normalized_Original_Code_SHA256": "266aaaee9f758ebfc6fecc44b24c744365a93bd5bc2b88c54b8548df04232c3d",
+      "Normalized_Corrected_Code_SHA256": "266aaaee9f758ebfc6fecc44b24c744365a93bd5bc2b88c54b8548df04232c3d",
+      "Presentation_Changes": "Markdown/YAML/comment text and explicitly listed output-caption/summary literals only; legacy numerical interpretations visibly labelled"
+    },
+    {
+      "File": "01_MultinomialLogisticRegression.Rmd",
+      "Frozen_SHA256": "516d23f073cfff3ded7a107a9d6cbc6904e937cf33bd470bff4789be78364141",
+      "Actual_SHA256": "516d23f073cfff3ded7a107a9d6cbc6904e937cf33bd470bff4789be78364141",
+      "Matches_Frozen": true,
+      "Canonical_66_Map_Matches": true,
+      "Explicit_Executable_Whitelist": [
+        "WB_GROUPS only: validated separately against all66 canonical/workbook cells",
+        "Original MAXIT exactly250L",
+        "Only Logistic MAXIT2000L normalized to original250L",
+        "Original candidate warning gate removed solely for AST matching",
+        "New strict convergence gate before candidate Validation prediction",
+        "Original final warning gate removed solely for AST matching",
+        "New strict final convergence gate before Test prediction",
+        "New all-candidate convergence/row-count gate before ranking and selection"
+      ],
+      "Normalized_Original_Code_SHA256": "1a2d5817a28a5a34f93c5bf8ff54d2b5fa569a9bb9f49257416789700fc30992",
+      "Normalized_Corrected_Code_SHA256": "3bc44080874a91227db914f2e3e18d1d43ed357094d9c87ece498a2d7f5fdff9",
+      "Presentation_Changes": "Markdown/YAML/comment text and explicitly listed output-caption/summary literals only; legacy numerical interpretations visibly labelled"
+    },
+    {
+      "File": "02_LDA.Rmd",
+      "Frozen_SHA256": "f2d9d22cabaa105329de1ad0688887b98749016309bbfcfc34074a5e48cc6c8f",
+      "Actual_SHA256": "f2d9d22cabaa105329de1ad0688887b98749016309bbfcfc34074a5e48cc6c8f",
+      "Matches_Frozen": true,
+      "Canonical_66_Map_Matches": true,
+      "Explicit_Executable_Whitelist": [
+        "WB_GROUPS only: validated separately against all66 canonical/workbook cells",
+        "Original presentation string: Inherited A1 pre-split mode imputation and provisional income mapping remain limitations.",
+        "Corrected presentation string: Inherited A1 pre-split imputation and fixed-vintage national context remain limitations; NIR inherits UK."
+      ],
+      "Normalized_Original_Code_SHA256": "2cd0beb4a591893b62a1a9c7e3eac3ed42af3b11a4f82cfe61ed70569b4f3093",
+      "Normalized_Corrected_Code_SHA256": "2cd0beb4a591893b62a1a9c7e3eac3ed42af3b11a4f82cfe61ed70569b4f3093",
+      "Presentation_Changes": "Markdown/YAML/comment text and explicitly listed output-caption/summary literals only; legacy numerical interpretations visibly labelled"
+    },
+    {
+      "File": "03_kNN.Rmd",
+      "Frozen_SHA256": "9d228929e8887f8855a04b6dcf902c6936ec2cc1822e53ac9d7b97e216d622b0",
+      "Actual_SHA256": "9d228929e8887f8855a04b6dcf902c6936ec2cc1822e53ac9d7b97e216d622b0",
+      "Matches_Frozen": true,
+      "Canonical_66_Map_Matches": true,
+      "Explicit_Executable_Whitelist": [
+        "WB_GROUPS only: validated separately against all66 canonical/workbook cells",
+        "Original presentation string: Income_Group follows the shared provisional map; historical entries require audit.",
+        "Corrected presentation string: Income_Group follows the verified frozen FY2021 map; NIR explicitly inherits UK High."
+      ],
+      "Normalized_Original_Code_SHA256": "ba119a05a38dcc95367731d1f62ae69c73f6c1ea652ee27d89338dd0d91098c6",
+      "Normalized_Corrected_Code_SHA256": "d44da57b54b6a50e502df804bdd180b58a8bbc3f5e02abbdd79898a86d515e6c",
+      "Presentation_Changes": "Markdown/YAML/comment text and explicitly listed output-caption/summary literals only; legacy numerical interpretations visibly labelled"
+    },
+    {
+      "File": "04_SVM.Rmd",
+      "Frozen_SHA256": "55a4c54dce1ae72cc1ec6b213147b9ff8677b8ccf803bf3a6ece84849eec2814",
+      "Actual_SHA256": "55a4c54dce1ae72cc1ec6b213147b9ff8677b8ccf803bf3a6ece84849eec2814",
+      "Matches_Frozen": true,
+      "Canonical_66_Map_Matches": true,
+      "Explicit_Executable_Whitelist": [
+        "WB_GROUPS only: validated separately against all66 canonical/workbook cells"
+      ],
+      "Normalized_Original_Code_SHA256": "99c5ac99a47360259a433150f0fc3bbc85cfabac60e9164af71470d0c1dc55d5",
+      "Normalized_Corrected_Code_SHA256": "99c5ac99a47360259a433150f0fc3bbc85cfabac60e9164af71470d0c1dc55d5",
+      "Presentation_Changes": "Markdown/YAML/comment text and explicitly listed output-caption/summary literals only; legacy numerical interpretations visibly labelled"
+    },
+    {
+      "File": "05_DecisionTree.Rmd",
+      "Frozen_SHA256": "0f9740f70cb5222054e54db3f10056d95e2b71ba39aab09aed21cf3eb5747995",
+      "Actual_SHA256": "0f9740f70cb5222054e54db3f10056d95e2b71ba39aab09aed21cf3eb5747995",
+      "Matches_Frozen": true,
+      "Canonical_66_Map_Matches": true,
+      "Explicit_Executable_Whitelist": [
+        "WB_GROUPS only: validated separately against all66 canonical/workbook cells",
+        "Original presentation string: Income_Group follows the shared provisional map; historical entries require audit.",
+        "Corrected presentation string: Income_Group follows the verified frozen FY2021 map; NIR explicitly inherits UK High."
+      ],
+      "Normalized_Original_Code_SHA256": "6e43b8400b6bd7d3d5ee9739ee4b77c47efb62f7875176846b802de6b99bc7f0",
+      "Normalized_Corrected_Code_SHA256": "7cb775b8ca5a8c1f8113b5a56009d7e6d0ff5b8e678d717afdb98eb3625e4842",
+      "Presentation_Changes": "Markdown/YAML/comment text and explicitly listed output-caption/summary literals only; legacy numerical interpretations visibly labelled"
+    }
+  ],
+  "R_Native_AST_Contracts": {
+    "status": "PASS",
+    "scope": "Parse-only R native AST comparison; no model or data code evaluated",
+    "files": [
+      {
+        "file": "baseline.Rmd",
+        "R_chunks_parse": true,
+        "all_function_ASTs_identical": true,
+        "protected_assignment_ASTs_identical": true,
+        "complete_executable_AST_identical_after_explicit_whitelist": true,
+        "MAXIT_change_only_Logistic_250_to_2000": true,
+        "function_count": 7,
+        "protected_assignment_count": 5,
+        "pass": true
+      },
+      {
+        "file": "01_MultinomialLogisticRegression.Rmd",
+        "R_chunks_parse": true,
+        "all_function_ASTs_identical": true,
+        "protected_assignment_ASTs_identical": true,
+        "complete_executable_AST_identical_after_explicit_whitelist": true,
+        "MAXIT_change_only_Logistic_250_to_2000": true,
+        "function_count": 13,
+        "protected_assignment_count": 10,
+        "pass": true
+      },
+      {
+        "file": "02_LDA.Rmd",
+        "R_chunks_parse": true,
+        "all_function_ASTs_identical": true,
+        "protected_assignment_ASTs_identical": true,
+        "complete_executable_AST_identical_after_explicit_whitelist": true,
+        "MAXIT_change_only_Logistic_250_to_2000": true,
+        "function_count": 23,
+        "protected_assignment_count": 9,
+        "pass": true
+      },
+      {
+        "file": "03_kNN.Rmd",
+        "R_chunks_parse": true,
+        "all_function_ASTs_identical": true,
+        "protected_assignment_ASTs_identical": true,
+        "complete_executable_AST_identical_after_explicit_whitelist": true,
+        "MAXIT_change_only_Logistic_250_to_2000": true,
+        "function_count": 20,
+        "protected_assignment_count": 14,
+        "pass": true
+      },
+      {
+        "file": "04_SVM.Rmd",
+        "R_chunks_parse": true,
+        "all_function_ASTs_identical": true,
+        "protected_assignment_ASTs_identical": true,
+        "complete_executable_AST_identical_after_explicit_whitelist": true,
+        "MAXIT_change_only_Logistic_250_to_2000": true,
+        "function_count": 28,
+        "protected_assignment_count": 11,
+        "pass": true
+      },
+      {
+        "file": "05_DecisionTree.Rmd",
+        "R_chunks_parse": true,
+        "all_function_ASTs_identical": true,
+        "protected_assignment_ASTs_identical": true,
+        "complete_executable_AST_identical_after_explicit_whitelist": true,
+        "MAXIT_change_only_Logistic_250_to_2000": true,
+        "function_count": 28,
+        "protected_assignment_count": 12,
+        "pass": true
+      }
+    ]
+  },
+  "Original_Sources_Preimage": [
+    {
+      "File": "01_MultinomialLogisticRegression.Rmd",
+      "Expected_SHA256": "9dc52ee768e723e349236bf4d3e16fb44b0d9f3210324ee352f3317416bec729",
+      "Actual_SHA256": "9dc52ee768e723e349236bf4d3e16fb44b0d9f3210324ee352f3317416bec729",
+      "Match": true
+    },
+    {
+      "File": "02_LDA.Rmd",
+      "Expected_SHA256": "d5e5e045ad62da4b31d70f567098693b81c6dd7d5aaf27410b1f20e035c2b1a1",
+      "Actual_SHA256": "d5e5e045ad62da4b31d70f567098693b81c6dd7d5aaf27410b1f20e035c2b1a1",
+      "Match": true
+    },
+    {
+      "File": "03_kNN.Rmd",
+      "Expected_SHA256": "e0c45c31cfacb4c1ca5c215db54d995ccd9527cb58f9cef63d7c48b11aa31a18",
+      "Actual_SHA256": "e0c45c31cfacb4c1ca5c215db54d995ccd9527cb58f9cef63d7c48b11aa31a18",
+      "Match": true
+    },
+    {
+      "File": "04_SVM.Rmd",
+      "Expected_SHA256": "c420c78bd90c22ad5a6fd9d4cc66de12993463ae28373db83def9111024e07a8",
+      "Actual_SHA256": "c420c78bd90c22ad5a6fd9d4cc66de12993463ae28373db83def9111024e07a8",
+      "Match": true
+    },
+    {
+      "File": "05_DecisionTree.Rmd",
+      "Expected_SHA256": "ed013bf1480eb9a307f44e4aa7ae50f35b47a7443be4110c18f9e41522129442",
+      "Actual_SHA256": "ed013bf1480eb9a307f44e4aa7ae50f35b47a7443be4110c18f9e41522129442",
+      "Match": true
+    },
+    {
+      "File": "baseline.Rmd",
+      "Expected_SHA256": "d2ce36360dfd74df07f894d04e9ace61448f9ed850543b2db9620c1e140e5efb",
+      "Actual_SHA256": "d2ce36360dfd74df07f894d04e9ace61448f9ed850543b2db9620c1e140e5efb",
+      "Match": true
+    }
+  ],
+  "Original_Repository": {
+    "Path": "C:\\Users\\Saberken\\Downloads\\5003_Workspace",
+    "Branch": "main",
+    "Commit": "9b3db1d3207d9af492af0099848248cee73df918",
+    "Working_Tree_Status": "",
+    "Manifest_SHA256": "caaef472e190a969986e11f3717b09c9bd2b163398934976e26b65596d3bb580",
+    "Exact_NonGit_File_Set_Unchanged": true,
+    "Files": [
+      {
+        "File": ".gitattributes",
+        "Bytes": 73,
+        "Expected_SHA256": "9213d34aeab71d192baba4da416ffcc0738c15f81dc1dd875e299850fa17c526",
+        "Actual_SHA256": "9213d34aeab71d192baba4da416ffcc0738c15f81dc1dd875e299850fa17c526",
+        "Match": true
+      },
+      {
+        "File": "01_MultinomialLogisticRegression.Rmd",
+        "Bytes": 17307,
+        "Expected_SHA256": "9dc52ee768e723e349236bf4d3e16fb44b0d9f3210324ee352f3317416bec729",
+        "Actual_SHA256": "9dc52ee768e723e349236bf4d3e16fb44b0d9f3210324ee352f3317416bec729",
+        "Match": true
+      },
+      {
+        "File": "02_LDA.Rmd",
+        "Bytes": 28602,
+        "Expected_SHA256": "d5e5e045ad62da4b31d70f567098693b81c6dd7d5aaf27410b1f20e035c2b1a1",
+        "Actual_SHA256": "d5e5e045ad62da4b31d70f567098693b81c6dd7d5aaf27410b1f20e035c2b1a1",
+        "Match": true
+      },
+      {
+        "File": "03_kNN.Rmd",
+        "Bytes": 20849,
+        "Expected_SHA256": "e0c45c31cfacb4c1ca5c215db54d995ccd9527cb58f9cef63d7c48b11aa31a18",
+        "Actual_SHA256": "e0c45c31cfacb4c1ca5c215db54d995ccd9527cb58f9cef63d7c48b11aa31a18",
+        "Match": true
+      },
+      {
+        "File": "04_SVM.Rmd",
+        "Bytes": 34048,
+        "Expected_SHA256": "c420c78bd90c22ad5a6fd9d4cc66de12993463ae28373db83def9111024e07a8",
+        "Actual_SHA256": "c420c78bd90c22ad5a6fd9d4cc66de12993463ae28373db83def9111024e07a8",
+        "Match": true
+      },
+      {
+        "File": "05_DecisionTree.Rmd",
+        "Bytes": 33207,
+        "Expected_SHA256": "ed013bf1480eb9a307f44e4aa7ae50f35b47a7443be4110c18f9e41522129442",
+        "Actual_SHA256": "ed013bf1480eb9a307f44e4aa7ae50f35b47a7443be4110c18f9e41522129442",
+        "Match": true
+      },
+      {
+        "File": "A1_Submission_EDA and Plan-1.html",
+        "Bytes": 995167,
+        "Expected_SHA256": "ff86017d6d6d34dfb4d70ce0d4fcff51ce8d6ec52d6e5dfb54efb7ec705fc4c4",
+        "Actual_SHA256": "ff86017d6d6d34dfb4d70ce0d4fcff51ce8d6ec52d6e5dfb54efb7ec705fc4c4",
+        "Match": true
+      },
+      {
+        "File": "baseline.Rmd",
+        "Bytes": 18444,
+        "Expected_SHA256": "d2ce36360dfd74df07f894d04e9ace61448f9ed850543b2db9620c1e140e5efb",
+        "Actual_SHA256": "d2ce36360dfd74df07f894d04e9ace61448f9ed850543b2db9620c1e140e5efb",
+        "Match": true
+      },
+      {
+        "File": "README.md",
+        "Bytes": 8242,
+        "Expected_SHA256": "09e2e47d2af9a7975f2daa5d5d0db25c485d655c8e2debd469fa2c5b7d6495c2",
+        "Actual_SHA256": "09e2e47d2af9a7975f2daa5d5d0db25c485d655c8e2debd469fa2c5b7d6495c2",
+        "Match": true
+      },
+      {
+        "File": "WVS_Wave7_cleaned_for_modelling.csv",
+        "Bytes": 171923121,
+        "Expected_SHA256": "ee392676dbb42dde0ea74ebf643862f3900e7d13a7aa03842ed2d7665ac98ee0",
+        "Actual_SHA256": "ee392676dbb42dde0ea74ebf643862f3900e7d13a7aa03842ed2d7665ac98ee0",
+        "Match": true
+      }
+    ]
+  },
+  "Executed_Copies": [
+    {
+      "Path": "results/baseline/baseline.Rmd",
+      "Source": "baseline.Rmd",
+      "SHA256": "8d344a2dc81a34868b81e0562a60f405c8eda3e83aa00288abc01532d8c9ab87",
+      "Matches_Root_and_Frozen": true
+    },
+    {
+      "Path": "results/knn/03_kNN.Rmd",
+      "Source": "03_kNN.Rmd",
+      "SHA256": "9d228929e8887f8855a04b6dcf902c6936ec2cc1822e53ac9d7b97e216d622b0",
+      "Matches_Root_and_Frozen": true
+    },
+    {
+      "Path": "results/lda/02_LDA.Rmd",
+      "Source": "02_LDA.Rmd",
+      "SHA256": "f2d9d22cabaa105329de1ad0688887b98749016309bbfcfc34074a5e48cc6c8f",
+      "Matches_Root_and_Frozen": true
+    },
+    {
+      "Path": "results/logistic/01_MultinomialLogisticRegression.Rmd",
+      "Source": "01_MultinomialLogisticRegression.Rmd",
+      "SHA256": "516d23f073cfff3ded7a107a9d6cbc6904e937cf33bd470bff4789be78364141",
+      "Matches_Root_and_Frozen": true
+    },
+    {
+      "Path": "results/svm/04_SVM.Rmd",
+      "Source": "04_SVM.Rmd",
+      "SHA256": "55a4c54dce1ae72cc1ec6b213147b9ff8677b8ccf803bf3a6ece84849eec2814",
+      "Matches_Root_and_Frozen": true
+    },
+    {
+      "Path": "results/tree/05_DecisionTree.Rmd",
+      "Source": "05_DecisionTree.Rmd",
+      "SHA256": "0f9740f70cb5222054e54db3f10056d95e2b71ba39aab09aed21cf3eb5747995",
+      "Matches_Root_and_Frozen": true
+    }
+  ],
+  "Executed_Copy_Coverage": {
+    "Available": 6,
+    "Expected": 6,
+    "Missing_Sources": [],
+    "Note": "Missing copies are evidence pending, not source changes; rerun after remaining runs"
+  },
+  "Old_Audit": {
+    "Path": "C:\\Users\\Saberken\\Documents\\ChatGPT\\5003_A1_A2\\audit_20261024_01",
+    "Ledger_SHA256": "8f1bc61e6233ab3e5e8105b53028267901b089b5ce384523baf894efc65c8981",
+    "Primary_Deliverables": [
+      {
+        "File": "STAT5003_A2_AUDIT_REPORT.md",
+        "Expected_SHA256": "3d9748a86c3c4ebc33ff0ac9abcea21097777cbeff65fc1d21a7f245d0b89710",
+        "Actual_SHA256": "3d9748a86c3c4ebc33ff0ac9abcea21097777cbeff65fc1d21a7f245d0b89710",
+        "Bytes": 40962,
+        "Match": true
+      },
+      {
+        "File": "STAT5003_A2_AUDIT_REPORT.html",
+        "Expected_SHA256": "cf3b186d30a6db7148a82fb3740902d5eaeabc9d651b6f7c76d378d95a6e632e",
+        "Actual_SHA256": "cf3b186d30a6db7148a82fb3740902d5eaeabc9d651b6f7c76d378d95a6e632e",
+        "Bytes": 65109,
+        "Match": true
+      },
+      {
+        "File": "model_comparison.csv",
+        "Expected_SHA256": "cb148bd1059eed5dd2c7184e2489e649d91075316c67863fa712963d7e344edd",
+        "Actual_SHA256": "cb148bd1059eed5dd2c7184e2489e649d91075316c67863fa712963d7e344edd",
+        "Bytes": 1970,
+        "Match": true
+      },
+      {
+        "File": "per_class_comparison.csv",
+        "Expected_SHA256": "02a16e4e73b462bad0a9d0c5678f3ca58d22f8320a055f3a9a8368ee1ef24dae",
+        "Actual_SHA256": "02a16e4e73b462bad0a9d0c5678f3ca58d22f8320a055f3a9a8368ee1ef24dae",
+        "Bytes": 4578,
+        "Match": true
+      },
+      {
+        "File": "split_integrity_report.csv",
+        "Expected_SHA256": "a22988af330057ccc7a4f763b7590911c9df2f319e1fe379d27b0a76cfacb0f8",
+        "Actual_SHA256": "a22988af330057ccc7a4f763b7590911c9df2f319e1fe379d27b0a76cfacb0f8",
+        "Bytes": 10661,
+        "Match": true
+      },
+      {
+        "File": "audit_findings.md",
+        "Expected_SHA256": "cf86a3359588f521e851ac29b0be7420655ebfa33a7e049324bb7316b9e7470c",
+        "Actual_SHA256": "cf86a3359588f521e851ac29b0be7420655ebfa33a7e049324bb7316b9e7470c",
+        "Bytes": 14485,
+        "Match": true
+      }
+    ],
+    "All_Match": true
+  },
+  "Helper_Stderr": "",
+  "Verifier_SHA256": "a4237601b7df0a6c2a6339b7368d02a3e7580e205f0bb1ae9d74340fe5b3d22c",
+  "R_Helper_SHA256": "3b7c9248726bd8d23f50a8d61bf84398c4a8e45cf67e3b3d2f0205bfddeed97d"
+}

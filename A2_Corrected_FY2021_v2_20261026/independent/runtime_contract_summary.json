@@ -1,0 +1,263 @@
+{
+  "mode": "Read-only post-execution observation; no model rerun/reselection",
+  "recipe_comparisons": 138,
+  "recipe_failures": 0,
+  "max_absolute_recipe_difference": 2.2204460492503131e-16,
+  "baseline_predictors_exact": true,
+  "svm_class_weight_comparisons": 32,
+  "svm_class_weight_failures": 0,
+  "internal_multinom_initialization": {
+    "package_version": "7.3.20",
+    "multinom_calls_nnet_with_rang_zero": true,
+    "relevant_source_lines": ["            fit <- nnet.default(X, Y, w, Wts = Wts, mask = mask, ", "                size = 0, skip = TRUE, softmax = TRUE, censored = censored, ", "                rang = 0, ...)", "            fit <- nnet.default(X, Y, w, mask = mask, size = 0, ", "                skip = TRUE, softmax = TRUE, censored = censored, ", "                rang = 0, ...)", "            fit <- nnet.default(X, Y, w, mask = mask, size = 0, ", "                skip = TRUE, entropy = TRUE, rang = 0, ...)", "            fit <- nnet.default(X, Y, w, Wts = Wts, mask = mask, ", "                size = 0, skip = TRUE, entropy = TRUE, rang = 0, "],
+    "contrasts_in_verifier_vanilla_session": ["contr.treatment", "contr.poly"],
+    "note": "multinom uses size=0, skip=TRUE and rang=0 for the multiclass nnet call. The loaded implementation is preserved, so a hidden-layer random start must not be assumed. The audit saved environment does not preserve the render process's global options; model-stored contrasts and the vanilla verification options are recorded separately."
+  },
+  "runs": {
+    "baseline": {
+      "status": "observed saved unchanged-Rmd environment",
+      "identity": {
+        "train_ids_equal_reference": true,
+        "test_ids_equal_reference": true,
+        "full_refit_N": 76786,
+        "full_refit_rows_76786": true,
+        "full_refit_labels_match_csv": true,
+        "full_refit_numeric_source_values_match_csv": true
+      },
+      "selected_specification": null,
+      "selected_source_features": [],
+      "forbidden_selected_source_features": [],
+      "no_forbidden_source_predictors": true,
+      "design_representation": "Training-majority / independent training-prior sample; no predictive design matrix",
+      "details": {
+        "training_class_proportions": [0.3643242257703227, 0.086109447034615691, 0.14326830411793817, 0.12584325267626911, 0.13270648295262158, 0.05873466517333889, 0.0769411090563384, 0.012072513218555465]
+      }
+    },
+    "logistic": {
+      "status": "observed saved unchanged-Rmd environment",
+      "identity": {
+        "train_ids_equal_reference": true,
+        "test_ids_equal_reference": true,
+        "full_refit_N": 76786,
+        "full_refit_rows_76786": true,
+        "full_refit_labels_match_csv": true,
+        "full_refit_numeric_source_values_match_csv": true
+      },
+      "selected_specification": "extended_linear",
+      "selected_source_features": ["Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing", "Children", "Children_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "Savings", "Income_Group"],
+      "forbidden_selected_source_features": [],
+      "no_forbidden_source_predictors": true,
+      "design_representation": "Formula design: R factor contrasts, numeric z-scores/missing flags; selected quadratic age adds squared standardised Age",
+      "details": {
+        "selected_spec": "extended_linear",
+        "selected_decay": 0.01,
+        "candidate_fitting_N": 24996,
+        "all_candidate_convergence": [
+          {
+            "Spec": "extended_linear",
+            "Decay": 0.01,
+            "Dev_N": 24996,
+            "Val_N": 19199,
+            "Convergence": 0,
+            "Macro_F1": 0.35335939810876221,
+            "Weighted_F1": 0.47314283796731749,
+            "Accuracy": 0.53023594978905153
+          },
+          {
+            "Spec": "extended_linear",
+            "Decay": 0.001,
+            "Dev_N": 24996,
+            "Val_N": 19199,
+            "Convergence": 0,
+            "Macro_F1": 0.35328840562420455,
+            "Weighted_F1": 0.47311098687075498,
+            "Accuracy": 0.53018386374290327
+          },
+          {
+            "Spec": "extended_quadratic_age",
+            "Decay": 0.01,
+            "Dev_N": 24996,
+            "Val_N": 19199,
+            "Convergence": 0,
+            "Macro_F1": 0.35228471255828742,
+            "Weighted_F1": 0.4724916051793433,
+            "Accuracy": 0.53226730558883273
+          },
+          {
+            "Spec": "extended_quadratic_age",
+            "Decay": 0.001,
+            "Dev_N": 24996,
+            "Val_N": 19199,
+            "Convergence": 0,
+            "Macro_F1": 0.3521935675025385,
+            "Weighted_F1": 0.47241138338333089,
+            "Accuracy": 0.53216313349653632
+          },
+          {
+            "Spec": "core_linear",
+            "Decay": 0.001,
+            "Dev_N": 24996,
+            "Val_N": 19199,
+            "Convergence": 0,
+            "Macro_F1": 0.33707480266025308,
+            "Weighted_F1": 0.45148488516129487,
+            "Accuracy": 0.51627688942132399
+          },
+          {
+            "Spec": "core_linear",
+            "Decay": 0.01,
+            "Dev_N": 24996,
+            "Val_N": 19199,
+            "Convergence": 0,
+            "Macro_F1": 0.33703766703310789,
+            "Weighted_F1": 0.45145843153747112,
+            "Accuracy": 0.51627688942132399
+          }
+        ],
+        "final_convergence": 0,
+        "final_value": 101183.82310294952,
+        "final_decay": 0.01,
+        "final_fitted_rows": 76786,
+        "final_fitted_rows_76786": true,
+        "stored_model_contrasts": {
+          "Gender": "contr.treatment",
+          "Marital": "contr.treatment",
+          "Education": "contr.treatment",
+          "SocialClass": "contr.treatment",
+          "IncomeBracket": "contr.treatment",
+          "Savings": "contr.treatment",
+          "Income_Group": "contr.treatment"
+        },
+        "actual_formula_terms": ["Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing", "Children", "Children_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "Savings", "Income_Group"]
+      }
+    },
+    "lda": {
+      "status": "observed saved unchanged-Rmd environment",
+      "identity": {
+        "train_ids_equal_reference": true,
+        "test_ids_equal_reference": true,
+        "full_refit_N": 76786,
+        "full_refit_rows_76786": true,
+        "full_refit_labels_match_csv": true,
+        "full_refit_numeric_source_values_match_csv": true
+      },
+      "selected_specification": "extended_linear",
+      "selected_source_features": ["Age", "Age_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "HouseholdSize", "HouseholdSize_missing", "Children", "Children_missing", "Savings", "Income_Group"],
+      "forbidden_selected_source_features": [],
+      "no_forbidden_source_predictors": true,
+      "design_representation": "Explicit treatment contrasts, intercept removed; fitting-only within-class variance and QR rank filtering; classical pooled covariance",
+      "details": {
+        "prior_matches": true,
+        "encoded_before_rank_filter": 47,
+        "retained_dimension": 39,
+        "residual_rank": 39,
+        "covariance_eigen_min": 0.0041311546964687539,
+        "covariance_condition_number": 305.57343211060788,
+        "independent_class_means_max_difference": 2.2204460492503131e-16
+      }
+    },
+    "tree": {
+      "status": "observed saved unchanged-Rmd environment",
+      "identity": {
+        "train_ids_equal_reference": true,
+        "test_ids_equal_reference": true,
+        "full_refit_N": 76786,
+        "full_refit_rows_76786": true,
+        "full_refit_labels_match_csv": true,
+        "full_refit_numeric_source_values_match_csv": true
+      },
+      "selected_specification": "extended_linear",
+      "selected_source_features": ["Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing", "Children", "Children_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "Savings", "Income_Group"],
+      "forbidden_selected_source_features": [],
+      "no_forbidden_source_predictors": true,
+      "design_representation": "rpart factor-aware formula design; numeric z-scores/missing flags, no one-hot requirement",
+      "details": {
+        "final_model_N": 76786,
+        "final_model_rows_76786": true,
+        "actual_formula_terms": ["Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing", "Children", "Children_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "Savings", "Income_Group"]
+      }
+    },
+    "knn": {
+      "status": "observed saved unchanged-Rmd environment",
+      "identity": {
+        "train_ids_equal_reference": true,
+        "test_ids_equal_reference": true,
+        "full_refit_N": 76786,
+        "full_refit_rows_76786": true,
+        "full_refit_labels_match_csv": true,
+        "full_refit_numeric_source_values_match_csv": true
+      },
+      "selected_specification": "extended_linear",
+      "selected_source_features": ["Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing", "Children", "Children_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "Savings", "Income_Group"],
+      "forbidden_selected_source_features": [],
+      "no_forbidden_source_predictors": true,
+      "design_representation": "All-level categorical one-hot /sqrt(2); numeric z-scores; missingness 0/1 left unscaled",
+      "details": {
+        "final_matrix_dimensions": [76786, 54],
+        "matrix_columns": ["Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing", "Children", "Children_missing", "Gender_1", "Gender_2", "Gender_Missing", "Marital_1", "Marital_2", "Marital_3", "Marital_4", "Marital_5", "Marital_6", "Marital_Missing", "Education_0", "Education_1", "Education_2", "Education_3", "Education_4", "Education_5", "Education_6", "Education_7", "Education_8", "Education_Missing", "SocialClass_1", "SocialClass_2", "SocialClass_3", "SocialClass_4", "SocialClass_5", "SocialClass_Missing", "IncomeBracket_1", "IncomeBracket_2", "IncomeBracket_3", "IncomeBracket_4", "IncomeBracket_5", "IncomeBracket_6", "IncomeBracket_7", "IncomeBracket_8", "IncomeBracket_9", "IncomeBracket_10", "IncomeBracket_Missing", "Savings_1", "Savings_2", "Savings_3", "Savings_4", "Savings_Missing", "Income_Group_Low", "Income_Group_Lower-middle", "Income_Group_Upper-middle", "Income_Group_High", "Income_Group_Unclassified", "Income_Group_Missing"],
+        "final_matrix_rows_76786": true,
+        "dummy_scale": 0.70710678118654746
+      }
+    },
+    "svm": {
+      "status": "observed saved unchanged-Rmd environment",
+      "identity": {
+        "train_ids_equal_reference": true,
+        "test_ids_equal_reference": true,
+        "full_refit_N": 76786,
+        "full_refit_rows_76786": true,
+        "full_refit_labels_match_csv": true,
+        "full_refit_numeric_source_values_match_csv": true
+      },
+      "selected_specification": "extended",
+      "selected_source_features": ["Age", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "HouseholdSize", "Children", "Savings", "Income_Group"],
+      "forbidden_selected_source_features": [],
+      "no_forbidden_source_predictors": true,
+      "design_representation": "All-level 0/1 one-hot, fitting-only constant-column filter; numeric z-scores, missingness 0/1; e1071 scale=FALSE",
+      "details": {
+        "candidate_fitting_N": 9997,
+        "candidate_fitting_only_initial_train": true,
+        "final_evaluation_available": true,
+        "final_record_N": 76786,
+        "final_record_rows_76786": true,
+        "recipe_numeric": ["Age", "HouseholdSize", "Children"],
+        "retained_columns": ["Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing", "Children", "Children_missing", "Gender__1", "Gender__2", "Marital__1", "Marital__2", "Marital__3", "Marital__4", "Marital__5", "Marital__6", "Education__1", "Education__2", "Education__3", "Education__4", "Education__5", "Education__6", "Education__7", "Education__8", "Education__9", "SocialClass__1", "SocialClass__2", "SocialClass__3", "SocialClass__4", "SocialClass__5", "IncomeBracket__1", "IncomeBracket__2", "IncomeBracket__3", "IncomeBracket__4", "IncomeBracket__5", "IncomeBracket__6", "IncomeBracket__7", "IncomeBracket__8", "IncomeBracket__9", "IncomeBracket__10", "Savings__1", "Savings__2", "Savings__3", "Savings__4", "Income_Group__1", "Income_Group__2", "Income_Group__3", "Income_Group__4"],
+        "dropped_columns": ["Gender__3", "Marital__7", "Education__10", "SocialClass__6", "IncomeBracket__11", "Savings__5", "Income_Group__5", "Income_Group__6"],
+        "native_model_parameters": {
+          "native_object_fields": ["call", "type", "kernel", "cost", "degree", "gamma", "coef0", "nu", "epsilon", "sparse", "scaled", "x.scale", "y.scale", "nclasses", "levels", "tot.nSV", "nSV", "labels", "SV", "index", "rho", "compprob", "probA", "probB", "sigma", "coefs", "na.action", "xlevels", "fitted", "decision.values"],
+          "kernel_code": 2,
+          "kernel_name": "radial",
+          "cost": 1,
+          "gamma": 0.21739130434782608,
+          "selected_source_kernel": "radial",
+          "selected_source_cost": 1,
+          "selected_source_gamma": 0.21739130434782608,
+          "kernel_matches_winner": true,
+          "cost_matches_winner": true,
+          "radial_gamma_matches_winner": true,
+          "native_scaled": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+          "all_native_scaling_disabled": true,
+          "native_probability_flag_compprob": false,
+          "native_probability_coefficients_lengths": [0, 0],
+          "probability_argument_in_source": false,
+          "probability_argument_verification_status": "Source-checked in original fit_svm(); native flag retained separately if available",
+          "nclasses": 8,
+          "class_levels": ["Full-time", "Part-time", "Self-employed", "Retired", "Housewife", "Student", "Unemployed", "Other"],
+          "native_class_label_codes": [1, 3, 7, 6, 5, 4, 2, 8],
+          "nSV_by_native_class_order": [25362, 10644, 5841, 2904, 8894, 5925, 6572, 918],
+          "total_nSV_native": 67060,
+          "support_index_N": 67060,
+          "support_index_min": 1,
+          "support_index_max": 76786,
+          "support_index_unique": true,
+          "support_indices_within_full80": true,
+          "mapped_original_ids_all_in_shared_train": true,
+          "support_vector_matrix_dimensions": [67060, 46],
+          "native_class_weight_field_present": false,
+          "native_class_weight_values": null,
+          "class_weight_evidence_limit": "Independent N/(8*n_k) values compared with original class_weights() on exact fitting labels; source fit_svm passes that helper to e1071. No claim that native LIBSVM per-class weights can be recovered if the saved model does not store them."
+        }
+      }
+    }
+  }
+}

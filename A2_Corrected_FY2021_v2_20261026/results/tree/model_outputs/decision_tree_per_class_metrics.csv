@@ -1,0 +1,9 @@
+"Class","Support","Precision","Recall","F1"
+"Full-time",6994,0.5517,0.7811,0.6467
+"Part-time",1654,0,0,0
+"Self-employed",2751,0.3506,0.2116,0.2639
+"Retired",2416,0.6392,0.7641,0.6961
+"Housewife",2548,0.469,0.564,0.5121
+"Student",1128,0.4701,0.703,0.5634
+"Unemployed",1478,0,0,0
+"Other",232,0,0,0

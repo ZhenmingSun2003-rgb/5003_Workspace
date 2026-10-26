@@ -1,0 +1,54 @@
+V2 OFFICIAL RENDER logistic 01_MultinomialLogisticRegression.Rmd 
+START 2026-10-26 11:14:55 +0800 
+SOURCE MD5 942da8967e097bbbe6c381160f887ae5 
+DATA C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/WVS_Wave7_cleaned_for_modelling.csv 
+R version 4.6.1 (2026-06-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 10 x64 (build 19045)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] C
+system code page: 65001
+
+time zone: Asia/Shanghai
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] compiler_4.6.1 tools_4.6.1   
+[1] "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/audit_20261024_01/r_library"
+[2] "C:/Users/Saberken/AppData/Local/R/win-library/4.6"                         
+[3] "C:/Program Files/R/R-4.6.1/library"                                        
+[1] "Mersenne-Twister" "Inversion"        "Rejection"       
+$contrasts
+        unordered           ordered 
+"contr.treatment"      "contr.poly" 
+
+
+
+processing file: 01_MultinomialLogisticRegression.Rmd
+1/14                
+2/14 [setup]        
+3/14                
+4/14 [country-map]  
+5/14                
+6/14 [preprocessing]
+7/14                
+8/14 [evaluation]   
+9/14                
+10/14 [validation]   
+11/14                
+12/14 [final-fit]    
+13/14                
+14/14 [session-info] 
+output file: 01_MultinomialLogisticRegression.knit.md
+
+"C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/pandoc" +RTS -K512m -RTS 01_MultinomialLogisticRegression.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output 01_MultinomialLogisticRegression.html --lua-filter "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmarkdown\lua\latex-div.lua" --lua-filter "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmarkdown\lua\table-classes.lua" --embed-resources --standalone --variable bs3=TRUE --section-divs --table-of-contents --toc-depth 3 --template "C:\Users\Saberken\AppData\Local\R\win-library\4.6\rmarkdown\rmd\h\default.html" --syntax-highlighting none --variable highlightjs=1 --number-sections --variable theme=bootstrap --mathjax --variable "mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --include-in-header "C:\Users\Saberken\AppData\Local\Temp\RtmpwNtWsS\rmarkdown-str1d7464c8352.html" 
+
+Output created: 01_MultinomialLogisticRegression.html
+FINISHED logistic SECONDS 207.32 RENDER_SUCCESS TRUE SOURCE_UNCHANGED TRUE 

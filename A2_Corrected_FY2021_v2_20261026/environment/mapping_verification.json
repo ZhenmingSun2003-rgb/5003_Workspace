@@ -1,0 +1,333 @@
+{
+  "scope": "Five authorized corrected-root Rmd copies only; Logistic owned by separate agent",
+  "canonical_countries": 66,
+  "group_counts": {
+    "Low": 2,
+    "Lower-middle": 18,
+    "Upper-middle": 23,
+    "High": 23,
+    "Unclassified": 0
+  },
+  "authority_workbook_sha256": "a4024eb8052150155034559daf053aabbc16336d8290efeb5629e6eeb6515a60",
+  "files": [
+    {
+      "file": "baseline.Rmd",
+      "original_sha256": "d2ce36360dfd74df07f894d04e9ace61448f9ed850543b2db9620c1e140e5efb",
+      "corrected_sha256": "8d344a2dc81a34868b81e0562a60f405c8eda3e83aa00288abc01532d8c9ab87",
+      "canonical_map_equal": true,
+      "countries": 66,
+      "documented_edits_reversed_exactly": true,
+      "model_logic_outside_documented_map_and_presentation_edits_unchanged": true,
+      "changed_line_ranges": [
+        {
+          "operation": "replace",
+          "original_lines": [
+            102,
+            102
+          ],
+          "corrected_lines": [
+            102,
+            102
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            109,
+            117
+          ],
+          "corrected_lines": [
+            109,
+            117
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            126,
+            126
+          ],
+          "corrected_lines": [
+            126,
+            126
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            129,
+            129
+          ],
+          "corrected_lines": [
+            129,
+            129
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            224,
+            224
+          ],
+          "corrected_lines": [
+            224,
+            224
+          ]
+        }
+      ]
+    },
+    {
+      "file": "02_LDA.Rmd",
+      "original_sha256": "d5e5e045ad62da4b31d70f567098693b81c6dd7d5aaf27410b1f20e035c2b1a1",
+      "corrected_sha256": "f2d9d22cabaa105329de1ad0688887b98749016309bbfcfc34074a5e48cc6c8f",
+      "canonical_map_equal": true,
+      "countries": 66,
+      "documented_edits_reversed_exactly": true,
+      "model_logic_outside_documented_map_and_presentation_edits_unchanged": true,
+      "changed_line_ranges": [
+        {
+          "operation": "replace",
+          "original_lines": [
+            168,
+            168
+          ],
+          "corrected_lines": [
+            168,
+            168
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            173,
+            173
+          ],
+          "corrected_lines": [
+            173,
+            173
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            177,
+            182
+          ],
+          "corrected_lines": [
+            177,
+            182
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            187,
+            195
+          ],
+          "corrected_lines": [
+            187,
+            196
+          ]
+        },
+        {
+          "operation": "insert",
+          "original_lines": [
+            490,
+            489
+          ],
+          "corrected_lines": [
+            491,
+            492
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            500,
+            501
+          ],
+          "corrected_lines": [
+            503,
+            504
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            553,
+            553
+          ],
+          "corrected_lines": [
+            556,
+            556
+          ]
+        }
+      ]
+    },
+    {
+      "file": "03_kNN.Rmd",
+      "original_sha256": "e0c45c31cfacb4c1ca5c215db54d995ccd9527cb58f9cef63d7c48b11aa31a18",
+      "corrected_sha256": "9d228929e8887f8855a04b6dcf902c6936ec2cc1822e53ac9d7b97e216d622b0",
+      "canonical_map_equal": true,
+      "countries": 66,
+      "documented_edits_reversed_exactly": true,
+      "model_logic_outside_documented_map_and_presentation_edits_unchanged": true,
+      "changed_line_ranges": [
+        {
+          "operation": "replace",
+          "original_lines": [
+            23,
+            23
+          ],
+          "corrected_lines": [
+            23,
+            23
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            115,
+            123
+          ],
+          "corrected_lines": [
+            115,
+            123
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            382,
+            382
+          ],
+          "corrected_lines": [
+            382,
+            382
+          ]
+        }
+      ]
+    },
+    {
+      "file": "04_SVM.Rmd",
+      "original_sha256": "c420c78bd90c22ad5a6fd9d4cc66de12993463ae28373db83def9111024e07a8",
+      "corrected_sha256": "55a4c54dce1ae72cc1ec6b213147b9ff8677b8ccf803bf3a6ece84849eec2814",
+      "canonical_map_equal": true,
+      "countries": 66,
+      "documented_edits_reversed_exactly": true,
+      "model_logic_outside_documented_map_and_presentation_edits_unchanged": true,
+      "changed_line_ranges": [
+        {
+          "operation": "replace",
+          "original_lines": [
+            121,
+            121
+          ],
+          "corrected_lines": [
+            121,
+            123
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            126,
+            134
+          ],
+          "corrected_lines": [
+            128,
+            136
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            624,
+            624
+          ],
+          "corrected_lines": [
+            626,
+            628
+          ]
+        }
+      ]
+    },
+    {
+      "file": "05_DecisionTree.Rmd",
+      "original_sha256": "ed013bf1480eb9a307f44e4aa7ae50f35b47a7443be4110c18f9e41522129442",
+      "corrected_sha256": "0f9740f70cb5222054e54db3f10056d95e2b71ba39aab09aed21cf3eb5747995",
+      "canonical_map_equal": true,
+      "countries": 66,
+      "documented_edits_reversed_exactly": true,
+      "model_logic_outside_documented_map_and_presentation_edits_unchanged": true,
+      "changed_line_ranges": [
+        {
+          "operation": "replace",
+          "original_lines": [
+            36,
+            36
+          ],
+          "corrected_lines": [
+            36,
+            36
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            257,
+            265
+          ],
+          "corrected_lines": [
+            257,
+            265
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            382,
+            382
+          ],
+          "corrected_lines": [
+            382,
+            382
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            514,
+            514
+          ],
+          "corrected_lines": [
+            514,
+            514
+          ]
+        },
+        {
+          "operation": "insert",
+          "original_lines": [
+            559,
+            558
+          ],
+          "corrected_lines": [
+            559,
+            560
+          ]
+        },
+        {
+          "operation": "replace",
+          "original_lines": [
+            561,
+            561
+          ],
+          "corrected_lines": [
+            563,
+            563
+          ]
+        }
+      ]
+    }
+  ]
+}

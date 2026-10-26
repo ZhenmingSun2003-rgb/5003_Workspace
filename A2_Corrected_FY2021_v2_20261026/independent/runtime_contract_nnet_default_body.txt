@@ -1,0 +1,103 @@
+function (x, y, weights, size, Wts, mask = rep(TRUE, length(wts)), 
+    linout = FALSE, entropy = FALSE, softmax = FALSE, censored = FALSE, 
+    skip = FALSE, rang = 0.7, decay = 0, maxit = 100, Hess = FALSE, 
+    trace = TRUE, MaxNWts = 1000, abstol = 1e-04, reltol = 1e-08, 
+    ...) 
+{
+    net <- NULL
+    x <- as.matrix(x)
+    y <- as.matrix(y)
+    if (any(is.na(x))) 
+        stop("missing values in 'x'")
+    if (any(is.na(y))) 
+        stop("missing values in 'y'")
+    if (dim(x)[1L] != dim(y)[1L]) 
+        stop("nrows of 'x' and 'y' must match")
+    if (linout && entropy) 
+        stop("entropy fit only for logistic units")
+    if (softmax) {
+        linout <- TRUE
+        entropy <- FALSE
+    }
+    if (censored) {
+        linout <- TRUE
+        entropy <- FALSE
+        softmax <- TRUE
+    }
+    net$n <- c(dim(x)[2L], size, dim(y)[2L])
+    net$nunits <- as.integer(1L + sum(net$n))
+    net$nconn <- rep(0, net$nunits + 1L)
+    net$conn <- numeric(0L)
+    net <- norm.net(net)
+    if (skip) 
+        net <- add.net(net, seq(1L, net$n[1L]), seq(1L + net$n[1L] + 
+            net$n[2L], net$nunits - 1L))
+    if ((nwts <- length(net$conn)) == 0) 
+        stop("no weights to fit")
+    if (nwts > MaxNWts) 
+        stop(gettextf("too many (%d) weights", nwts), domain = NA)
+    nsunits <- net$nunits
+    if (linout) 
+        nsunits <- net$nunits - net$n[3L]
+    net$nsunits <- nsunits
+    net$decay <- decay
+    net$entropy <- entropy
+    if (softmax && NCOL(y) < 2L) 
+        stop("'softmax = TRUE' requires at least two response categories")
+    net$softmax <- softmax
+    net$censored <- censored
+    if (missing(Wts)) 
+        if (rang > 0) 
+            wts <- runif(nwts, -rang, rang)
+        else wts <- rep(0, nwts)
+    else wts <- Wts
+    if (length(wts) != nwts) 
+        stop("weights vector of incorrect length")
+    if (length(mask) != length(wts)) 
+        stop("incorrect length of 'mask'")
+    if (trace) {
+        cat("# weights: ", length(wts))
+        nw <- sum(mask != 0)
+        if (nw < length(wts)) 
+            cat(" (", nw, " variable)\n", sep = "")
+        else cat("\n")
+        flush.console()
+    }
+    if (length(decay) == 1L) 
+        decay <- rep(decay, length(wts))
+    .C(VR_set_net, as.integer(net$n), as.integer(net$nconn), 
+        as.integer(net$conn), as.double(decay), as.integer(nsunits), 
+        as.integer(entropy), as.integer(softmax), as.integer(censored))
+    ntr <- dim(x)[1L]
+    nout <- dim(y)[2L]
+    if (missing(weights)) 
+        weights <- rep(1, ntr)
+    if (length(weights) != ntr || any(weights < 0)) 
+        stop("invalid weights vector")
+    Z <- as.double(cbind(x, y))
+    storage.mode(weights) <- "double"
+    tmp <- .C(VR_dovm, as.integer(ntr), Z, weights, as.integer(length(wts)), 
+        wts = as.double(wts), val = double(1), as.integer(maxit), 
+        as.logical(trace), as.integer(mask), as.double(abstol), 
+        as.double(reltol), ifail = integer(1L))
+    net$value <- tmp$val
+    net$wts <- tmp$wts
+    net$convergence <- tmp$ifail
+    tmp <- matrix(.C(VR_nntest, as.integer(ntr), Z, tclass = double(ntr * 
+        nout), as.double(net$wts))$tclass, ntr, nout)
+    dimnames(tmp) <- list(rownames(x), colnames(y))
+    net$fitted.values <- tmp
+    tmp <- y - tmp
+    dimnames(tmp) <- list(rownames(x), colnames(y))
+    net$residuals <- tmp
+    .C(VR_unset_net)
+    if (entropy) 
+        net$lev <- c("0", "1")
+    if (softmax) 
+        net$lev <- colnames(y)
+    net$call <- match.call()
+    if (Hess) 
+        net$Hessian <- nnetHess(net, x, y, weights)
+    class(net) <- "nnet"
+    net
+}

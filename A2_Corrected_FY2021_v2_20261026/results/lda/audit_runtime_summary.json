@@ -1,0 +1,15 @@
+{
+  "Run": "lda",
+  "Seed": 5003,
+  "Seed_Type": "double",
+  "Labels": ["Full-time", "Part-time", "Self-employed", "Retired", "Housewife", "Student", "Unemployed", "Other"],
+  "Columns": ["Q279", "B_COUNTRY_ALPHA", "Q260", "Q262", "Q270", "Q273", "Q274", "Q275", "Q286", "Q287", "Q288"],
+  "N": 95987,
+  "Data_Path": "C:/Users/Saberken/Documents/ChatGPT/5003_A1_A2/STAT5003_A2_Corrected_FY2021_v2_20261026/WVS_Wave7_cleaned_for_modelling.csv",
+  "Data_MD5": "98bf573170f0cb6bd65a4e9a8070d4d8",
+  "Final_Convergence": null,
+  "MAXIT": null,
+  "Main_Source_MD5": "777a42b4981f9a985b2ff677d14f931f",
+  "Source_Unchanged": true,
+  "Contrasts": ["contr.treatment", "contr.poly"]
+}

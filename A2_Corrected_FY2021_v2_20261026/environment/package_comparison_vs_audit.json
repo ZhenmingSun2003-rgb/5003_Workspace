@@ -1,0 +1,74 @@
+[
+  {
+    "Package": "rmarkdown",
+    "Old_Version": "2.32",
+    "New_Version": "2.32",
+    "Version_Match": true,
+    "Build_Match": true,
+    "Library_Match": true
+  },
+  {
+    "Package": "knitr",
+    "Old_Version": "1.52",
+    "New_Version": "1.52",
+    "Version_Match": true,
+    "Build_Match": true,
+    "Library_Match": true
+  },
+  {
+    "Package": "nnet",
+    "Old_Version": "7.3-20",
+    "New_Version": "7.3-20",
+    "Version_Match": true,
+    "Build_Match": true,
+    "Library_Match": true
+  },
+  {
+    "Package": "MASS",
+    "Old_Version": "7.3-65",
+    "New_Version": "7.3-65",
+    "Version_Match": true,
+    "Build_Match": true,
+    "Library_Match": true
+  },
+  {
+    "Package": "rpart",
+    "Old_Version": "4.1.27",
+    "New_Version": "4.1.27",
+    "Version_Match": true,
+    "Build_Match": true,
+    "Library_Match": true
+  },
+  {
+    "Package": "ggplot2",
+    "Old_Version": "4.0.3",
+    "New_Version": "4.0.3",
+    "Version_Match": true,
+    "Build_Match": true,
+    "Library_Match": true
+  },
+  {
+    "Package": "FNN",
+    "Old_Version": "1.1.4.1",
+    "New_Version": "1.1.4.1",
+    "Version_Match": true,
+    "Build_Match": true,
+    "Library_Match": true
+  },
+  {
+    "Package": "e1071",
+    "Old_Version": "1.7-17",
+    "New_Version": "1.7-17",
+    "Version_Match": true,
+    "Build_Match": true,
+    "Library_Match": true
+  },
+  {
+    "Package": "proxy",
+    "Old_Version": "0.4-29",
+    "New_Version": "0.4-29",
+    "Version_Match": true,
+    "Build_Match": true,
+    "Library_Match": true
+  }
+]

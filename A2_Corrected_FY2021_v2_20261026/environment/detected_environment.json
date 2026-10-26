@@ -1,0 +1,16 @@
+{
+  "OS": {
+    "Caption": "Microsoft Windows 10 家庭中文版",
+    "Version": "10.0.19045",
+    "TotalVisibleMemorySize": 16153748
+  },
+  "CPU": {
+    "Name": "AMD Ryzen 9 5900HS with Radeon Graphics        ",
+    "NumberOfCores": 8,
+    "NumberOfLogicalProcessors": 16
+  },
+  "Rscript": "C:\\Program Files\\R\\R-4.6.1\\bin\\Rscript.exe",
+  "Pandoc": "C:\\Program Files\\RStudio\\resources\\app\\bin\\quarto\\bin\\tools\\pandoc.exe",
+  "Locale": "LC_ALL=C",
+  "Timing_Note": "Observed wall time includes concurrent execution, rendering and I/O; not a controlled speed benchmark"
+}

@@ -1,0 +1,60 @@
+{
+  "retrieval_method": "urllib.request HTTPS GET, Mozilla/5.0 User-Agent; public official sources; no authentication",
+  "read_only_extraction": "Bundled Python/openpyxl, read_only=True, data_only=True; source Rmd and CSV never edited",
+  "responses": {
+    "historical_workbook": {
+      "requested_url": "https://ddh-openapi.worldbank.org/resources/DR0095334/download",
+      "response_url": "https://ddh-openapi.worldbank.org/resources/DR0095334/download",
+      "http_status": 200,
+      "response_headers": {
+        "Content-Type": "application/octet-stream",
+        "Content-Length": "115957",
+        "Content-Disposition": "attachment; filename=OGHIST_2026_10_08.xlsx; filename*=UTF-8''OGHIST_2026_10_08.xlsx",
+        "Date": "Sat, 24 Oct 2026 07:59:24 GMT"
+      },
+      "retrieved_utc": "2026-10-24T07:59:22.658939+00:00",
+      "retrieved_asia_shanghai": "2026-10-24T15:59:22.658939+08:00",
+      "retrieval_timezone": "Asia/Shanghai",
+      "file": "official_income_classification_history.xlsx",
+      "bytes": 115957,
+      "sha256": "a4024eb8052150155034559daf053aabbc16336d8290efeb5629e6eeb6515a60",
+      "md5": "03152ef89adde26a2264df8aab198c4c"
+    },
+    "classification_landing_page": {
+      "requested_url": "https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups",
+      "response_url": "https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups",
+      "http_status": 200,
+      "response_headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "ETag": "W/\"30862a5c444281bfae1aaabed827f279\"",
+        "Date": "Sat, 24 Oct 2026 07:59:25 GMT",
+        "Cache-Control": "max-age=0, private, must-revalidate"
+      },
+      "retrieved_utc": "2026-10-24T07:59:23.777080+00:00",
+      "retrieved_asia_shanghai": "2026-10-24T15:59:23.777080+08:00",
+      "retrieval_timezone": "Asia/Shanghai",
+      "file": "world_bank_country_and_lending_groups.html",
+      "bytes": 247661,
+      "sha256": "30862a5c444281bfae1aaabed827f279ac4a385ed9bc78bbb82d19277b7e6a25",
+      "md5": "c1a8361207cdd00eddfe79610cc27806"
+    },
+    "fy2021_release_page": {
+      "requested_url": "https://blogs.worldbank.org/en/opendata/new-world-bank-country-classifications-income-level-2020-2021",
+      "response_url": "https://blogs.worldbank.org/en/opendata/new-world-bank-country-classifications-income-level-2020-2021",
+      "http_status": 200,
+      "response_headers": {
+        "Content-Type": "text/html;charset=utf-8",
+        "Last-Modified": "Sat, 24 Oct 2026 07:59:27 GMT",
+        "Date": "Sat, 24 Oct 2026 07:59:27 GMT",
+        "Cache-Control": "public, max-age=900"
+      },
+      "retrieved_utc": "2026-10-24T07:59:25.204634+00:00",
+      "retrieved_asia_shanghai": "2026-10-24T15:59:25.204634+08:00",
+      "retrieval_timezone": "Asia/Shanghai",
+      "file": "world_bank_2020_2021_release.html",
+      "bytes": 70061,
+      "sha256": "c631b8286f15532f6f3c996d9525542a91321caa109a89c5590e468ba87a32f0",
+      "md5": "93ee320c6dfd75c156e933fc4aae49c2"
+    }
+  }
+}

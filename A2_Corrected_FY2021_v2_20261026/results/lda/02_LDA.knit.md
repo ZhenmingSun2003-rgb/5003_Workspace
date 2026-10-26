@@ -1,0 +1,580 @@
+---
+title: "STAT5003 A2 | Linear Discriminant Analysis"
+author: "W08G03 — Member A"
+date: "2026-10-24"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    code_folding: hide
+    self_contained: true
+---
+
+
+
+# Research aim, hypotheses, and boundaries
+
+**Research question (A1):** To what extent can demographic characteristics,
+education and socioeconomic circumstances predict an individual's eight-category
+employment status (`Q279`)? This follows the A1 question and feature policy.
+
+A1 hypotheses are that age helps distinguish Student and Retired respondents,
+gender is associated with Housewife, and education, household income, marital
+status and social class provide additional information. These are predictive
+associations, not causal effects.
+
+Linear discriminant analysis (LDA) provides a computationally economical linear
+comparison to multinomial logistic regression. Classical LDA models class-specific
+means with a shared within-class covariance matrix. Under multivariate Gaussian
+class-conditional distributions, this gives linear decision boundaries. Here,
+dummy-coded survey categories are not Gaussian, and covariance equality is
+unlikely to hold exactly. LDA is therefore an empirical predictive benchmark;
+its assumptions are limitations, not verified properties of the survey.
+
+We compare six predetermined candidates: three feature sets crossed with two
+class-prior policies. **Validation Macro F1 alone determines the main ranking.**
+The common 20% test partition is evaluated only after selection and final refitting.
+This document implements LDA only; comparisons against teammates' fitted models
+must use their separately verified results. Survey weights are excluded for this
+individual-record predictive task, following the shared baseline contract.
+
+# Portable data ingestion and locked split
+
+After materialising the shared CSV with `git lfs pull`, this file can be knitted
+using MASS, knitr and rmarkdown. It does not require saved models, generated
+results files or network access during execution.
+Knitting also writes model-comparison tables, test predictions, figures and a
+reproducibility bundle to `STAT5003_B_lda_results`, following the other model
+contributions. Override this location with `STAT5003_LDA_OUT_DIR` if needed.
+
+
+``` r
+SEED <- 5003
+TRAIN_FRACTION <- 0.80
+TARGET_LABELS <- c("Full-time", "Part-time", "Self-employed", "Retired",
+                   "Housewife", "Student", "Unemployed", "Other")
+REQUIRED_COLUMNS <- c("Q279", "B_COUNTRY_ALPHA", "Q260", "Q262", "Q270",
+                      "Q273", "Q274", "Q275", "Q286", "Q287", "Q288")
+if (!requireNamespace("MASS", quietly = TRUE)) stop("Package MASS is required.")
+input_name <- knitr::current_input(dir = TRUE)
+document_dir <- if (length(input_name) == 1L && nzchar(input_name)) {
+  dirname(normalizePath(input_name, mustWork = TRUE))
+} else getwd()
+OUT_DIR <- Sys.getenv("STAT5003_LDA_OUT_DIR",
+                      file.path(document_dir, "STAT5003_B_lda_results"))
+dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
+write_table <- function(x, name) {
+  write.csv(x, file.path(OUT_DIR, name), row.names = FALSE)
+}
+save_plot <- function(name, draw, width = 2600, height = 1300) {
+  png(file.path(OUT_DIR, name), width = width, height = height, res = 260)
+  tryCatch(draw(), finally = dev.off())
+  if (isTRUE(getOption("knitr.in.progress"))) draw()
+  invisible(NULL)
+}
+```
+
+The input is the unchanged shared CSV, resolved relative to this file or the
+working directory. Its expected Git LFS SHA-256 is
+`ee392676dbb42dde0ea74ebf643862f3900e7d13a7aa03842ed2d7665ac98ee0`.
+The local working copy used for this analysis was checked against that hash.
+Moving or modifying rows invalidates the shared split agreement.
+
+
+``` r
+resolve_dataset <- function(filename = "WVS_Wave7_cleaned_for_modelling.csv") {
+  override <- Sys.getenv("STAT5003_DATA_PATH", "")
+  if (nzchar(override)) {
+    if (!file.exists(override) || file.info(override)$size < 1000)
+      stop("STAT5003_DATA_PATH must point to the materialised shared CSV.")
+    return(normalizePath(override, mustWork = TRUE))
+  }
+  candidates <- getwd()
+  if (requireNamespace("knitr", quietly = TRUE)) {
+    f <- tryCatch(knitr::current_input(dir = TRUE), error = function(e) "")
+    if (length(f) == 1L && nzchar(f))
+      candidates <- c(candidates, dirname(normalizePath(f, mustWork = FALSE)))
+  }
+  candidates <- unique(c(candidates, dirname(candidates)))
+  hits <- file.path(candidates, filename)
+  hits <- hits[file.exists(hits)]
+  if (!length(hits)) stop("Shared CSV not found; materialise it using git lfs pull.")
+  if (file.info(hits[1])$size < 1000) stop("Input is an LFS pointer, not the dataset.")
+  normalizePath(hits[1], mustWork = TRUE)
+}
+read_selected <- function(path, wanted) {
+  cols <- names(read.csv(path, nrows = 0, check.names = FALSE))
+  if (!all(wanted %in% cols)) stop("Missing required columns: ",
+                                 paste(setdiff(wanted, cols), collapse = ", "))
+  types <- rep("NULL", length(cols))
+  types[match(wanted, cols)] <- NA_character_
+  read.csv(path, colClasses = types, check.names = FALSE,
+           stringsAsFactors = FALSE, na.strings = c("", "NA"))
+}
+stratified_indices <- function(y, fraction, seed) {
+  set.seed(seed)
+  groups <- split(seq_along(y), y, drop = TRUE)
+  sort(unlist(lapply(groups, function(ii) sample(ii, floor(length(ii) * fraction))),
+              use.names = FALSE))
+}
+csv_path <- resolve_dataset()
+input_md5 <- unname(tools::md5sum(csv_path))
+if (!identical(input_md5, "98bf573170f0cb6bd65a4e9a8070d4d8"))
+  stop("CSV differs from the verified shared input. Confirm its version and row order with the team.")
+wvs <- read_selected(csv_path, REQUIRED_COLUMNS)
+stopifnot(nrow(wvs) == 95987L,
+          all(as.character(wvs$Q279) %in% as.character(1:8)))
+wvs$Outcome <- factor(as.character(wvs$Q279), levels = as.character(1:8),
+                      labels = TARGET_LABELS)
+train_id <- stratified_indices(wvs$Outcome, TRAIN_FRACTION, SEED)
+test_id <- setdiff(seq_len(nrow(wvs)), train_id)
+train <- wvs[train_id, , drop = FALSE]
+dev_id <- stratified_indices(train$Outcome, 0.75, SEED + 2)
+val_id <- setdiff(seq_len(nrow(train)), dev_id)
+initial_train <- train[dev_id, , drop = FALSE]
+validation <- train[val_id, , drop = FALSE]
+stopifnot(length(intersect(train_id, test_id)) == 0L,
+          length(intersect(dev_id, val_id)) == 0L,
+          length(train_id) + length(test_id) == nrow(wvs),
+          length(dev_id) + length(val_id) == nrow(train),
+          nrow(initial_train) == 57587L, nrow(validation) == 19199L,
+          length(test_id) == 19201L)
+split_table <- data.frame(Class = TARGET_LABELS,
+  Train = as.integer(table(initial_train$Outcome)),
+  Validation = as.integer(table(validation$Outcome)),
+  Test = as.integer(table(wvs$Outcome[test_id])))
+write_table(split_table, "shared_class_counts.csv")
+partition <- rep("Test", nrow(wvs))
+partition[train_id[dev_id]] <- "Train"
+partition[train_id[val_id]] <- "Validation"
+write_table(data.frame(row_id = seq_len(nrow(wvs)), split = partition),
+            "shared_split_row_ids.csv")
+saveRDS(list(train_id = train_id, test_id = test_id, dev_id = dev_id, val_id = val_id,
+             input_md5 = input_md5), file.path(OUT_DIR, "shared_split_indices.rds"))
+```
+
+
+Table: Table 1. Class counts in the shared Train, Validation and Test partitions.
+
+|Class         | Train| Validation| Test|
+|:-------------|-----:|----------:|----:|
+|Full-time     | 20981|       6994| 6994|
+|Part-time     |  4959|       1653| 1654|
+|Self-employed |  8250|       2751| 2751|
+|Retired       |  7247|       2416| 2416|
+|Housewife     |  7642|       2548| 2548|
+|Student       |  3382|       1128| 1128|
+|Unemployed    |  4431|       1477| 1478|
+|Other         |   695|        232|  232|
+
+This is an individual-level random holdout, not a test in new countries or years.
+All initial fitting uses 57,587 records; no training cap is needed for LDA.
+The final model is refitted on 76,786 development records.
+
+# Pre-registered predictors and verified FY2021 World Bank context
+
+The **core** uses age, gender, marital status, education, self-rated social class
+and household income bracket. **Extended without context** adds household size,
+number of children and savings. **Extended with context** additionally includes
+the shared baseline's verified FY2021 national income proxy. Raw country, respondent
+IDs, survey administration variables, weights and employment-proxy questions
+are excluded. National income group and household income are distinct concepts.
+
+The country map below matches the canonical FY2021 crosswalk verified against
+the frozen official historical workbook in `source_evidence/`. Taiwan is High
+and Venezuela is Upper-middle. Northern Ireland explicitly inherits the UK's
+High group; it has no independent official row. The unused `Unclassified`
+dictionary level is retained without any country assignment. This fixed-vintage
+proxy is not survey-year-specific; candidates without it provide sensitivity checks.
+
+
+``` r
+WB_GROUPS <- list(
+  Low = c("ETH", "TJK"),
+  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
+                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
+  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
+                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
+                     "RUS", "SRB", "THA", "TUR", "VEN"),
+  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
+           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
+           "USA"),
+  Unclassified = character(0)
+)
+country_map <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                        unlist(WB_GROUPS, use.names = FALSE))
+stopifnot(!anyDuplicated(names(country_map)))
+unknown <- setdiff(unique(as.character(wvs$B_COUNTRY_ALPHA)), names(country_map))
+if (length(unknown)) stop("Unmapped countries: ", paste(unknown, collapse = ", "))
+add_context <- function(raw) {
+  raw$Income_Group <- unname(country_map[as.character(raw$B_COUNTRY_ALPHA)])
+  raw
+}
+initial_train <- add_context(initial_train)
+validation <- add_context(validation)
+```
+
+# Fit-partition-only preprocessing
+
+New numerical imputation and standardisation parameters are fitted on the
+fitting partition only. Missing/non-numeric numerical responses are replaced by
+training medians, with missingness indicators. Fixed questionnaire category
+levels are encoded with treatment contrasts; no equal spacing is assumed.
+Zero within-class variance columns and linearly dependent within-class columns
+are removed using the fitting partition alone. The same columns are then used
+for validation or test. This avoids singular-covariance failures caused by
+absent `Missing` categories and redundant dummy columns.
+
+**Inherited limitation:** A1 mode-imputed fixed-choice variables before the
+split. We cannot recover original item missingness from this cleaned CSV.
+The new pipeline avoids additional fitted-preprocessing leakage, but cannot
+claim to repair that earlier leakage.
+
+
+``` r
+NUMERIC_KEYS <- c(Age = "Q262", HouseholdSize = "Q270", Children = "Q274")
+CATEGORY_KEYS <- list(
+  Gender = as.character(1:2), Marital = as.character(1:6),
+  Education = as.character(0:8), SocialClass = as.character(1:5),
+  IncomeBracket = as.character(1:10), Savings = as.character(1:4),
+  Income_Group = c("Low", "Lower-middle", "Upper-middle", "High", "Unclassified"))
+CATEGORY_SOURCES <- c(Gender = "Q260", Marital = "Q273", Education = "Q275",
+  SocialClass = "Q287", IncomeBracket = "Q288", Savings = "Q286",
+  Income_Group = "Income_Group")
+numeric_value <- function(v) {
+  x <- suppressWarnings(as.numeric(as.character(v)))
+  x[!is.finite(x)] <- NA_real_
+  x
+}
+learn_recipe <- function(raw) {
+  num <- lapply(NUMERIC_KEYS, function(k) numeric_value(raw[[k]]))
+  med <- vapply(num, function(x) {
+    if (all(is.na(x))) stop("A numeric feature is entirely missing in fitting data.")
+    median(x, na.rm = TRUE)
+  }, 0.0)
+  filled <- Map(function(x, m) { x[is.na(x)] <- m; x }, num, med)
+  mu <- vapply(filled, mean, 0.0)
+  sigma <- vapply(filled, sd, 0.0)
+  sigma[!is.finite(sigma) | sigma == 0] <- 1
+  list(median = med, mean = mu, sd = sigma)
+}
+apply_recipe <- function(raw, recipe) {
+  out <- data.frame(row.names = seq_len(nrow(raw)))
+  for (nm in names(NUMERIC_KEYS)) {
+    x <- numeric_value(raw[[NUMERIC_KEYS[[nm]]]])
+    missing <- is.na(x)
+    x[missing] <- recipe$median[[nm]]
+    out[[nm]] <- (x - recipe$mean[[nm]]) / recipe$sd[[nm]]
+    out[[paste0(nm, "_missing")]] <- as.integer(missing)
+  }
+  for (nm in names(CATEGORY_KEYS)) {
+    v <- trimws(as.character(raw[[CATEGORY_SOURCES[[nm]]]]))
+    v[is.na(v) | !(v %in% CATEGORY_KEYS[[nm]])] <- "Missing"
+    out[[nm]] <- factor(v, levels = c(CATEGORY_KEYS[[nm]], "Missing"))
+  }
+  out
+}
+core <- c("Age", "Age_missing", "Gender", "Marital", "Education",
+          "SocialClass", "IncomeBracket")
+extended <- c(core, "HouseholdSize", "HouseholdSize_missing", "Children",
+              "Children_missing", "Savings")
+SPECIFICATIONS <- list(core_linear = core, extended_no_income_group = extended,
+                       extended_linear = c(extended, "Income_Group"))
+design_matrix <- function(processed, spec) {
+  # Explicit treatment contrasts avoid dependency on the user's R options.
+  cats <- intersect(SPECIFICATIONS[[spec]], names(CATEGORY_KEYS))
+  contrasts <- lapply(processed[cats], function(x)
+    stats::contr.treatment(levels(x), base = 1))
+  mm <- model.matrix(reformulate(SPECIFICATIONS[[spec]]), data = processed,
+                     contrasts.arg = contrasts)
+  mm[, colnames(mm) != "(Intercept)", drop = FALSE]
+}
+learn_columns <- function(x, y) {
+  # Residuals about class means identify rank of the pooled within-class design.
+  class_means <- rowsum(x, y, reorder = TRUE) / as.numeric(table(y))
+  within <- x - class_means[as.integer(y), , drop = FALSE]
+  s <- sqrt(colSums(within^2) / (nrow(x) - nlevels(y)))
+  usable <- which(is.finite(s) & s > 1e-8)
+  if (!length(usable)) stop("No usable within-class variation.")
+  q <- qr(sweep(within[, usable, drop = FALSE], 2, s[usable], "/"),
+          tol = 1e-8, LAPACK = FALSE)
+  keep <- usable[q$pivot[seq_len(q$rank)]]
+  colnames(x)[sort(keep)]
+}
+fit_lda <- function(raw, spec, prior_policy) {
+  recipe <- learn_recipe(raw)
+  x <- design_matrix(apply_recipe(raw, recipe), spec)
+  columns <- learn_columns(x, raw$Outcome)
+  prior <- if (prior_policy == "equal") rep(1/8, 8) else
+    as.numeric(prop.table(table(raw$Outcome)))
+  fit <- MASS::lda(x = x[, columns, drop = FALSE], grouping = raw$Outcome,
+                    prior = prior, method = "moment", tol = 1e-8)
+  list(model = fit, recipe = recipe, columns = columns, spec = spec,
+       prior_policy = prior_policy, dropped = setdiff(colnames(x), columns))
+}
+predict_lda <- function(object, raw) {
+  x <- design_matrix(apply_recipe(raw, object$recipe), object$spec)
+  predict(object$model, newdata = x[, object$columns, drop = FALSE])
+}
+```
+
+# Evaluation and predetermined validation search
+
+Empirical priors use fitting-set class proportions; equal priors assign 1/8 to
+each class. Equal priors change the decision rule and may help rare classes,
+but are not guaranteed to improve Macro F1. We do not resample records or tune
+probability thresholds. Classical LDA has no neighbour count, tree depth or
+regularisation penalty; this is feature/prior selection, not a regularised-LDA
+experiment. Ties are resolved by Weighted F1, fewer retained columns, then
+the predetermined candidate order. All candidates use the same fitting records.
+
+
+``` r
+evaluate_8class <- function(truth, pred) {
+  tr <- factor(as.character(truth), levels = TARGET_LABELS)
+  pr <- factor(as.character(pred), levels = TARGET_LABELS)
+  stopifnot(length(tr) == length(pr), length(tr) > 0L)
+  if (anyNA(tr) || anyNA(pr)) stop("Unknown/missing prediction class")
+  cm <- table(True = tr, Predicted = pr)
+  tp <- diag(cm); support <- rowSums(cm); predicted <- colSums(cm)
+  precision <- ifelse(predicted > 0, tp / predicted, 0)
+  recall <- ifelse(support > 0, tp / support, 0)
+  f1 <- ifelse(precision + recall > 0,
+               2 * precision * recall / (precision + recall), 0)
+  list(overall = data.frame(Macro_F1 = mean(f1),
+       Weighted_F1 = sum(support * f1) / sum(support),
+       Accuracy = sum(tp) / sum(cm)),
+       by_class = data.frame(Class = TARGET_LABELS, Support = as.integer(support),
+         Precision = as.numeric(precision), Recall = as.numeric(recall),
+         F1 = as.numeric(f1)), confusion = cm)
+}
+```
+
+
+``` r
+grid <- expand.grid(Specification = names(SPECIFICATIONS),
+                    Prior = c("empirical", "equal"), stringsAsFactors = FALSE)
+write_table(grid, "prespecified_search_grid.csv")
+candidate_fits <- vector("list", nrow(grid))
+validation_rows <- vector("list", nrow(grid))
+for (i in seq_len(nrow(grid))) {
+  elapsed <- system.time({
+    candidate_fits[[i]] <- fit_lda(initial_train, grid$Specification[i], grid$Prior[i])
+    pred <- predict_lda(candidate_fits[[i]], validation)$class
+  })[["elapsed"]]
+  scores <- evaluate_8class(validation$Outcome, pred)$overall
+  validation_rows[[i]] <- data.frame(Candidate = i, grid[i, ],
+    Columns = length(candidate_fits[[i]]$columns), scores, Seconds = elapsed)
+}
+validation_results <- do.call(rbind, validation_rows)
+ranking <- with(validation_results,
+  order(-Macro_F1, -Weighted_F1, Columns, Candidate))
+best_id <- ranking[1]
+selected <- validation_results[best_id, , drop = FALSE]
+write_table(validation_results[ranking, ], "validation_tuning_results.csv")
+write_table(selected, "selected_validation_configuration.csv")
+```
+
+
+Table: Table 2. Six LDA candidates ranked using validation only.
+
+| Candidate|Specification            |Prior     | Columns| Macro_F1| Weighted_F1| Accuracy| Seconds|
+|---------:|:------------------------|:---------|-------:|--------:|-----------:|--------:|-------:|
+|         3|extended_linear          |empirical |      39|   0.3395|      0.4592|   0.5101|    1.00|
+|         6|extended_linear          |equal     |      39|   0.3362|      0.4047|   0.4143|    1.02|
+|         2|extended_no_income_group |empirical |      36|   0.3291|      0.4451|   0.5023|    0.89|
+|         5|extended_no_income_group |equal     |      36|   0.3260|      0.3900|   0.4015|    1.00|
+|         1|core_linear              |empirical |      29|   0.3251|      0.4402|   0.4974|    1.14|
+|         4|core_linear              |equal     |      29|   0.3222|      0.3852|   0.3984|    0.68|
+
+<div class="figure" style="text-align: center">
+<img src="02_LDA_files/figure-html/validation-plot-1.png" alt="Figure 1. Validation Macro F1 for the six predetermined candidates. Each bar uses the same validation records." width="95%" />
+<p class="caption">Figure 1. Validation Macro F1 for the six predetermined candidates. Each bar uses the same validation records.</p>
+</div>
+
+The selected candidate is **extended_linear with
+empirical priors**, with validation Macro F1
+**0.3395**. Feature and prior choices are frozen
+here, before test prediction. This is a single validation holdout; small score
+differences are not evidence of statistically significant superiority.
+
+# Final train refit and single held-out test
+
+
+``` r
+train <- add_context(train)
+final_seconds <- system.time({
+  final_fit <- fit_lda(train, selected$Specification, selected$Prior)
+})[["elapsed"]]
+test <- add_context(wvs[test_id, , drop = FALSE])
+test_prediction <- predict_lda(final_fit, test)
+test_evaluation <- evaluate_8class(test$Outcome, test_prediction$class)
+stopifnot(nrow(test_prediction$posterior) == nrow(test),
+          all(is.finite(test_prediction$posterior)),
+          max(abs(rowSums(test_prediction$posterior) - 1)) < 1e-8,
+          sum(test_evaluation$confusion) == nrow(test))
+majority <- names(which.max(table(train$Outcome)))
+majority_evaluation <- evaluate_8class(test$Outcome, rep(majority, nrow(test)))
+test_comparison <- rbind(
+  data.frame(Model = "Training-majority reference", majority_evaluation$overall),
+  data.frame(Model = "Selected LDA", test_evaluation$overall))
+write_table(test_comparison, "test_model_comparison.csv")
+write_table(test_evaluation$overall, "lda_test_metrics.csv")
+write_table(test_evaluation$by_class, "lda_per_class_metrics.csv")
+write_table(as.data.frame(test_evaluation$confusion), "lda_confusion_matrix.csv")
+write_table(data.frame(row_id = test_id, truth = test$Outcome,
+                        prediction = test_prediction$class), "lda_test_predictions.csv")
+saveRDS(list(model = final_fit$model, recipe = final_fit$recipe,
+  columns = final_fit$columns, specification = final_fit$spec,
+  prior_policy = final_fit$prior_policy, dropped = final_fit$dropped,
+  features = SPECIFICATIONS[[final_fit$spec]], country_map = country_map,
+  input_md5 = input_md5, baseline_blob = "7c83716a1f8186a40a17ab124da8bd9b8bfee430",
+  selected = selected, validation_results = validation_results,
+  split = list(train_id = train_id, test_id = test_id, dev_id = dev_id, val_id = val_id),
+  RNG = RNGkind(), session = sessionInfo()), file.path(OUT_DIR, "lda_model_bundle.rds"))
+```
+
+
+Table: Table 3. Final Test performance after refitting the selected configuration on 80% of the data.
+
+|Model                       | Macro_F1| Weighted_F1| Accuracy|
+|:---------------------------|--------:|-----------:|--------:|
+|Training-majority reference |   0.0667|      0.1945|   0.3643|
+|Selected LDA                |   0.3407|      0.4617|   0.5148|
+
+
+
+Table: Table 4. Final Test precision, recall and F1 for all eight employment classes.
+
+|Class         | Support| Precision| Recall|     F1|
+|:-------------|-------:|---------:|------:|------:|
+|Full-time     |    6994|    0.5654| 0.7358| 0.6395|
+|Part-time     |    1654|    0.6000| 0.0018| 0.0036|
+|Self-employed |    2751|    0.3683| 0.1687| 0.2314|
+|Retired       |    2416|    0.6155| 0.7508| 0.6765|
+|Housewife     |    2548|    0.4744| 0.5844| 0.5237|
+|Student       |    1128|    0.3678| 0.7190| 0.4866|
+|Unemployed    |    1478|    0.2918| 0.1062| 0.1558|
+|Other         |     232|    0.1667| 0.0043| 0.0084|
+
+
+
+Table: Table 5. Final fitting size, encoded dimension and measured fitting time.
+
+| Final_fit_N| Test_N| Encoded_columns| Refit_seconds|
+|-----------:|------:|---------------:|-------------:|
+|       76786|  19201|              39|          1.28|
+
+<div class="figure" style="text-align: center">
+<img src="02_LDA_files/figure-html/class-plot-1.png" alt="Figure 2. Final Test per-class F1 and recall; Table 4 reports class support." width="95%" />
+<p class="caption">Figure 2. Final Test per-class F1 and recall; Table 4 reports class support.</p>
+</div>
+
+
+Table: Table 6. Final Test confusion counts: rows are actual classes and columns are predictions.
+
+|              | Full-time| Part-time| Self-employed| Retired| Housewife| Student| Unemployed| Other|
+|:-------------|---------:|---------:|-------------:|-------:|---------:|-------:|----------:|-----:|
+|Full-time     |      5146|         0|           379|     356|       485|     513|        114|     1|
+|Part-time     |       900|         3|           124|     159|       228|     186|         54|     0|
+|Self-employed |      1126|         0|           464|     222|       595|     240|        103|     1|
+|Retired       |       392|         0|            89|    1814|        95|      10|         15|     1|
+|Housewife     |       654|         0|            28|     241|      1489|      90|         46|     0|
+|Student       |       257|         1|             5|       4|        17|     811|         33|     0|
+|Unemployed    |       520|         0|           144|     107|       218|     330|        157|     2|
+|Other         |       106|         1|            27|      44|        12|      25|         16|     1|
+
+<div class="figure" style="text-align: center">
+<img src="02_LDA_files/figure-html/confusion-plot-1.png" alt="Figure 3. Final Test confusion matrix normalised within each actual class. Cell percentages may differ from 100% after rounding." width="95%" />
+<p class="caption">Figure 3. Final Test confusion matrix normalised within each actual class. Cell percentages may differ from 100% after rounding.</p>
+</div>
+
+# Interpretation and remaining limitations
+
+The final LDA achieves test Macro F1 **0.3407**,
+Weighted F1 **0.4617** and accuracy
+**51.48%**.
+Its Macro F1 exceeds the training-majority reference by
+**0.2739**.
+The highest per-class F1 is for
+**Retired**;
+the lowest is for
+**Part-time**.
+These results answer the research question in terms of predictive performance,
+not causal explanations or evidence that interventions would change employment.
+
+> **Legacy pre-correction interpretation:** the numerical claims in this paragraph describe the original map, not the FY2021-corrected rerun. Use the newly generated tables for corrected results.
+
+The selected model correctly identifies only 1 of 1,654 Part-time records and
+1 of 232 Other records. Its relatively stronger performance for Retired and
+Full-time does not imply adequate discrimination across all eight categories.
+
+- **Imbalance:** report every class, including Other. Accuracy alone can conceal
+  poor minority-class performance; equal priors are assessed by validation rather
+  than presumed beneficial.
+- **Model form:** common covariance and Gaussian assumptions are imperfect for
+  mixed survey variables. Linear boundaries may miss age-related curvature and
+  interactions that teammates' nonlinear models can represent.
+- **Data limitations:** inherited pre-split mode imputation, a fixed-vintage FY2021 national
+  income proxy with a documented NIR inheritance assumption, self-reported categories and pooling across countries limit interpretation.
+- **Scope and uncertainty:** one fixed random individual holdout cannot establish
+  transportability to future surveys or new countries. Repeated within-development
+  cross-validation would help assess selection stability in a subsequent study.
+- **Team handoff:** use the selected LDA test row and the eight-class table for
+  model comparison. Do not claim LDA is the best of five until all five comparable
+  results are available. Knit this contribution to generate the model-specific
+  result directory; the CSV tables and figures can then be used in the group report.
+
+The treatment-coded design and within-class rank checks are specific to LDA.
+Full one-hot encoding is useful for the distance-based KNN and SVM implementations,
+but retaining every redundant indicator would make LDA's covariance estimation
+singular. Agreement on source features and sample splits therefore does not require
+identical model-matrix representations across the five classifiers.
+
+## References
+
+Venables, W. N., & Ripley, B. D. (2002). *Modern applied statistics with S*
+(4th ed.). Springer. https://doi.org/10.1007/978-0-387-21706-2
+
+*Linear discriminant analysis*. (n.d.). In *MASS reference manual*.
+https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/lda.html
+
+World Values Survey Association. (n.d.). *WVS Wave 7 (2017–2022): Data and documentation*.
+https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp
+
+## Computational environment
+
+
+``` r
+sessionInfo()
+```
+
+```
+## R version 4.6.1 (2026-06-24 ucrt)
+## Platform: x86_64-w64-mingw32/x64
+## Running under: Windows 10 x64 (build 19045)
+## 
+## Matrix products: default
+##   LAPACK version 3.12.1
+## 
+## locale:
+## [1] C
+## system code page: 65001
+## 
+## time zone: Asia/Shanghai
+## tzcode source: internal
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## loaded via a namespace (and not attached):
+##  [1] digest_0.6.39   R6_2.6.1        fastmap_1.2.0   xfun_0.60      
+##  [5] cachem_1.1.0    knitr_1.52      htmltools_0.5.9 rmarkdown_2.32 
+##  [9] lifecycle_1.0.5 cli_3.6.6       sass_0.4.10     jquerylib_0.1.4
+## [13] compiler_4.6.1  tools_4.6.1     evaluate_1.0.5  bslib_0.12.0   
+## [17] yaml_2.3.12     otel_0.2.0      rlang_1.3.0     jsonlite_2.0.0 
+## [21] MASS_7.3-65
+```
+
+

@@ -1,0 +1,27 @@
+Checking saved runtime: baseline 
+Checking saved runtime: logistic 
+Checking saved runtime: lda 
+Checking saved runtime: tree 
+Checking saved runtime: knn 
+Recipe parameter comparisons: 117 failures: 0 max abs diff: 2.220446e-16 
+      Run train_ids_equal_reference test_ids_equal_reference full_refit_N
+ baseline                      TRUE                     TRUE        76786
+ logistic                      TRUE                     TRUE        76786
+      lda                      TRUE                     TRUE        76786
+     tree                      TRUE                     TRUE        76786
+      knn                      TRUE                     TRUE        76786
+ full_refit_rows_76786 full_refit_labels_match_csv
+                  TRUE                        TRUE
+                  TRUE                        TRUE
+                  TRUE                        TRUE
+                  TRUE                        TRUE
+                  TRUE                        TRUE
+ full_refit_numeric_source_values_match_csv
+                                       TRUE
+                                       TRUE
+                                       TRUE
+                                       TRUE
+                                       TRUE
+      Run Predictor     N Prediction_Exact_Match Mismatched_Rows Seed  Majority
+ baseline  majority 19201                   TRUE               0   NA Full-time
+ baseline    chance 19201                   TRUE               0 5004 Full-time

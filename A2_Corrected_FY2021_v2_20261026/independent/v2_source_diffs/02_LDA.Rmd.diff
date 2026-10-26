@@ -1,0 +1,83 @@
+--- original_sources/02_LDA.Rmd
++++ 02_LDA.Rmd
+@@ -165,34 +165,35 @@
+ All initial fitting uses 57,587 records; no training cap is needed for LDA.
+ The final model is refitted on 76,786 development records.
+ 
+-# Pre-registered predictors and provisional World Bank context
++# Pre-registered predictors and verified FY2021 World Bank context
+ 
+ The **core** uses age, gender, marital status, education, self-rated social class
+ and household income bracket. **Extended without context** adds household size,
+ number of children and savings. **Extended with context** additionally includes
+-the shared baseline's provisional national income proxy. Raw country, respondent
++the shared baseline's verified FY2021 national income proxy. Raw country, respondent
+ IDs, survey administration variables, weights and employment-proxy questions
+ are excluded. National income group and household income are distinct concepts.
+ 
+-The country map below is copied from the current shared baseline. It is a
+-provisional FY2021 working crosswalk, not an audited survey-year classification.
+-Taiwan and Venezuela are `Unclassified`; Northern Ireland follows the UK by
+-assumption. `Unclassified` is a coverage indicator, not a fifth World Bank income
+-tier. The candidates without this feature provide sensitivity checks. No claim
+-that the mapping has been independently verified is made here.
++The country map below matches the canonical FY2021 crosswalk verified against
++the frozen official historical workbook in `source_evidence/`. Taiwan is High
++and Venezuela is Upper-middle. Northern Ireland explicitly inherits the UK's
++High group; it has no independent official row. The unused `Unclassified`
++dictionary level is retained without any country assignment. This fixed-vintage
++proxy is not survey-year-specific; candidates without it provide sensitivity checks.
+ 
+ ```{r context}
+ WB_GROUPS <- list(
+   Low = c("ETH", "TJK"),
+-  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR",
+-                     "MNG", "NGA", "NIC", "PAK", "PHL", "TUN", "UZB", "VNM", "ZWE"),
+-  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN",
+-                     "IRN", "IRQ", "JOR", "KAZ", "LBN", "LBY", "MEX", "MYS",
+-                     "PER", "ROU", "RUS", "SRB", "THA", "TUR", "UKR"),
+-  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC",
+-           "HKG", "JPN", "KOR", "MAC", "MDV", "NIR", "NLD", "NZL", "PRI",
+-           "SGP", "SVK", "URY", "USA"),
+-  Unclassified = c("TWN", "VEN"))
++  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG",
++                     "NGA", "NIC", "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
++  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN",
++                     "IRQ", "JOR", "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER",
++                     "RUS", "SRB", "THA", "TUR", "VEN"),
++  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN",
++           "KOR", "MAC", "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY",
++           "USA"),
++  Unclassified = character(0)
++)
+ country_map <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)),
+                         unlist(WB_GROUPS, use.names = FALSE))
+ stopifnot(!anyDuplicated(names(country_map)))
+@@ -487,6 +488,8 @@
+ These results answer the research question in terms of predictive performance,
+ not causal explanations or evidence that interventions would change employment.
+ 
++> **Legacy pre-correction interpretation:** the numerical claims in this paragraph describe the original map, not the FY2021-corrected rerun. Use the newly generated tables for corrected results.
++
+ The selected model correctly identifies only 1 of 1,654 Part-time records and
+ 1 of 232 Other records. Its relatively stronger performance for Retired and
+ Full-time does not imply adequate discrimination across all eight categories.
+@@ -497,8 +500,8 @@
+ - **Model form:** common covariance and Gaussian assumptions are imperfect for
+   mixed survey variables. Linear boundaries may miss age-related curvature and
+   interactions that teammates' nonlinear models can represent.
+-- **Data limitations:** inherited pre-split mode imputation, a provisional national
+-  income map, self-reported categories and pooling across countries limit interpretation.
++- **Data limitations:** inherited pre-split mode imputation, a fixed-vintage FY2021 national
++  income proxy with a documented NIR inheritance assumption, self-reported categories and pooling across countries limit interpretation.
+ - **Scope and uncertainty:** one fixed random individual holdout cannot establish
+   transportability to future surveys or new countries. Repeated within-development
+   cross-validation would help assess selection stability in a subsequent study.
+@@ -550,6 +553,6 @@
+   "Six candidates use all 57,587 initial training records; no tuning cap or CV.",
+   "Feature/prior choice uses validation only; this revision does not add candidates.",
+   "All test predictions refer to the fixed shared held-out partition.",
+-  "Inherited A1 pre-split mode imputation and provisional income mapping remain limitations."
++  "Inherited A1 pre-split imputation and fixed-vintage national context remain limitations; NIR inherits UK."
+ ), file.path(OUT_DIR, "RUN_SUMMARY.txt"))
+ ```
