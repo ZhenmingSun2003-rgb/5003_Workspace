@@ -1,0 +1,1678 @@
+---
+title: "STAT5003 Assignment Plan and EDA"
+author: "W08G03"
+
+output:
+  html_document:
+    code_folding: hide
+
+  pdf_document:
+    latex_engine: xelatex
+
+documentclass: extarticle
+fontsize: 8pt
+
+geometry:
+  - top=0.8cm
+  - bottom=0.8cm
+  - left=0.9cm
+  - right=0.9cm
+
+header-includes:
+  - \usepackage{setspace}
+  - \AtBeginDocument{\fontsize{7}{8}\selectfont}
+  - \setstretch{0.75}
+
+  - \usepackage{titlesec}
+  - \titlespacing*{\section}{0pt}{2pt}{0pt}
+  - \titlespacing*{\subsection}{0pt}{1pt}{0pt}
+  - \titlespacing*{\subsubsection}{0pt}{1pt}{0pt}
+
+  - \usepackage{enumitem}
+  - \setlist{nosep,leftmargin=*}
+
+  - \setlength{\parskip}{0pt}
+  - \setlength{\parindent}{0pt}
+
+  - \usepackage{caption}
+  - \captionsetup{font=scriptsize,skip=0pt}
+
+  - \setlength{\textfloatsep}{1pt}
+  - \setlength{\floatsep}{1pt}
+  - \setlength{\intextsep}{1pt}
+---
+
+## Introduction
+
+**1.Dataset Selection**: 
+
+This project uses the cross-national dataset from Wave 7 of the World Values Survey (WVS7), containing approximately 97,000 observations and more than 600 variables. The dataset is suitable for this classification task because it is large, complex, messy, and contains a multi-class outcome. It includes numerical and categorical variables, special missing-value codes, country-specific variables, and externally derived indicators.
+
+**2.Research Topic and Question**: 
+
+The target variable is `Q279`, representing employment status across eight categories: full-time employee, part-time employee, self-employed, retired or pensioned, housewife not otherwise employed, student, unemployed, and other. The research question is: 
+**To what extent can an individual's demographic characteristics, educational background, and socioeconomic circumstances be used to predict their employment status?** 
+Relevant predictors include age, gender, marital status, educational attainment, income level, and perceived social class.
+
+**3.Motivation and Significance**: 
+
+Employment status is related to income, labour-market participation, social protection, and career development. Understanding differences across employment categories may help identify groups facing unemployment or labour-market participation difficulties and support more targeted employment assistance and resource allocation. 
+As the WVS is observational survey data, this project focuses on predictive relationships rather than causal effects.
+
+## Data Cleaning and Preprocessing
+
+Data cleaning was conducted according to the official WVS Wave 7 codebook. Special missing-value codes and invalid values were converted to `NA`, and variables were divided into four groups according to their coding structures.
+
+**1.Outlier and Invalid-Value Treatment**: 
+
+The first group contains basic-information variables such as country, survey year, sampling information, and survey weights. Because these variables use different coding systems, only their missingness was examined.
+
+The second group contains fixed-choice questionnaire variables. Valid values were defined according to the official codebook, and values outside the corresponding valid ranges were converted to `NA`.
+
+The third group contains fill-in and country-specific variables, such as age, year of birth, household size, and number of children. Because these variables have different meanings and valid ranges, statistical outlier rules such as IQR were not applied automatically.
+
+The fourth group contains derived indices and external indicators. Variables with officially defined theoretical ranges were checked against those ranges, while variables without strict boundaries were examined using their observed ranges and missingness.
+
+Invalid values were replaced at the individual-cell level rather than deleting entire observations.
+
+**2.Missing-Value Treatment**
+
+After invalid values were converted to `NA`, variables with more than 50% missing values were removed.
+
+The remaining missing values were handled as follows: Group 1: replaced with `"Unknown"`; Group 2: imputed using the mode; Group 3: replaced with `"Unknown"`; Group 4: imputed using the mode.
+
+The data dimensions before and after data cleaning are as follows.
+
+```{r load-data}
+# load dataset
+wvs_raw <- read.csv(
+  "D:/Users/Zzzzz/Desktop/5003/WVS_Cross-National_Wave_7_rds_v6_0.csv",
+  na.strings = c("", "NA"),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+# check dataset dimension
+dim(wvs_raw)
+# head(wvs_raw)
+
+# Create a copy of the original dataset so that subsequent
+# cleaning operations do not modify the raw data
+wvs_clean <- wvs_raw
+
+# The official valid codes for Q279 Employment Status range from 1 to 8
+target_valid_codes <- 1:8
+
+# Count the standard missing values, special missing codes,
+# and invalid codes in Q279
+target_invalid_count <- sum(
+  is.na(wvs_clean$Q279) |
+    !(wvs_clean$Q279 %in% target_valid_codes)
+)
+
+# target_invalid_count
+
+# Convert special missing codes and invalid values in Q279 to NA
+wvs_clean$Q279[
+  is.na(wvs_clean$Q279) |
+    !(wvs_clean$Q279 %in% target_valid_codes)
+] <- NA
+
+# Remove observations with a missing target value because they
+# cannot be used for supervised classification
+wvs_clean <- wvs_clean[
+  !is.na(wvs_clean$Q279),
+  ,
+  drop = FALSE
+]
+
+# Check the cleaned target distribution and dataset dimensions
+# table(wvs_clean$Q279, useNA = "ifany")
+# dim(wvs_clean)
+
+# Lock the first 40 columns of the original dataset to prevent
+# their positions from changing after variables are removed
+basic_information_variables <- names(wvs_raw)[1:40]
+
+# Define the special missing-value codes used in the basic information variables
+basic_missing_codes <- c(-1, -2, -3, -4, -5, -999, -9999)
+
+# Convert special missing-value codes in the basic information variables to NA
+for (variable_name in basic_information_variables) {
+  if (is.numeric(wvs_clean[[variable_name]])) {
+    missing_position <- (
+      !is.na(wvs_clean[[variable_name]]) &
+        wvs_clean[[variable_name]] %in% basic_missing_codes
+    )
+    
+    wvs_clean[[variable_name]][missing_position] <- NA
+  }
+}
+
+# Calculate the number and percentage of missing values
+# in each basic information variable
+basic_missing_summary <- data.frame(
+  variable = basic_information_variables,
+  missing_count = sapply(
+    wvs_clean[basic_information_variables],
+    function(x) sum(is.na(x))
+  ),
+  missing_rate = sapply(
+    wvs_clean[basic_information_variables],
+    function(x) mean(is.na(x)) * 100
+  ),
+  row.names = NULL
+)
+
+# Sort the variables by missing-value percentage in descending order
+basic_missing_summary <- basic_missing_summary[
+  order(basic_missing_summary$missing_rate, decreasing = TRUE),
+]
+
+# Display the missing-value summary
+# basic_missing_summary
+
+
+# Identify all questionnaire variables whose names begin with Q
+question_columns <- grep(
+  pattern = "^Q[0-9]",
+  x = names(wvs_clean),
+  value = TRUE
+)
+
+# Retain only numeric questionnaire variables
+numeric_question_columns <- question_columns[
+  sapply(wvs_clean[question_columns], is.numeric)
+]
+
+# Define the official special missing-value codes used in the WVS questionnaire
+question_missing_codes <- c(-1, -2, -3, -4, -5)
+
+# Count the total number of special missing-value codes before conversion
+special_missing_before <- sum(
+  sapply(
+    wvs_clean[numeric_question_columns],
+    function(x) sum(x %in% question_missing_codes, na.rm = TRUE)
+  )
+)
+
+# Display the number of special missing-value codes before conversion
+# special_missing_before
+
+# Convert special missing-value codes in numeric questionnaire variables to NA
+wvs_clean[numeric_question_columns] <- lapply(
+  wvs_clean[numeric_question_columns],
+  function(x) {
+    x[x %in% question_missing_codes] <- NA
+    x
+  }
+)
+
+# Count the remaining special missing-value codes after conversion
+special_missing_after <- sum(
+  sapply(
+    wvs_clean[numeric_question_columns],
+    function(x) sum(x %in% question_missing_codes, na.rm = TRUE)
+  )
+)
+
+# Display the number of special missing-value codes after conversion
+# special_missing_after
+
+# Group fixed-choice questionnaire variables according to
+# the number of valid response categories specified in the official codebook
+fixed_question_groups <- list(
+  `2 categories` = c(
+    paste0("Q", 7:26), "Q57",
+    paste0("Q", 94:105, "R"),
+    paste0("Q", 139:141),
+    paste0("Q", 144:145),
+    paste0("Q", 149:151),
+    paste0("Q", 165:168),
+    paste0("Q", 174:175),
+    "Q260", paste0("Q", 263:265), "Q285"
+  ),
+  `3 categories` = c(
+    paste0("Q", 33:35, "_3"),
+    paste0("Q", 42:45), "Q56",
+    paste0("Q", 91:93),
+    paste0("Q", 94:105),
+    "Q111", paste0("Q", 122:129),
+    "Q173", "Q200", paste0("Q", 209:220),
+    "Q269", paste0("Q", 275:278, "R"),
+    "Q284", "Q288R"
+  ),
+  `4 categories` = c(
+    paste0("Q", 1:6),
+    paste0("Q", 27:32), "Q46",
+    paste0("Q", 51:55),
+    paste0("Q", 58:89),
+    paste0("Q", 113:118),
+    paste0("Q", 130:138),
+    paste0("Q", 142:143),
+    paste0("Q", 146:148),
+    paste0("Q", 152:157),
+    paste0("Q", 169:170), "Q172R",
+    paste0("Q", 196:199),
+    paste0("Q", 221:222),
+    paste0("Q", 224:234),
+    paste0("Q", 235:239),
+    "Q253", paste0("Q", 255:259),
+    "Q271", "Q286"
+  ),
+  `5 categories` = c(
+    paste0("Q", 33:41), "Q47", "Q119", "Q121",
+    paste0("Q", 201:208),
+    "Q234A", "Q254", "Q287",
+    paste0("Q291P", 1:6),
+    paste0("Q291G", 1:6),
+    paste0("Q291UN", 1:6),
+    paste0("Q292", LETTERS[1:15]),
+    "Q294A"
+  ),
+  `6 categories` = c("Q273", "Q294B"),
+  `7 categories` = "Q171",
+  `8 categories` = c("Q172", "Q279", "Q280"),
+  `9 categories` = paste0("Q", 275:278),
+  `10 categories` = c(
+    paste0("Q", 48:50), "Q90",
+    paste0("Q", 106:110), "Q112", "Q120",
+    paste0("Q", 158:164),
+    paste0("Q", 176:195),
+    "Q240", paste0("Q", 250:252),
+    "Q288", "Q289"
+  ),
+  `11 categories` = c(paste0("Q", 241:249), "Q293"),
+  `12 categories` = paste0("Q", 281:283)
+)
+
+# All regional-organisation extension questions associated with Q82
+# contain four valid response categories
+q82_region_variables <- grep(
+  "^Q82_",
+  names(wvs_clean),
+  value = TRUE
+)
+
+# Add the Q82 regional variables to the four-category group
+fixed_question_groups[["4 categories"]] <- unique(
+  c(
+    fixed_question_groups[["4 categories"]],
+    q82_region_variables
+  )
+)
+
+# Retain only variables that are present in the current dataset
+fixed_question_groups <- lapply(
+  fixed_question_groups,
+  function(x) intersect(x, names(wvs_clean))
+)
+
+# Define variables whose valid response codes begin at zero
+zero_based_variables <- c(
+  paste0("Q", 94:105, "R"),
+  paste0("Q", 94:105),
+  paste0("Q", 122:129),
+  "Q119",
+  paste0("Q", 275:278),
+  "Q289",
+  paste0("Q", 241:249),
+  paste0("Q", 281:283),
+  "Q293", "Q294A", "Q294B"
+)
+
+# Display the number of variables present in each category group
+# sapply(fixed_question_groups, length)
+
+# Identify and record invalid codes in fixed-choice questionnaire variables
+fixed_invalid_summary <- do.call(
+  rbind,
+  lapply(names(fixed_question_groups), function(group_name) {
+
+    # Extract the number of valid categories from the group name
+    category_number <- as.numeric(
+      sub(" categories", "", group_name)
+    )
+
+    do.call(
+      rbind,
+      lapply(
+        fixed_question_groups[[group_name]],
+        function(variable_name) {
+
+          # Define valid codes according to whether the variable begins at 0 or 1
+          if (variable_name %in% zero_based_variables) {
+            valid_values <- 0:(category_number - 1)
+          } else {
+            valid_values <- 1:category_number
+          }
+
+          # Extract the current values of the variable
+          current_values <- wvs_clean[[variable_name]]
+
+          # Identify non-missing values outside the official valid codes
+          invalid_values <- current_values[
+            !is.na(current_values) &
+              !(current_values %in% valid_values)
+          ]
+
+          # Create a summary of invalid values for the current variable
+          data.frame(
+            variable = variable_name,
+            category_group = group_name,
+            valid_codes = paste(
+              valid_values,
+              collapse = ", "
+            ),
+            invalid_count = length(invalid_values),
+            invalid_values = paste(
+              sort(unique(invalid_values)),
+              collapse = ", "
+            ),
+            row.names = NULL
+          )
+        }
+      )
+    )
+  })
+)
+
+# Display variables containing invalid codes before cleaning
+# fixed_invalid_summary[
+#   fixed_invalid_summary$invalid_count > 0,
+# ]
+
+
+# Convert invalid codes in all fixed-choice questionnaire variables to NA
+for (group_name in names(fixed_question_groups)) {
+
+  # Extract the number of valid categories from the group name
+  category_number <- as.numeric(
+    sub(" categories", "", group_name)
+  )
+
+  for (variable_name in fixed_question_groups[[group_name]]) {
+
+    # Define the valid codes for the current variable
+    if (variable_name %in% zero_based_variables) {
+      valid_values <- 0:(category_number - 1)
+    } else {
+      valid_values <- 1:category_number
+    }
+
+    # Identify values outside the official valid codes
+    invalid_position <- (
+      !is.na(wvs_clean[[variable_name]]) &
+        !(wvs_clean[[variable_name]] %in% valid_values)
+    )
+
+    # Convert invalid values to NA
+    wvs_clean[[variable_name]][invalid_position] <- NA
+  }
+}
+
+
+# Check whether any invalid codes remain after cleaning
+remaining_fixed_invalid <- 0
+
+for (group_name in names(fixed_question_groups)) {
+
+  # Extract the number of valid categories from the group name
+  category_number <- as.numeric(
+    sub(" categories", "", group_name)
+  )
+
+  for (variable_name in fixed_question_groups[[group_name]]) {
+
+    # Define the valid codes for the current variable
+    if (variable_name %in% zero_based_variables) {
+      valid_values <- 0:(category_number - 1)
+    } else {
+      valid_values <- 1:category_number
+    }
+
+    # Add the number of remaining invalid values to the total
+    remaining_fixed_invalid <- remaining_fixed_invalid + sum(
+      !is.na(wvs_clean[[variable_name]]) &
+        !(wvs_clean[[variable_name]] %in% valid_values)
+    )
+  }
+}
+
+# Display the total number of invalid codes remaining after cleaning
+# remaining_fixed_invalid
+
+
+# Define numeric fill-in questionnaire variables
+fill_in_variables <- c(
+  "Q261",  # Year of birth
+  "Q262",  # Age
+  "Q270",  # Number of people in the household
+  "Q274"   # Number of children
+)
+
+# Define country-specific variables and variables coded using appendices
+country_specific_variables <- c(
+  "Q223", "Q223_ABREV", "Q223_LOCAL",
+  "Q266", "Q267", "Q268", "Q272",
+  "Q275A", "Q276A", "Q277A", "Q278A",
+  "Q289CS9", "Q290"
+)
+
+# Combine the fill-in and country-specific variables and
+# retain only variables that are present in the current dataset
+third_block_variables <- intersect(
+  c(fill_in_variables, country_specific_variables),
+  names(wvs_clean)
+)
+
+# Calculate the number and percentage of missing values
+# in each third-group variable
+third_block_missing_summary <- data.frame(
+  variable = third_block_variables,
+  missing_count = sapply(
+    wvs_clean[third_block_variables],
+    function(x) sum(is.na(x))
+  ),
+  missing_rate = sapply(
+    wvs_clean[third_block_variables],
+    function(x) mean(is.na(x)) * 100
+  ),
+  row.names = NULL
+)
+
+# Sort variables by missing-value percentage in descending order
+third_block_missing_summary <- third_block_missing_summary[
+  order(
+    third_block_missing_summary$missing_rate,
+    decreasing = TRUE
+  ),
+]
+
+# Display the missing-value summary for the third group
+# third_block_missing_summary
+
+
+# Treat -999 and -9999 in all numeric variables as missing-value
+# codes used by the externally appended datasets
+all_numeric_variables <- names(wvs_clean)[
+  sapply(wvs_clean, is.numeric)
+]
+
+wvs_clean[all_numeric_variables] <- lapply(
+  wvs_clean[all_numeric_variables],
+  function(x) {
+    x[x %in% c(-999, -9999)] <- NA
+    x
+  }
+)
+
+# WVS formula-based indices use -99 when an index cannot be calculated
+wvs_formula_indices <- c(
+  "sacsecval", "resemaval",
+  "I_AUTHORITY", "I_NATIONALISM", "I_DEVOUT", "defiance",
+  "I_RELIGIMP", "I_RELIGBEL", "I_RELIGPRAC", "disbelief",
+  "I_NORM1", "I_NORM2", "I_NORM3", "relativism",
+  "I_TRUSTARMY", "I_TRUSTPOLICE", "I_TRUSTCOURTS", "scepticism",
+  "I_INDEP", "I_IMAGIN", "I_NONOBED", "autonomy",
+  "I_WOMJOB", "I_WOMPOL", "I_WOMEDU", "equality",
+  "I_HOMOLIB", "I_ABORTLIB", "I_DIVORLIB", "choice",
+  "I_VOICE1", "I_VOICE2", "I_VOI2_00", "voice"
+)
+
+# Retain only formula-based indices that are present in the dataset
+wvs_formula_indices <- intersect(
+  wvs_formula_indices,
+  names(wvs_clean)
+)
+
+# Convert -99 in the formula-based indices to NA
+for (variable_name in wvs_formula_indices) {
+  wvs_clean[[variable_name]][
+    wvs_clean[[variable_name]] == -99
+  ] <- NA
+}
+
+# Convert the variable-specific missing-value codes in Y001-Y003 to NA
+wvs_clean$Y001[wvs_clean$Y001 == -2] <- NA
+wvs_clean$Y002[wvs_clean$Y002 == -5] <- NA
+wvs_clean$Y003[wvs_clean$Y003 == -5] <- NA
+
+
+# Define the official valid codes for derived and external categorical variables
+external_code_rules <- list(
+  Y001 = 0:5,
+  Y002 = 1:3,
+  Y003 = -2:2,
+  fhregion = 1:6,
+  polregfh = 1:3,
+  prfhrat = 1:7,
+  clfhrat = 1:7,
+  democ = 0:10,
+  autoc = 0:10,
+  polity = -10:10,
+  regtype = 1:5,
+  btiregion = 1:7,
+  btiregime = 1:5,
+  regionWB = 1:7,
+  incomeWB = 1:4,
+  Type_Values = 1:4,
+  Type_Populism = 1:4,
+  Type_Populist_Values = 1:4,
+  Type_Partysize_vote = 1:3,
+  Type_Partysize_seat = 1:3
+)
+
+# Retain only variables that are present in the current dataset
+external_code_rules <- external_code_rules[
+  names(external_code_rules) %in% names(wvs_clean)
+]
+
+
+# Identify and record invalid codes before cleaning
+external_code_invalid_summary <- do.call(
+  rbind,
+  lapply(names(external_code_rules), function(variable_name) {
+    current_values <- wvs_clean[[variable_name]]
+    valid_values <- external_code_rules[[variable_name]]
+
+    invalid_values <- current_values[
+      !is.na(current_values) &
+        !(current_values %in% valid_values)
+    ]
+
+    data.frame(
+      variable = variable_name,
+      valid_codes = paste(valid_values, collapse = ", "),
+      invalid_count = length(invalid_values),
+      invalid_values = paste(
+        sort(unique(invalid_values)),
+        collapse = ", "
+      ),
+      row.names = NULL
+    )
+  })
+)
+
+# Display external categorical variables containing invalid codes
+# external_code_invalid_summary[external_code_invalid_summary$invalid_count > 0,]
+
+
+# Convert invalid codes in external categorical variables to NA
+for (variable_name in names(external_code_rules)) {
+  valid_values <- external_code_rules[[variable_name]]
+
+  invalid_position <- (
+    !is.na(wvs_clean[[variable_name]]) &
+      !(wvs_clean[[variable_name]] %in% valid_values)
+  )
+
+  wvs_clean[[variable_name]][invalid_position] <- NA
+}
+
+
+# Define a helper function for creating valid-range rules
+make_range_rules <- function(variables, lower, upper) {
+  data.frame(
+    variable = variables,
+    lower = rep(lower, length(variables)),
+    upper = rep(upper, length(variables)),
+    row.names = NULL
+  )
+}
+
+
+# Define WVS indices officially constructed on a scale from 0 to 1
+wvs_zero_one_indices <- c(
+  "I_AUTHORITY", "I_NATIONALISM", "I_DEVOUT",
+  "I_RELIGIMP", "I_RELIGBEL", "I_RELIGPRAC",
+  "I_NORM1", "I_NORM2", "I_NORM3",
+  "I_TRUSTARMY", "I_TRUSTPOLICE", "I_TRUSTCOURTS",
+  "I_INDEP", "I_IMAGIN", "I_NONOBED",
+  "I_WOMJOB", "I_WOMPOL", "I_WOMEDU",
+  "I_HOMOLIB", "I_ABORTLIB", "I_DIVORLIB",
+  "I_VOICE1", "I_VOICE2", "I_VOI2_00",
+  "defiance", "relativism", "scepticism",
+  "autonomy", "equality", "choice", "voice", "resemaval"
+)
+
+# Regression formulas for missing components may cause these indices
+# to have valid values slightly greater than 1
+wvs_extended_indices <- c(
+  "disbelief",
+  "sacsecval"
+)
+
+# Define V-Dem indices explicitly documented as ranging from 0 to 1
+vdem_zero_one_indices <- c(
+  "v2x_polyarchy", "v2x_libdem", "v2x_partipdem",
+  "v2x_delibdem", "v2x_egaldem",
+  "v2x_freexp_altinf", "v2x_frassoc_thick",
+  "v2xel_frefair", "v2xcl_rol", "v2x_cspart", "v2xeg_eqdr",
+  "v2x_corr", "v2x_gender", "v2x_gencl", "v2x_genpp",
+  "v2x_rule", "v2xcl_acjst", "v2xnp_client", "v2xps_party"
+)
+
+# Define Global Party Survey scales ranging from 0 to 10
+gps_indices <- c(
+  "GPS_V4_Scale", "GPS_V6_Scale", "GPS_V8_Scale",
+  paste0("GPS_V", 9:17)
+)
+
+
+# Construct valid-range rules based on the official codebook
+# or the official definitions of the indicators
+index_range_rules <- rbind(
+  make_range_rules(wvs_zero_one_indices, 0, 1),
+  make_range_rules(wvs_extended_indices, 0, 1.014),
+  make_range_rules(vdem_zero_one_indices, 0, 1),
+  make_range_rules(gps_indices, 0, 10),
+
+  make_range_rules(
+    c(
+      "ruleoflaw", "educationHDI", "gii", "hdi",
+      "incomeindexHDI", "lifeexpectHDI"
+    ),
+    0, 1
+  ),
+
+  make_range_rules(
+    c(
+      "freestfh", "corrupttransp", "electintegr",
+      "giniWB", "incrichest10p", "urbanpop",
+      "unemployfem", "unemploymale", "unemploytotal",
+      "accessclfuel", "accesselectr", "renewelectr",
+      "womenparl", "humanineqiality", "internetusers",
+      "femchoutsch", "choutsch"
+    ),
+    0, 100
+  ),
+
+  make_range_rules(
+    c(
+      "btistatus", "btidemstatus", "btistate", "btipolpart",
+      "btiruleoflaw", "btistability", "btiintegration", "btimarket",
+      "btigovindex", "btigoveperform"
+    ),
+    1, 10
+  ),
+
+  make_range_rules(
+    c(
+      "landWB", "GDPpercap1", "GDPpercap2",
+      "popWB1990", "popWB2000", "popWB2019",
+      "lifeexpect", "laborforce", "deathrate",
+      "co2emis", "co2percap", "militaryexp", "Trade",
+      "healthexp", "educationexp", "medageun", "meanschooling",
+      "compulseduc", "dgi", "homiciderate", "Refugeesorigin",
+      "mobphone", "schoolgpi", "durable"
+    ),
+    0, Inf
+  ),
+
+  make_range_rules("easeofbusiness", 1, Inf),
+  make_range_rules("prfhscore", 0, 40),
+  make_range_rules("clfhscore", 0, 60),
+
+  make_range_rules(
+    c("WVS_LR_PartyVoter", "WVS_LR_MedianVoter"),
+    1, 10
+  ),
+
+  make_range_rules(
+    c("WVS_LibCon_PartyVoter", "WVS_LibCon_MedianVoter"),
+    0, 10
+  ),
+
+  make_range_rules(
+    "WVS_Polmistrust_PartyVoter",
+    0, 100
+  )
+)
+
+# Retain only range rules for variables present in the current dataset
+index_range_rules <- index_range_rules[
+  index_range_rules$variable %in% names(wvs_clean),
+]
+
+# Remove any duplicated range rules
+index_range_rules <- index_range_rules[
+  !duplicated(index_range_rules$variable),
+]
+
+
+# Identify and record index values outside their official ranges
+index_invalid_summary <- do.call(
+  rbind,
+  lapply(seq_len(nrow(index_range_rules)), function(i) {
+    variable_name <- index_range_rules$variable[i]
+    lower_limit <- index_range_rules$lower[i]
+    upper_limit <- index_range_rules$upper[i]
+    current_values <- wvs_clean[[variable_name]]
+
+    invalid_values <- current_values[
+      !is.na(current_values) &
+        (
+          current_values < lower_limit |
+            current_values > upper_limit
+        )
+    ]
+
+    data.frame(
+      variable = variable_name,
+      valid_minimum = lower_limit,
+      valid_maximum = upper_limit,
+      invalid_count = length(invalid_values),
+      invalid_values = paste(
+        sort(unique(invalid_values)),
+        collapse = ", "
+      ),
+      row.names = NULL
+    )
+  })
+)
+
+# Display indices containing values outside their official ranges
+# index_invalid_summary[
+#   index_invalid_summary$invalid_count > 0,
+# ]
+
+
+# Convert index values outside their official ranges to NA
+for (i in seq_len(nrow(index_range_rules))) {
+  variable_name <- index_range_rules$variable[i]
+  lower_limit <- index_range_rules$lower[i]
+  upper_limit <- index_range_rules$upper[i]
+
+  invalid_position <- (
+    !is.na(wvs_clean[[variable_name]]) &
+      (
+        wvs_clean[[variable_name]] < lower_limit |
+          wvs_clean[[variable_name]] > upper_limit
+      )
+  )
+
+  wvs_clean[[variable_name]][invalid_position] <- NA
+}
+
+
+# Check whether any out-of-range index values remain after cleaning
+remaining_index_invalid <- sum(
+  sapply(seq_len(nrow(index_range_rules)), function(i) {
+    variable_name <- index_range_rules$variable[i]
+    lower_limit <- index_range_rules$lower[i]
+    upper_limit <- index_range_rules$upper[i]
+
+    sum(
+      !is.na(wvs_clean[[variable_name]]) &
+        (
+          wvs_clean[[variable_name]] < lower_limit |
+            wvs_clean[[variable_name]] > upper_limit
+        )
+    )
+  })
+)
+
+# Display the number of remaining out-of-range index values
+# remaining_index_invalid
+
+
+# These variables are latent-variable estimates, standardised scores,
+# or rates of change that may contain negative values.
+# The codebook does not provide suitable universal boundaries,
+# so only their missingness and observed ranges are examined.
+unbounded_indicator_variables <- c(
+  "v2excrptps", "v2exthftps", "v2juaccnt",
+  "v2cltrnslw", "v2clacjust", "v2clsocgrp",
+  "v2clacfree", "v2clrelig", "v2csrlgrep",
+  "v2mecenefm", "v2mecenefi", "v2mebias",
+  "v2pepwrses", "v2pepwrgen", "v2peedueq", "v2pehealth",
+  "v2peapsecon", "v2peasjsoecon", "v2clgencl",
+  "v2peasjgen", "v2peasbgen", "v2cafres", "v2cafexch",
+  "v2psbars", "v2psorgs", "v2psprbrch", "v2psprlnks", "v2psplats",
+  "td_voiacc", "td_polstab", "td_goveff",
+  "td_regqual", "td_rulelaw", "td_ctrlcorr",
+  "popgrowth", "migrationrate"
+)
+
+# Retain only unbounded indicators that are present in the dataset
+unbounded_indicator_variables <- intersect(
+  unbounded_indicator_variables,
+  names(wvs_clean)
+)
+
+# Summarise the observed range and missing-value percentage
+# for each unbounded indicator
+unbounded_indicator_summary <- do.call(
+  rbind,
+  lapply(unbounded_indicator_variables, function(variable_name) {
+    x <- wvs_clean[[variable_name]]
+
+    data.frame(
+      variable = variable_name,
+      minimum = if (all(is.na(x))) {
+        NA
+      } else {
+        min(x, na.rm = TRUE)
+      },
+      maximum = if (all(is.na(x))) {
+        NA
+      } else {
+        max(x, na.rm = TRUE)
+      },
+      missing_rate = mean(is.na(x)) * 100,
+      row.names = NULL
+    )
+  })
+)
+
+# Display the summary of indicators without strict theoretical boundaries
+# unbounded_indicator_summary
+
+
+# Recalculate the missing-value information for every variable
+missing_summary <- data.frame(
+  variable = names(wvs_clean),
+  missing_count = colSums(is.na(wvs_clean)),
+  missing_rate = colMeans(is.na(wvs_clean)) * 100,
+  row.names = NULL
+)
+
+# Sort variables by missing-value percentage in descending order
+missing_summary <- missing_summary[
+  order(missing_summary$missing_rate, decreasing = TRUE),
+]
+
+# Identify predictor variables with more than 50% missing values
+# while protecting the target variable Q279
+high_missing_variables <- missing_summary$variable[
+  missing_summary$missing_rate > 50 &
+    missing_summary$variable != "Q279"
+]
+
+# Save information about the removed variables for reporting
+removed_variable_summary <- missing_summary[
+  missing_summary$variable %in% high_missing_variables,
+]
+
+# Display the variables to be removed
+# removed_variable_summary
+
+# Remove variables with more than 50% missing values
+wvs_clean <- wvs_clean[
+  ,
+  !(names(wvs_clean) %in% high_missing_variables),
+  drop = FALSE
+]
+
+# Display the number of removed variables
+# length(high_missing_variables)
+
+# Check the dimensions of the cleaned dataset
+# dim(wvs_clean)
+
+# Check the highest remaining missing-value percentage
+# max(colMeans(is.na(wvs_clean))) * 100
+
+
+# 1. Identify the variables that remain in each of the four groups
+
+# Group 1: Basic information variables
+basic_variables_remaining <- intersect(
+  basic_information_variables,
+  names(wvs_clean)
+)
+
+# Group 2: Fixed-choice questionnaire variables
+fixed_choice_variables <- unique(
+  unlist(fixed_question_groups, use.names = FALSE)
+)
+
+fixed_choice_variables <- intersect(
+  fixed_choice_variables,
+  names(wvs_clean)
+)
+
+# Group 3: Fill-in and country-specific variables
+third_block_variables_remaining <- intersect(
+  third_block_variables,
+  names(wvs_clean)
+)
+
+# Group 4: Derived indices and external variables not included
+# in the first three groups
+fourth_block_variables <- setdiff(
+  names(wvs_clean),
+  c(
+    basic_variables_remaining,
+    fixed_choice_variables,
+    third_block_variables_remaining
+  )
+)
+
+# Exclude the target variable Q279 from imputation
+fixed_choice_variables <- setdiff(
+  fixed_choice_variables,
+  "Q279"
+)
+
+fourth_block_variables <- setdiff(
+  fourth_block_variables,
+  "Q279"
+)
+
+
+# 2. Replace missing values in Group 1 with "Unknown"
+
+for (variable_name in basic_variables_remaining) {
+  if (anyNA(wvs_clean[[variable_name]])) {
+
+    # Convert the entire variable to character because
+    # "Unknown" is a text value
+    wvs_clean[[variable_name]] <- as.character(
+      wvs_clean[[variable_name]]
+    )
+
+    wvs_clean[[variable_name]][
+      is.na(wvs_clean[[variable_name]])
+    ] <- "Unknown"
+  }
+}
+
+
+# 3. Replace missing values in Group 3 with "Unknown"
+
+for (variable_name in third_block_variables_remaining) {
+  if (anyNA(wvs_clean[[variable_name]])) {
+
+    # Convert the entire variable to character because
+    # "Unknown" is a text value
+    wvs_clean[[variable_name]] <- as.character(
+      wvs_clean[[variable_name]]
+    )
+
+    wvs_clean[[variable_name]][
+      is.na(wvs_clean[[variable_name]])
+    ] <- "Unknown"
+  }
+}
+
+
+# 4. Define a function for mode imputation
+
+fill_with_mode <- function(x) {
+
+  # Extract all non-missing values
+  observed_values <- x[!is.na(x)]
+
+  # Return the original variable if all values are missing
+  if (length(observed_values) == 0) {
+    return(x)
+  }
+
+  # Calculate the mode while preserving the original data type
+  unique_values <- unique(observed_values)
+
+  mode_value <- unique_values[
+    which.max(
+      tabulate(
+        match(observed_values, unique_values)
+      )
+    )
+  ]
+
+  # Replace missing values with the mode
+  x[is.na(x)] <- mode_value
+
+  return(x)
+}
+
+
+# 5. Impute missing values in Group 2 using the mode
+
+wvs_clean[fixed_choice_variables] <- lapply(
+  wvs_clean[fixed_choice_variables],
+  fill_with_mode
+)
+
+
+# 6. Impute missing values in Group 4 using the mode
+
+wvs_clean[fourth_block_variables] <- lapply(
+  wvs_clean[fourth_block_variables],
+  fill_with_mode
+)
+
+
+# 7. Check the results after imputation
+
+missing_after_imputation <- data.frame(
+  variable = names(wvs_clean),
+  missing_count = colSums(is.na(wvs_clean)),
+  missing_rate = colMeans(is.na(wvs_clean)) * 100,
+  row.names = NULL
+)
+
+# Sort variables by missing-value percentage in descending order
+missing_after_imputation <- missing_after_imputation[
+  order(
+    missing_after_imputation$missing_rate,
+    decreasing = TRUE
+  ),
+]
+
+# Display variables that still contain missing values
+# missing_after_imputation[missing_after_imputation$missing_count > 0,]
+
+# Display the total number of remaining missing values in the dataset
+# sum(is.na(wvs_clean))
+
+
+# Export the cleaned dataset
+write.csv(
+  wvs_clean,
+  file = "D:/Users/Zzzzz/Desktop/5003/WVS_Wave7_cleaned_for_modelling.csv",
+  row.names = FALSE,
+  na = ""
+)
+
+# Display the final dimensions of the cleaned dataset
+dim(wvs_clean)
+
+# Display the directory where the file was exported
+# getwd()
+```
+## Exploratory Data Analysis (EDA)
+### Univariate Analysis
+
+```{r library} 
+library(ggplot2)
+library(patchwork)
+
+gender_count <- table(wvs_clean$Q260)
+
+gender_labels <- c(
+  "Male",
+  "Female"
+)
+
+p1 <- ggplot(
+  wvs_clean,
+  aes(x = factor(Q260, levels = 1:2, labels = gender_labels))
+) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Gender",
+    x = "Gender",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+age_data <- wvs_clean[wvs_clean$Q262 != "Unknown", ]
+
+age_data$Q262 <- as.numeric(age_data$Q262)
+
+
+p2 <- ggplot(age_data, aes(x = Q262)) +
+  geom_histogram(
+    binwidth = 5,
+    boundary = 0
+  ) +
+  labs(
+    title = "Distribution of Age",
+    x = "Age",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+marital_count <- table(wvs_clean$Q273)
+
+marital_labels <- c(
+  "Married",
+  "Living together",
+  "Divorced",
+  "Separated",
+  "Widowed",
+  "Single"
+)
+
+p3 <- ggplot(
+  wvs_clean,
+  aes(x = factor(Q273, levels = 1:6, labels = marital_labels))
+) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Marital Status",
+    x = "Marital Status",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+education_count <- table(wvs_clean$Q275)
+
+education_labels <- c(
+  "No education",
+  "Primary",
+  "Lower secondary",
+  "Upper secondary",
+  "Post-secondary",
+  "Short-cycle tertiary",
+  "Bachelor",
+  "Master",
+  "Doctoral"
+)
+
+p4 <- ggplot(
+  wvs_clean,
+  aes(x = factor(Q275, levels = 0:8, labels = education_labels))
+) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Education Level",
+    x = "Education Level",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+social_class_count <- table(wvs_clean$Q287)
+
+social_class_labels <- c(
+  "Upper class",
+  "Upper middle class",
+  "Lower middle class",
+  "Working class",
+  "Lower class"
+)
+
+p5 <- ggplot(
+  wvs_clean,
+  aes(x = factor(Q287, levels = 1:5, labels = social_class_labels))
+) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Social Class",
+    x = "Social Class",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+income_count <- table(wvs_clean$Q288)
+
+p6 <- ggplot(
+  wvs_clean,
+  aes(x = factor(Q288, levels = 1:10))
+) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Household Income Level",
+    x = "Income Level",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+wrap_plots(
+  p1, p2, p3, p4, p5, p6,
+  ncol = 3
+) +
+  plot_annotation(tag_levels = "A")
+
+q270_df <- data.frame(
+  Household_Size = suppressWarnings(as.numeric(wvs_clean$Q270))
+)
+
+q270_df <- q270_df[
+  !is.na(q270_df$Household_Size),
+  ,
+  drop = FALSE
+]
+
+```
+**Gender**: The gender distribution is relatively balanced, with 45,493 male and 50,494 female respondents, although females slightly outnumber males.
+
+**Age**: Age is right-skewed, with a median of 41 years, a mean of 43.16 years, and a range of 16–103 years. A total of 470 unavailable responses were retained as “Unknown”; as age is a fill-in variable, extreme but plausible values were retained rather than automatically treated as outliers.
+
+**Marital Status**: 
+The marital status distribution is uneven. Married respondents form the largest group, with 53,731 observations, followed by single respondents with 22,918. The remaining categories are substantially smaller, particularly the separated group.
+
+**Education Level**: 
+The education distribution is uneven across the nine categories. Upper secondary education is the most common level, with 25,232 respondents, followed by bachelor-level education with 16,775 respondents. Doctoral education is the least common category, with 1,121 respondents.
+
+**Social Class**: 
+The social class distribution is concentrated mainly in the lower middle and working classes. Lower middle class is the largest category, with 40,502 respondents, followed by working class with 24,021. Upper class is the least represented group, with 1,797 respondents.
+
+**Household Income Level**: 
+Household income is concentrated around the middle of the 1–10 scale, with level 5 the largest category and levels 9 and 10 relatively uncommon.
+
+**Number of People in Household**: 
+Household size is right-skewed, with most respondents living in households of two to five people and four-person households the most common (20.84%); frequency declines as household size increases, while 758 responses (0.79%) were coded as “Unknown”.
+
+**Number of Children**: 
+Number of children is also right-skewed, with most respondents reporting zero to three children; no children is the most common category (27.74%), followed by two children (25.34%), while 4,589 responses (4.78%) were coded as “Unknown”.
+
+**Spouse Education Level**: 
+Spouse education is unevenly distributed across the three categories. Level 1 accounts for the majority of observations (59.93%), followed by Level 2 (22.34%) and Level 3 (17.74%), indicating a clear concentration toward Level 1 rather than an even distribution.
+
+**Mother's Education Level**: 
+Mother’s education shows an even stronger concentration in Level 1, which accounts for 68.26% of observations. Level 2 represents 21.01% and Level 3 only 10.73%, making the distribution more heavily concentrated at Level 1 than spouse education.
+
+**Father's Education Level**: 
+Father’s education follows a similar pattern, with Level 1 accounting for 65.87% of observations, compared with 21.53% for Level 2 and 12.61% for Level 3. This pattern is also more concentrated in Level 1 than spouse education and is broadly similar to the distribution of mother’s education.
+
+**Family Savings**: 
+Family Savings is unevenly distributed, with Category 2 the most common (47.11%), followed by Category 1 (29.25%), Category 3 (14.84%), and Category 4 (8.80%), indicating concentration in Categories 1 and 2.
+
+**Employment Status (Target Variable)**: 
+Q279 is the eight-class target variable for employment status. Full-time employment is the largest class (34,969; 36.43%), followed by self-employment (14.33%), housewife (13.27%), and retired (12.58%), while “Other” is the smallest class (1,159; 1.21%).
+
+The target is substantially imbalanced, with the largest class about 30 times the size of the smallest. Therefore, evaluation should not rely on accuracy alone but also consider class-sensitive measures such as macro F1 and confusion matrices, particularly for minority classes.
+
+After preprocessing, no missing or invalid values remained in the selected fixed-choice variables; for Age (Q262), Household Size (Q270), and Number of Children (Q274), unavailable responses were retained as “Unknown”, while plausible extreme values were kept rather than removed by a statistical outlier rule.
+
+```{r}
+p7 <- ggplot(
+  data = q270_df[q270_df$Household_Size <= 15, , drop = FALSE],
+  aes(x = Household_Size)
+) +
+  geom_bar() +
+  scale_x_continuous(breaks = 1:15) +
+  labs(
+    title = "Distribution of Household Size",
+    x = "Number of People in Household",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+q274_df <- data.frame(
+  Number_of_Children = suppressWarnings(as.numeric(wvs_clean$Q274))
+)
+
+q274_df <- q274_df[
+  !is.na(q274_df$Number_of_Children),
+  ,
+  drop = FALSE
+]
+
+p8 <- ggplot(
+  data = q274_df[q274_df$Number_of_Children <= 10, , drop = FALSE],
+  aes(x = Number_of_Children)
+) +
+  geom_bar() +
+  scale_x_continuous(breaks = 0:10) +
+  labs(
+    title = "Distribution of Number of Children",
+    x = "Number of Children",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+q274_freq <- as.data.frame(table(wvs_clean$Q274))
+
+q274_freq$Percent <- round(
+  100 * q274_freq$Freq / sum(q274_freq$Freq),
+  2
+)
+
+q276r_freq <- as.data.frame(table(wvs_clean$Q276R))
+
+q276r_freq$Percent <- round(
+  100 * q276r_freq$Freq / sum(q276r_freq$Freq),
+  2
+)
+
+
+p9 <- ggplot(
+  q276r_freq,
+  aes(x = Var1, y = Freq)
+) +
+  geom_col() +
+  labs(
+    title = "Distribution of Spouse Education Level",
+    x = "Spouse Education Level",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+q277r_freq <- as.data.frame(table(wvs_clean$Q277R))
+
+q277r_freq$Percent <- round(
+  100 * q277r_freq$Freq / sum(q277r_freq$Freq),
+  2
+)
+
+p10 <- ggplot(
+  q277r_freq,
+  aes(x = Var1, y = Freq)
+) +
+  geom_col() +
+  labs(
+    title = "Distribution of Mother's Education Level",
+    x = "Mother's Education Level",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+q278r_freq <- as.data.frame(table(wvs_clean$Q278R))
+
+q278r_freq$Percent <- round(
+  100 * q278r_freq$Freq / sum(q278r_freq$Freq),
+  2
+)
+
+p11 <- ggplot(
+  q278r_freq,
+  aes(x = Var1, y = Freq)
+) +
+  geom_col() +
+  labs(
+    title = "Distribution of Father's Education Level",
+    x = "Father's Education Level",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+q286_freq <- as.data.frame(table(wvs_clean$Q286))
+
+q286_freq$Percent <- round(
+  100 * q286_freq$Freq / sum(q286_freq$Freq),
+  2
+)
+
+p12 <- ggplot(
+  q286_freq,
+  aes(x = Var1, y = Freq)
+) +
+  geom_col() +
+  labs(
+    title = "Distribution of Family Savings",
+    x = "Family Savings Category",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+q279_freq <- as.data.frame(table(wvs_clean$Q279))
+
+names(q279_freq) <- c("Employment_Status", "Frequency")
+
+q279_freq$Employment_Status <- factor(
+  q279_freq$Employment_Status,
+  levels = c("1", "2", "3", "4", "5", "6", "7", "8"),
+  labels = c(
+    "Full-time",
+    "Part-time",
+    "Self-employed",
+    "Retired",
+    "Housewife",
+    "Student",
+    "Unemployed",
+    "Other"
+  )
+)
+
+q279_freq$Percent <- round(
+  100 * q279_freq$Frequency / sum(q279_freq$Frequency),
+  2
+)
+
+
+p13 <- ggplot(
+  q279_freq,
+  aes(x = Employment_Status, y = Frequency)
+) +
+  geom_col() +
+  labs(
+    title = "Class Distribution of Employment Status",
+    x = "Employment Status",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+wrap_plots(
+  p7, p8, p9, p10, p11, p12, p13,
+  ncol = 3
+) +
+  plot_annotation(tag_levels = "A")
+
+```
+
+### Bivariate Analysis
+
+This section examines how each predictor named in the research question relates to employment status (Q279). Because missing fixed-choice responses were mode-imputed during preprocessing, the modal category of each predictor is slightly over-represented in the plots below.
+
+```{r bivariate-analysis, fig.width=12, fig.height=8, out.width="100%"}
+# prepare data
+employment_labels <- c("Full-time", "Part-time", "Self-employed", "Retired",
+                       "Housewife", "Student", "Unemployed", "Other")
+
+bivariate_data <- wvs_clean
+bivariate_data$Q262 <- suppressWarnings(as.numeric(bivariate_data$Q262))
+bivariate_data$Q270 <- suppressWarnings(as.numeric(bivariate_data$Q270))
+bivariate_data$Q274 <- suppressWarnings(as.numeric(bivariate_data$Q274))
+bivariate_data$Employment <- factor(
+  bivariate_data$Q279, levels = 1:8, labels = employment_labels)
+
+# (A) age
+p14 <- ggplot(
+  bivariate_data[!is.na(bivariate_data$Q262), ],
+  aes(x = Employment, y = Q262)
+) +
+  geom_boxplot(outlier.size = 0.3) +
+  labs(title = "(A) Age by employment status", x = NULL, y = "Age") +
+  theme_minimal(base_size = 9) +
+  theme(plot.title = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+# age summary
+age_valid <- bivariate_data[!is.na(bivariate_data$Q262), ]
+age_median <- aggregate(Q262 ~ Employment, data = age_valid, FUN = median)
+age_min <- aggregate(Q262 ~ Employment, data = age_valid, FUN = min)
+age_max <- aggregate(Q262 ~ Employment, data = age_valid, FUN = max)
+age_q1 <- aggregate(Q262 ~ Employment, data = age_valid, FUN = quantile, probs = 0.25)
+age_q3 <- aggregate(Q262 ~ Employment, data = age_valid, FUN = quantile, probs = 0.75)
+
+age_summary <- data.frame(
+  Employment = age_median$Employment,
+  Min = age_min$Q262,
+  Q1 = age_q1$Q262,
+  Median = age_median$Q262,
+  Q3 = age_q3$Q262,
+  Max = age_max$Q262
+)
+
+# (B) gender
+p15 <- ggplot(
+  bivariate_data,
+  aes(x = Employment,
+      fill = factor(Q260, levels = 1:2, labels = c("Male", "Female")))
+) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(values = c(Male = "grey35", Female = "grey75")) +
+  labs(title = "(B) Gender composition by employment status",,
+       x = NULL, y = "Proportion", fill = "Gender") +
+  theme_minimal(base_size = 9) +
+  theme(plot.title = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+# gender proportion
+gender_pct <- round(
+  prop.table(
+    table(bivariate_data$Employment,
+          factor(bivariate_data$Q260, levels = 1:2, labels = c("Male", "Female"))),
+    margin = 1
+  ) * 100,
+  1
+)
+
+# Share of each employment status within each category of a predictor
+employment_share <- function(variable, codes, labels) {
+  keep <- bivariate_data[[variable]] %in% codes
+  level <- factor(bivariate_data[[variable]][keep], levels = codes, labels = labels)
+  share <- prop.table(table(level, bivariate_data$Employment[keep]), margin = 1) * 100
+  out <- as.data.frame(share, stringsAsFactors = FALSE)
+  names(out) <- c("Level", "Employment", "Share")
+  out$Level <- factor(out$Level, levels = rev(labels))
+  out$Employment <- factor(out$Employment, levels = employment_labels)
+  out
+}
+
+share_plot <- function(df, title) {
+  ggplot(df, aes(x = Share, y = Level, fill = Employment)) +
+    geom_col(width = 0.8) +
+    scale_fill_brewer(palette = "Set2", drop = FALSE) +
+    guides(fill = guide_legend(nrow = 1)) +
+    labs(title = title, x = "Share within category (%)", y = NULL,
+         fill = "Employment status") +
+    theme_minimal(base_size = 9) +
+    theme(plot.title = element_text(size = 10, face = "bold"))
+}
+
+edu_share <- employment_share(
+  "Q275", 0:8,
+  c("No education", "Primary", "Lower secondary", "Upper secondary",
+    "Post-secondary", "Short-cycle tertiary", "Bachelor", "Master", "Doctoral"))
+inc_share <- employment_share(
+  "Q288", 1:10, c("1 (lowest)", as.character(2:9), "10 (highest)"))
+class_share <- employment_share(
+  "Q287", 1:5, c("Upper", "Upper middle", "Lower middle", "Working", "Lower"))
+marital_share <- employment_share(
+  "Q273", 1:6,
+  c("Married", "Living together", "Divorced", "Separated", "Widowed", "Single"))
+
+p17 <- share_plot(edu_share, "(C) Education level")
+p18 <- share_plot(inc_share, "(D) Household income level")
+p19 <- share_plot(class_share, "(E) Subjective social class")
+p20 <- share_plot(marital_share, "(F) Marital status")
+
+# Strength of association with employment status (Cramer's V)
+cramers_v <- function(x, y) {
+  tab <- table(x, y)
+  tab <- tab[rowSums(tab) > 0, colSums(tab) > 0, drop = FALSE]
+  chi <- suppressWarnings(chisq.test(tab, correct = FALSE)$statistic)
+  as.numeric(sqrt(chi / (sum(tab) * (min(dim(tab)) - 1))))
+}
+age_group <- cut(bivariate_data$Q262,
+                 breaks = c(-Inf, 24, 34, 44, 54, 64, Inf),
+                 labels = c("16-24", "25-34", "35-44", "45-54", "55-64", "65+"))
+assoc <- c(
+  Age = cramers_v(age_group, bivariate_data$Employment),
+  Gender = cramers_v(bivariate_data$Q260, bivariate_data$Employment),
+  Education = cramers_v(bivariate_data$Q275, bivariate_data$Employment),
+  `Household income` = cramers_v(bivariate_data$Q288, bivariate_data$Employment),
+  `Social class` = cramers_v(bivariate_data$Q287, bivariate_data$Employment),
+  `Marital status` = cramers_v(bivariate_data$Q273, bivariate_data$Employment)
+)
+assoc <- sort(round(assoc, 2), decreasing = TRUE)
+
+# Employment category whose share changes most across a predictor's levels
+largest_shift <- function(df) {
+  spread <- aggregate(Share ~ Employment, data = df, FUN = function(s) max(s) - min(s))
+  top <- as.character(spread$Employment[which.max(spread$Share)])
+  s <- df[df$Employment == top, ]
+  list(cat = top,
+       lo = round(min(s$Share), 1), lo_lvl = as.character(s$Level[which.min(s$Share)]),
+       hi = round(max(s$Share), 1), hi_lvl = as.character(s$Level[which.max(s$Share)]))
+}
+edu_shift <- largest_shift(edu_share)
+inc_shift <- largest_shift(inc_share)
+class_shift <- largest_shift(class_share)
+marital_shift <- largest_shift(marital_share)
+
+# combined 2 x 3 figure
+wrap_plots(p14, p15, p17, p18, p19, p20, ncol = 3, guides = "collect") &
+  theme(legend.position = "bottom")
+```
+
+**(A)–(B) Age and gender.** Age clearly separates Retired (median 68) and Student (median 20), whose interquartile ranges do not overlap with other categories; the remaining categories have medians of 35–41. Gender mainly identifies Housewives (97.2% female), while other categories are close to an even split.
+
+**(C)–(F) Education, income, social class and marital status.** Higher education is associated with more full-time employment (18.0% to 58.2%) and fewer housewives (33.2% to 1.8%). Income and social class show similar but weaker gradients, with unemployment and housewives more common at the lowest levels. Marital status mainly reflects age: 48.5% of widowed respondents are retired and 22.3% of single respondents are students.
+
+**Overall.** Employment status is most strongly associated with age (Cramér's V = 0.38) and gender (0.36), followed by marital status (0.24), while education (0.13), social class (0.10) and income (0.08) are only weakly associated. Part-time employment varies little across any predictor, suggesting it will be the hardest category to classify.
+## Data Visualisation
+
+### Cross-Country Variation in Employment Structure
+```{r country-variation,fig.height=2.5, fig.width=6, out.width="55%"}
+emp_by_country <- prop.table(
+  table(bivariate_data$B_COUNTRY_ALPHA, bivariate_data$Employment),
+  margin = 1
+) * 100
+
+emp_country_long <- as.data.frame(emp_by_country)
+names(emp_country_long) <- c("Country", "Employment", "Share")
+
+ggplot(emp_country_long, aes(x = Employment, y = Share)) +
+  geom_boxplot() +
+  labs(
+    x = "Employment Status",
+    y = "Share within Country (%)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+#country-range
+country_min    <- aggregate(Share ~ Employment, data = emp_country_long, FUN = min)
+country_median <- aggregate(Share ~ Employment, data = emp_country_long, FUN = median)
+country_max    <- aggregate(Share ~ Employment, data = emp_country_long, FUN = max)
+
+country_range <- data.frame(
+  Employment = country_min$Employment,
+  Min        = round(country_min$Share, 1),
+  Median     = round(country_median$Share, 1),
+  Max        = round(country_max$Share, 1)
+)
+```
+Aggregating across all countries conceals substantial cross-national heterogeneity in employment structure. The share of full-time employees ranges from 10.2% to 70.6% across countries, and that of housewives from 0.7% to 43.5%. The latter connects directly to the gender pattern above: housewives are 97.2% female overall, so this variation reflects large differences in female labour force participation. Unemployment ranges from 0% to 37.5% with a median of only 5.4%, indicating a small number of countries with extreme values. Only the "Other" category is consistent across countries, with a median of 0.4% and a maximum of 8.1%. Therefore, the class distribution reported earlier may not describe any individual country well, and the treatment of country in the modelling stage requires explicit consideration.
+
+## Model Plan
+
+**1. Modelling Strategy:**  
+The EDA suggests that employment status cannot be explained by a single predictor. Age clearly distinguishes Student and Retired respondents, while gender is particularly informative for Housewife respondents. However, substantial overlap remains among other categories, suggesting that predictor combinations, interactions, and nonlinear relationships may be important.
+
+Q279 is highly imbalanced, with the largest class approximately 30 times the size of the smallest. Therefore, model evaluation will not rely on accuracy alone. Models with different assumptions and levels of flexibility will be compared based on overall performance.
+
+**2. Feature Strategy:**  
+**Country-level Socioeconomic Context:** The EDA shows clear variation in employment-status distributions across countries. However, including Country would introduce more than 60 categorical levels, increasing model complexity and potentially affecting distance-based methods such as kNN. Instead, an `Income_Group` feature will be created using the World Bank's country income classification: Low income, Lower-middle income, Upper-middle income, and High income. This provides a lower-dimensional representation of country-level socioeconomic context. Raw Country will therefore be excluded. Since the classification is independent of Q279, it does not introduce target leakage. **Other Predictors:** The final predictors will focus on demographic, educational, and socioeconomic variables identified during the EDA. Categorical variables will be appropriately encoded and numerical variables scaled where required. Survey weights will not be used because the objective is individual-level prediction rather than population-level inference.
+
+**3. Model Selection:**  
+1.**Multinomial Logistic Regression:** An interpretable linear baseline for the eight-class problem, but may not capture important interactions or nonlinear relationships. 2.**Linear Discriminant Analysis (LDA):** An alternative linear and distribution-based benchmark, although its distributional and covariance assumptions may not suit the mixture of categorical and numerical predictors. 3.**k-Nearest Neighbours (kNN):** Tests whether respondents with similar characteristics have similar employment statuses. It is non-parametric but sensitive to scaling, the choice of *k*, and distance measure, and may be computationally expensive. 4.**Support Vector Machine (SVM):** Tests whether more flexible decision boundaries improve classification of overlapping categories. Its main limitations are computational cost and parameter tuning. 5.**Decision Tree:** Can capture conditional relationships, interactions, and nonlinear patterns, such as the effects of age and gender identified in the EDA. However, a single tree may be unstable and prone to overfitting.
+
+**4. Evaluation Plan:**  
+**Primary Metric: Macro F1:** Macro F1 will be the primary metric because Q279 is strongly imbalanced. It gives equal weight to all eight classes and prevents large classes from dominating evaluation. **Secondary Metrics:** Weighted F1 and Accuracy will also be reported. Weighted F1 reflects overall performance while accounting for class frequency, while Accuracy will be used as a supplementary measure.
+Confusion matrices and per-class Precision, Recall, and F1 will also be examined, particularly for minority and frequently confused categories.
+
+**5. Train-Test Strategy:**  
+A stratified train-test split will be used to approximately preserve the class distribution of Q279 in both sets.
+Because the objective is individual-level prediction rather than generalisation to unseen countries, the data will not be split by country. Raw Country will be excluded, while `Income_Group` will be retained as the broader socioeconomic feature.
+
+**6. Model Comparison and Final Selection:**  
+All five models will be evaluated using the same test set and framework. Final selection will consider: 1. Macro F1. 2. Weighted F1 and Accuracy. 3. Minority-class performance. 4. Confusion-matrix patterns. 5. Interpretability and computational cost.
+The final model will be selected based on the balance between predictive performance, minority-class performance, interpretability, and efficiency.
+
+**7. Backup Plan:**  
+If SVM or kNN is too computationally expensive, parameter tuning will be simplified or a stratified subset of the training data will be used during development. If minority-class performance is poor, confusion matrices and per-class F1 scores will be examined before further modelling decisions. If several models perform similarly, the simpler and more interpretable model will be preferred.
+
+**8. Timeline:**  
+
+1. **Model Preparation:** Finalise predictors, create `Income_Group`, exclude Country, prepare encoding and scaling, and perform the stratified train-test split. 2. **Baseline Models:** Fit Multinomial Logistic Regression and LDA. 3. **Flexible Models:** Fit and tune kNN, SVM, and Decision Tree. 4. **Model Evaluation:** Calculate Macro F1, Weighted F1, Accuracy, confusion matrices, and per-class metrics. 5. **Final Model Selection:** Compare predictive performance, minority-class performance, interpretability, and computational cost. 6. **Final Reporting:** Relate modelling results to the EDA and research question, and explain the main predictors and model performance.
+
+
+## References
+
+Haerpfer, C., Inglehart, R., Moreno, A., Welzel, C., Kizilova, K., Diez-Medrano, J., Lagos, M., Norris, P., Ponarin, E., & Puranen, B. (2022). *World Values Survey Wave 7 (2017–2022) cross-national data-set* (Version 6.0.0) [Data set]. World Values Survey Association. https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp
+
+World Values Survey Association. (n.d.). *WVS Wave 7 (2017–2022): Data and documentation*. https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp
+
+## AI Use Statement
+
+I acknowledge the use of ChatGPT (GPT-5.6 Sol, OpenAI, https://chatgpt.com/) to assist with English translation, language polishing and R Markdown formatting. The AI was not used to generate the dataset or conduct the statistical analysis.
