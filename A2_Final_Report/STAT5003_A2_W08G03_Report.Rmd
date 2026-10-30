@@ -1,0 +1,969 @@
+---
+title: "Can basic survey information predict employment status?"
+subtitle: "An eight-class investigation of the World Values Survey, Wave 7"
+author: "STAT5003 Assignment 2 &middot; Group W08G03 &middot; Ruoyu Dong, Xiangchen Li, Zhenming Sun, Jiacheng Yang, Yiling Zhang &middot; 30 October 2026"
+output:
+  html_document:
+    code_folding: hide
+    self_contained: true
+    theme: default
+    highlight: tango
+    toc: false
+params:
+  v2_dir: "../A2_Corrected_FY2021_v2_20261026"
+  refit: "none"
+  run_probes: false
+---
+
+<!--
+HOW TO RENDER
+  rmarkdown::render("STAT5003_A2_W08G03_Report.Rmd")
+  * v2_dir     folder holding the frozen FY2021 v2 experiment (data, predictions, tuning tables).
+  * refit      "none" = every number is recomputed from the frozen v2 predictions and tuning tables (about 1 min);
+               "fast" = additionally re-run the full validation search + final refit for LR, LDA, kNN and the tree;
+               "all"  = also re-run the SVM (about 1 hour). Re-fitted results replace the frozen ones and are
+                        compared row by row with them (written to supplementary/reproducibility_check.csv).
+  * run_probes TRUE re-runs the validation-only linear-vs-RBF SVM check (about 3 min) and rewrites supplementary/.
+-->
+
+```{css, echo = FALSE}
+body{font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;font-size:12.5px;line-height:1.42;color:#1d1d1b;background:#fff}
+.main-container{max-width:1040px}
+h1.title{font-size:22px;font-weight:700;margin:4px 0 1px;color:#0d366b;letter-spacing:-.2px}
+h3.subtitle{font-size:14px;margin:0 0 3px;color:#52514e;font-weight:500}
+h4.author{font-size:11.5px;color:#52514e;margin:0;font-weight:400}
+h1{font-size:16px;margin:13px 0 4px;padding-bottom:2px;border-bottom:1.5px solid #184f95;color:#0d366b;font-weight:700}
+h2{font-size:13.2px;margin:8px 0 3px;color:#184f95;font-weight:700}
+p{margin:0 0 5px}
+ul,ol{margin:0 0 5px;padding-left:17px} li{margin:0 0 1px}
+table.tbl{font-size:10.8px;width:100%;border-collapse:collapse;margin:2px 0 7px;line-height:1.3}
+table.tbl th{border-bottom:1.3px solid #52514e;border-top:1.3px solid #52514e;padding:2px 4px;font-weight:600;background:#f2f5f9;vertical-align:bottom}
+table.tbl td{padding:2px 4px;border-bottom:.5px solid #e1e0d9;vertical-align:top}
+table.tbl tr.sel td{background:#eef4fc;font-weight:600}
+table caption{font-size:11px;color:#3b3a37;caption-side:top;padding:1px 0 2px;text-align:left}
+.caption,p.caption{font-size:10.8px;color:#3b3a37;margin:1px 0 7px;line-height:1.3}
+.figure{margin:2px 0}
+.cols{display:flex;gap:16px;align-items:flex-start}
+.cols>.col{flex:1 1 0;min-width:0}
+.cols>.narrow{flex:0 0 38%}
+.cols>.wide{flex:0 0 59%}
+.keybox{display:flex;gap:8px;margin:7px 0 6px}
+.tile{flex:1;background:#f2f5f9;border-left:3px solid #2a78d6;padding:4px 7px 5px;border-radius:2px}
+.tile b{display:block;font-size:19px;color:#0d366b;line-height:1.15}
+.tile span{font-size:10.5px;color:#52514e;line-height:1.25;display:block}
+.answer{background:#fbf8ef;border-left:3px solid #eda100;padding:5px 9px;margin:4px 0 6px;font-size:12.3px}
+.note{font-size:11px;color:#52514e}
+.dip{display:flex;gap:4px;margin:4px 0 3px;font-size:10.4px}
+.dip>div{flex:1;background:#f5f4f2;border-top:4px solid #b33d26;padding:3px 5px;line-height:1.25}
+.dip>div b{display:block;color:#1d1d1b;font-size:10.8px}
+.dip>div i{display:block;color:#b33d26;font-style:normal;margin-top:2px}
+.dt{font-size:10px;font-weight:600;color:#fff;border-radius:2px;padding:1px 6px;margin-left:8px;vertical-align:2px;letter-spacing:.2px;white-space:nowrap}
+.s1{background:#b33d26}.s2{background:#1c1c1c}.s3{background:#d4513a}.s4{background:#404040}.s5{background:#9e2716}.s6{background:#666666}
+.dip>div.s1b{border-top-color:#b33d26}.dip>div.s2b{border-top-color:#1c1c1c}.dip>div.s3b{border-top-color:#d4513a}
+.dip>div.s4b{border-top-color:#404040}.dip>div.s5b{border-top-color:#9e2716}.dip>div.s6b{border-top-color:#666666}
+.btn-default{font-size:10px;padding:0 6px;line-height:1.5;color:#52514e}
+pre,code{font-size:10.5px}
+.refs p{font-size:10.6px;padding-left:20px;text-indent:-20px;margin:0 0 2px;line-height:1.3}
+details summary{font-size:11px;color:#52514e;cursor:pointer}
+@media print{
+  a[href]:after{content:none !important}
+  .code-folding-btn,.btn-group,#rmd-source-code,.btn{display:none !important}
+  .tile{background:#f2f5f9 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .answer{background:#fbf8ef !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .dip>div{background:#f5f4f2 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .dt{-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#fff !important}
+  .s1{background:#b33d26 !important}.s2{background:#1c1c1c !important}.s3{background:#d4513a !important}.s4{background:#404040 !important}.s5{background:#9e2716 !important}.s6{background:#666666 !important}
+  table.tbl th{background:#f2f5f9 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  table.tbl tr.sel td{background:#eef4fc !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  h1,h2{page-break-after:avoid;break-after:avoid}
+  .figure,table,.keybox,.dip,img{page-break-inside:avoid;break-inside:avoid}
+  body{font-size:11.7px;line-height:1.38}
+  table.tbl{font-size:10.4px}
+  .refs p{font-size:10.2px}
+  h1{margin-top:10px}
+}
+```
+
+```{r setup, message = FALSE, warning = FALSE}
+# ---- Packages, paths and house style ------------------------------------------------------------
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center",
+                      dpi = 160, out.width = "100%", fig.retina = 1)
+suppressPackageStartupMessages({ library(ggplot2); library(patchwork) })
+stopifnot(params$refit %in% c("none", "fast", "all"))
+V2 <- normalizePath(params$v2_dir, mustWork = TRUE)          # frozen FY2021 v2 experiment folder
+SUPP <- "supplementary"; dir.create(SUPP, showWarnings = FALSE)
+CLASS <- c("Full-time", "Part-time", "Self-employed", "Retired", "Housewife", "Student",
+           "Unemployed", "Other")
+CLASS_SHORT <- setNames(c("Full", "Part", "Self", "Retd", "House", "Stud", "Unemp", "Other"), CLASS)
+MOD <- c(LR = "Multinomial LR", LDA = "LDA", kNN = "kNN", SVM = "SVM (RBF)", Tree = "Decision tree")
+# Validated categorical order (dataviz reference palette); sequential blue; diverging blue-grey-red
+PAL <- c("#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948")
+INK <- "#0b0b0b"; INK2 <- "#52514e"; GRIDC <- "#e1e0d9"
+SEQ <- c("#f4f8fd", "#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b")
+theme_rep <- function(base = 8) {
+  theme_minimal(base_size = base) +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major = element_line(colour = GRIDC, linewidth = .3),
+          axis.text = element_text(colour = INK2), axis.title = element_text(colour = INK2),
+          plot.title = element_text(face = "bold", size = base + .8, colour = INK, margin = margin(b = 3)),
+          plot.title.position = "plot",
+          strip.text = element_text(face = "bold", colour = INK, hjust = 0, size = base),
+          legend.title = element_text(colour = INK2, size = base - .5),
+          legend.text = element_text(colour = INK2, size = base - .5),
+          legend.key.size = unit(8, "pt"), plot.margin = margin(2, 4, 2, 4))
+}
+f3 <- function(x) sprintf("%.3f", x)
+f2 <- function(x) sprintf("%.2f", x)
+pc <- function(x, d = 1) paste0(formatC(100 * x, format = "f", digits = d), "%")
+num <- function(x) format(x, big.mark = ",", scientific = FALSE, trim = TRUE)
+ci <- function(lo, hi, d = 3) sprintf("[%s, %s]", formatC(lo, format = "f", digits = d), formatC(hi, format = "f", digits = d))
+ktab <- function(x, caption = NULL, align = NULL, sel_row = NULL) {
+  out <- as.character(knitr::kable(x, format = "html", caption = caption, align = align, escape = FALSE,
+                                   table.attr = 'class="tbl"', row.names = FALSE))
+  if (!is.null(sel_row)) {                                   # highlight one body row (e.g. the selected model)
+    pos <- gregexpr("<tr>", out, fixed = TRUE)[[1]][sel_row + 1]
+    out <- paste0(substr(out, 1, pos - 1), '<tr class="sel">', substr(out, pos + 4, nchar(out)))
+  }
+  knitr::asis_output(out)
+}
+
+# ---- Shared v2 evaluation contract (copied verbatim from the frozen v2 sources) -----------------
+SEED <- 5003; TRAIN_FRACTION <- 0.80
+REQUIRED <- c("Q279", "B_COUNTRY_ALPHA", "Q260", "Q262", "Q270", "Q273", "Q274", "Q275",
+              "Q286", "Q287", "Q288")
+fast_read <- function(path, cols, as_text = TRUE) {        # data.table if available, else base R
+  if (requireNamespace("data.table", quietly = TRUE)) {
+    as.data.frame(data.table::fread(path, select = cols, na.strings = c("", "NA"),
+                                    colClasses = if (as_text) "character" else NULL, showProgress = FALSE))
+  } else {
+    hdr <- names(read.csv(path, nrows = 0, check.names = FALSE))
+    cc <- ifelse(hdr %in% cols, if (as_text) "character" else NA_character_, "NULL")
+    read.csv(path, colClasses = cc, check.names = FALSE, na.strings = c("", "NA"), stringsAsFactors = FALSE)
+  }
+}
+stratified_indices <- function(y, fraction, seed) {
+  set.seed(seed)
+  groups <- split(seq_along(y), y, drop = TRUE)
+  sort(unlist(lapply(groups, function(ii) sample(ii, floor(length(ii) * fraction))), use.names = FALSE))
+}
+WB_GROUPS <- list(                                          # World Bank FY2021 (2019 GNI); NIR inherits GBR
+  Low = c("ETH", "TJK"),
+  `Lower-middle` = c("BGD", "BOL", "EGY", "IND", "KEN", "KGZ", "MAR", "MMR", "MNG", "NGA", "NIC",
+                     "PAK", "PHL", "TUN", "UKR", "UZB", "VNM", "ZWE"),
+  `Upper-middle` = c("ARG", "ARM", "BRA", "CHN", "COL", "ECU", "GTM", "IDN", "IRN", "IRQ", "JOR",
+                     "KAZ", "LBN", "LBY", "MDV", "MEX", "MYS", "PER", "RUS", "SRB", "THA", "TUR", "VEN"),
+  High = c("AND", "AUS", "CAN", "CHL", "CYP", "CZE", "DEU", "GBR", "GRC", "HKG", "JPN", "KOR", "MAC",
+           "NIR", "NLD", "NZL", "PRI", "ROU", "SGP", "SVK", "TWN", "URY", "USA"),
+  Unclassified = character(0))
+country_map <- setNames(rep(names(WB_GROUPS), lengths(WB_GROUPS)), unlist(WB_GROUPS, use.names = FALSE))
+NUMERIC_KEYS <- c(Age = "Q262", HouseholdSize = "Q270", Children = "Q274")
+CATEGORY_KEYS <- list(Gender = as.character(1:2), Marital = as.character(1:6),
+  Education = as.character(0:8), SocialClass = as.character(1:5), IncomeBracket = as.character(1:10),
+  Savings = as.character(1:4), Income_Group = c("Low", "Lower-middle", "Upper-middle", "High", "Unclassified"))
+CATEGORY_SOURCES <- c(Gender = "Q260", Marital = "Q273", Education = "Q275", SocialClass = "Q287",
+                      IncomeBracket = "Q288", Savings = "Q286", Income_Group = "Income_Group")
+numeric_value <- function(v) { x <- suppressWarnings(as.numeric(as.character(v))); x[!is.finite(x)] <- NA_real_; x }
+learn_recipe <- function(raw) {                            # fitted on the fitting partition ONLY
+  num <- lapply(NUMERIC_KEYS, function(k) numeric_value(raw[[k]]))
+  med <- vapply(num, function(x) if (all(is.na(x))) 0 else median(x, na.rm = TRUE), 0.0)
+  filled <- Map(function(x, m) { x[is.na(x)] <- m; x }, num, med)
+  mu <- vapply(filled, mean, 0.0); sigma <- vapply(filled, sd, 0.0); sigma[is.na(sigma) | sigma == 0] <- 1
+  list(median = med, mean = mu, sd = sigma)
+}
+apply_recipe <- function(raw, r) {
+  out <- data.frame(Outcome = factor(as.character(raw$Outcome), levels = CLASS))
+  for (nm in names(NUMERIC_KEYS)) {
+    x <- numeric_value(raw[[NUMERIC_KEYS[[nm]]]]); miss <- is.na(x); x[miss] <- r$median[[nm]]
+    out[[nm]] <- (x - r$mean[[nm]]) / r$sd[[nm]]; out[[paste0(nm, "_missing")]] <- as.integer(miss)
+  }
+  out$Age_sq <- out$Age^2
+  for (nm in names(CATEGORY_KEYS)) {
+    v <- trimws(as.character(raw[[CATEGORY_SOURCES[[nm]]]]))
+    v[is.na(v) | !(v %in% CATEGORY_KEYS[[nm]])] <- "Missing"
+    out[[nm]] <- factor(v, levels = c(CATEGORY_KEYS[[nm]], "Missing"))
+  }
+  out
+}
+evaluate_8class <- function(truth, pred) {                  # zero-division convention: 0
+  tr <- factor(as.character(truth), levels = CLASS); pr <- factor(as.character(pred), levels = CLASS)
+  stopifnot(!anyNA(tr), !anyNA(pr))
+  cm <- table(True = tr, Predicted = pr); tp <- diag(cm); s <- rowSums(cm); calls <- colSums(cm)
+  p <- ifelse(calls > 0, tp / calls, 0); r <- ifelse(s > 0, tp / s, 0); f <- ifelse(p + r > 0, 2 * p * r / (p + r), 0)
+  list(overall = data.frame(Macro_F1 = mean(f), Weighted_F1 = sum(s * f) / sum(s), Accuracy = sum(tp) / sum(cm),
+                            Macro_P = mean(p), Macro_R = mean(r)),
+       per_class = data.frame(Class = CLASS, Support = as.integer(s), Calls = as.integer(calls),
+                              Precision = p, Recall = r, F1 = f), confusion = cm)
+}
+
+# ---- Read the frozen inputs, verify them, rebuild the shared split -------------------------------
+clean_path <- file.path(V2, "WVS_Wave7_cleaned_for_modelling.csv")
+raw_path <- file.path(V2, "WVS_Cross-National_Wave_7_rds_v6_0.csv")
+stopifnot(unname(tools::md5sum(clean_path)) == "98bf573170f0cb6bd65a4e9a8070d4d8")   # shared A1 output
+wvs <- fast_read(clean_path, REQUIRED)
+p_clean <- length(names(read.csv(clean_path, nrows = 0, check.names = FALSE)))
+raw_all <- fast_read(raw_path, REQUIRED, as_text = FALSE)
+p_raw <- length(names(read.csv(raw_path, nrows = 0, check.names = FALSE)))
+raw <- raw_all[raw_all$Q279 %in% 1:8, ]                    # A1 removed invalid targets, kept row order
+stopifnot(identical(as.character(raw$Q279), as.character(wvs$Q279)),
+          identical(raw$B_COUNTRY_ALPHA, wvs$B_COUNTRY_ALPHA))
+wvs$Outcome <- factor(as.character(wvs$Q279), levels = as.character(1:8), labels = CLASS)
+stopifnot(all(unique(wvs$B_COUNTRY_ALPHA) %in% names(country_map)))
+wvs$Income_Group <- unname(country_map[as.character(wvs$B_COUNTRY_ALPHA)])
+train_id <- stratified_indices(wvs$Outcome, TRAIN_FRACTION, SEED)          # 80% development pool
+test_id <- setdiff(seq_len(nrow(wvs)), train_id)                            # 20% untouched Test
+train <- wvs[train_id, ]; test <- wvs[test_id, ]
+dev_id <- stratified_indices(train$Outcome, 0.75, SEED + 2)                 # 60% Train ...
+val_id <- setdiff(seq_len(nrow(train)), dev_id)                             # ... 20% Validation
+initial_train <- train[dev_id, ]; validation <- train[val_id, ]
+lr_cap <- dev_id[stratified_indices(train$Outcome[dev_id], 25000 / length(dev_id), SEED + 3)]
+svm_cap <- stratified_indices(initial_train$Outcome, 10000 / nrow(initial_train), SEED + 3)
+stopifnot(nrow(initial_train) == 57587, nrow(validation) == 19199, length(test_id) == 19201)
+# the frozen v2 SVM run exported its Test rows and tuning rows: confirm they are the same records
+svm_rows <- read.csv(file.path(V2, "results/svm/svm_results/candidate_fit_rows.csv"))$CSV_row
+split_ok <- identical(as.integer(svm_rows), as.integer(train_id[dev_id][svm_cap]))
+n_raw <- nrow(raw_all); n_clean <- nrow(wvs); n_country <- length(unique(wvs$B_COUNTRY_ALPHA))
+class_n <- table(wvs$Outcome); class_p <- prop.table(class_n)
+H <- -sum(class_p * log2(class_p))
+```
+
+```{r model-defs, echo = FALSE}
+# ---- Full re-execution of the five validation searches and final refits (params$refit) -----------
+# Exactly the v2 procedures; when run, these results replace the frozen v2 outputs below.
+SPEC3 <- list(core_linear = c("Age", "Age_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket"),
+  extended_no_income_group = c("Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing", "Children",
+    "Children_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "Savings"),
+  extended_linear = c("Age", "Age_missing", "HouseholdSize", "HouseholdSize_missing", "Children",
+    "Children_missing", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "Savings", "Income_Group"))
+SPEC_LR <- list(core_linear = SPEC3$core_linear, extended_linear = SPEC3$extended_linear,
+  extended_quadratic_age = c(SPEC3$extended_linear[1:2], "Age_sq", SPEC3$extended_linear[-(1:2)]))
+## Multinomial logistic regression -------------------------------------------------------------------
+run_lr <- function() {
+  dev <- train[lr_cap, ]; r <- learn_recipe(dev); xd <- apply_recipe(dev, r); xv <- apply_recipe(validation, r)
+  grid <- expand.grid(Spec = names(SPEC_LR), Decay = c(0.001, 0.01), stringsAsFactors = FALSE)
+  val <- do.call(rbind, lapply(seq_len(nrow(grid)), function(i) {
+    fit <- nnet::multinom(reformulate(SPEC_LR[[grid$Spec[i]]], "Outcome"), data = xd, decay = grid$Decay[i],
+                          maxit = 2000L, MaxNWts = 10000, trace = FALSE)
+    if (fit$convergence != 0) stop("LR candidate did not converge: selection blocked")
+    data.frame(grid[i, ], Convergence = fit$convergence, evaluate_8class(xv$Outcome, predict(fit, xv))$overall[1:3]) }))
+  val <- val[order(-val$Macro_F1, -val$Weighted_F1, match(val$Spec, names(SPEC_LR)), -val$Decay), ]
+  rf <- learn_recipe(train)
+  fit <- nnet::multinom(reformulate(SPEC_LR[[val$Spec[1]]], "Outcome"), data = apply_recipe(train, rf),
+                        decay = val$Decay[1], maxit = 2000L, MaxNWts = 10000, trace = FALSE)
+  if (fit$convergence != 0) stop("Final LR did not converge: Test scoring blocked")
+  list(val = val, pred = predict(fit, apply_recipe(test, rf)))
+}
+## Linear discriminant analysis ----------------------------------------------------------------------
+design_matrix <- function(processed, spec) {
+  cats <- intersect(SPEC3[[spec]], names(CATEGORY_KEYS))
+  ctr <- lapply(processed[cats], function(x) stats::contr.treatment(levels(x), base = 1))
+  mm <- model.matrix(reformulate(SPEC3[[spec]]), data = processed, contrasts.arg = ctr)
+  mm[, colnames(mm) != "(Intercept)", drop = FALSE]
+}
+learn_columns <- function(x, y) {                     # drop zero-variance / collinear within-class columns
+  cm <- rowsum(x, y, reorder = TRUE) / as.numeric(table(y)); w <- x - cm[as.integer(y), , drop = FALSE]
+  s <- sqrt(colSums(w^2) / (nrow(x) - nlevels(y))); use <- which(is.finite(s) & s > 1e-8)
+  q <- qr(sweep(w[, use, drop = FALSE], 2, s[use], "/"), tol = 1e-8, LAPACK = FALSE)
+  colnames(x)[sort(use[q$pivot[seq_len(q$rank)]])]
+}
+fit_lda <- function(raw, spec, prior_policy) {
+  r <- learn_recipe(raw); x <- design_matrix(apply_recipe(raw, r), spec); cols <- learn_columns(x, raw$Outcome)
+  prior <- if (prior_policy == "equal") rep(1 / 8, 8) else as.numeric(prop.table(table(raw$Outcome)))
+  list(model = MASS::lda(x = x[, cols, drop = FALSE], grouping = raw$Outcome, prior = prior, method = "moment", tol = 1e-8),
+       recipe = r, columns = cols, spec = spec)
+}
+predict_lda <- function(o, raw) predict(o$model, newdata = design_matrix(apply_recipe(raw, o$recipe), o$spec)[, o$columns, drop = FALSE])$class
+run_lda <- function() {
+  grid <- expand.grid(Specification = names(SPEC3), Prior = c("empirical", "equal"), stringsAsFactors = FALSE)
+  val <- do.call(rbind, lapply(seq_len(nrow(grid)), function(i) {
+    o <- fit_lda(initial_train, grid$Specification[i], grid$Prior[i])
+    data.frame(Candidate = i, grid[i, ], Columns = length(o$columns), evaluate_8class(validation$Outcome, predict_lda(o, validation))$overall[1:3]) }))
+  val <- val[order(-val$Macro_F1, -val$Weighted_F1, val$Columns, val$Candidate), ]
+  o <- fit_lda(train, val$Specification[1], val$Prior[1]); list(val = val, pred = predict_lda(o, test))
+}
+## k-nearest neighbours -------------------------------------------------------------------------------
+K_GRID <- c(1L, 5L, 11L, 21L, 31L, 51L, 75L, 101L, 151L); WEIGHTINGS <- c("uniform", "distance")
+make_knn_matrix <- function(prepared, spec) do.call(cbind, lapply(SPEC3[[spec]], function(v) { x <- prepared[[v]]
+  if (is.factor(x)) { m <- matrix(vapply(levels(x), function(l) as.numeric(x == l), numeric(length(x))) / sqrt(2), nrow = length(x))
+    colnames(m) <- paste0(v, "_", levels(x)); m } else matrix(as.numeric(x), ncol = 1, dimnames = list(NULL, v)) }))
+vote_knn <- function(idx, dist, y_ref, k, weighting) {
+  idx <- idx[, seq_len(k), drop = FALSE]; labs <- matrix(as.integer(y_ref)[idx], nrow = nrow(idx))
+  w <- if (weighting == "distance") 1 / (dist[, seq_len(k), drop = FALSE] + 1e-6) else matrix(1, nrow(idx), k)
+  votes <- matrix(vapply(seq_along(CLASS), function(cl) rowSums(w * (labs == cl)), numeric(nrow(idx))), nrow = nrow(idx))
+  votes[cbind(seq_len(nrow(idx)), labs[, 1])] <- votes[cbind(seq_len(nrow(idx)), labs[, 1])] + 1e-9   # tie-break
+  factor(CLASS[max.col(votes, ties.method = "first")], levels = CLASS)
+}
+run_knn <- function() {
+  r <- learn_recipe(initial_train); xi <- apply_recipe(initial_train, r); xv <- apply_recipe(validation, r)
+  val <- do.call(rbind, lapply(names(SPEC3), function(s) {
+    nn <- FNN::get.knnx(make_knn_matrix(xi, s), make_knn_matrix(xv, s), k = max(K_GRID), algorithm = "kd_tree")
+    do.call(rbind, lapply(WEIGHTINGS, function(wt) do.call(rbind, lapply(K_GRID, function(k)
+      data.frame(Spec = s, k = k, Weighting = wt, evaluate_8class(xv$Outcome, vote_knn(nn$nn.index, nn$nn.dist, xi$Outcome, k, wt))$overall[1:3])))))
+  }))
+  val <- val[order(-val$Macro_F1, -val$Weighted_F1, match(val$Spec, names(SPEC3)), -val$k, match(val$Weighting, WEIGHTINGS)), ]
+  rf <- learn_recipe(train); xt <- apply_recipe(train, rf); xs <- apply_recipe(test, rf)
+  nn <- FNN::get.knnx(make_knn_matrix(xt, val$Spec[1]), make_knn_matrix(xs, val$Spec[1]), k = val$k[1], algorithm = "kd_tree")
+  list(val = val, pred = vote_knn(nn$nn.index, nn$nn.dist, xt$Outcome, val$k[1], val$Weighting[1]))
+}
+## Support vector machine -----------------------------------------------------------------------------
+SPEC_SVM <- list(core = c("Age", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket"),
+  extended = c("Age", "Gender", "Marital", "Education", "SocialClass", "IncomeBracket", "HouseholdSize",
+               "Children", "Savings", "Income_Group"))
+svm_num <- function(v) { x <- suppressWarnings(as.numeric(as.character(v)))
+  x[!is.finite(x) | x %in% c(-1, -2, -3, -4, -5, -999, -9999)] <- NA_real_; x }
+svm_cat <- function(v, allowed) { x <- trimws(as.character(v)); x[is.na(x) | !(x %in% allowed)] <- "Missing"; x }
+build_matrix <- function(raw, rc) { b <- list()
+  for (nm in rc$numeric) { x <- svm_num(raw[[NUMERIC_KEYS[[nm]]]]); m <- is.na(x); x[m] <- rc$median[[nm]]
+    b[[nm]] <- (x - rc$mean[[nm]]) / rc$sd[[nm]]; b[[paste0(nm, "_missing")]] <- as.integer(m) }
+  for (nm in rc$categorical) { v <- svm_cat(raw[[CATEGORY_SOURCES[[nm]]]], CATEGORY_KEYS[[nm]]); lv <- c(CATEGORY_KEYS[[nm]], "Missing")
+    for (j in seq_along(lv)) b[[paste0(nm, "__", j)]] <- as.integer(v == lv[j]) }
+  x <- do.call(cbind, b); storage.mode(x) <- "double"; if (!is.null(rc$keep)) x <- x[, rc$keep, drop = FALSE]; x }
+learn_recipe_svm <- function(raw, spec) { f <- SPEC_SVM[[spec]]; nu <- intersect(f, names(NUMERIC_KEYS))
+  vals <- setNames(lapply(nu, function(nm) svm_num(raw[[NUMERIC_KEYS[[nm]]]])), nu)
+  med <- vapply(vals, stats::median, numeric(1), na.rm = TRUE); fil <- Map(function(x, m) { x[is.na(x)] <- m; x }, vals, med)
+  sg <- vapply(fil, stats::sd, numeric(1)); sg[!is.finite(sg) | sg == 0] <- 1
+  rc <- list(numeric = nu, categorical = intersect(f, names(CATEGORY_KEYS)), median = med, mean = vapply(fil, mean, numeric(1)), sd = sg, keep = NULL)
+  x <- build_matrix(raw, rc); rc$keep <- colnames(x)[apply(x, 2, function(z) length(unique(z)) > 1L)]; rc }
+class_weights <- function(y, mode) if (mode == "none") NULL else {
+  n <- table(factor(as.character(y), levels = CLASS)); setNames(length(y) / (8 * as.numeric(n)), CLASS) }
+fit_svm <- function(x, y, kernel, cost, gamma, weight) { a <- list(x = x, y = factor(as.character(y), levels = CLASS),
+  type = "C-classification", kernel = kernel, cost = cost, scale = FALSE, probability = FALSE,
+  class.weights = class_weights(y, weight), cachesize = 256, tolerance = 0.001)
+  if (kernel == "radial") a$gamma <- gamma; do.call(e1071::svm, a) }
+run_svm <- function() {
+  dev <- initial_train[svm_cap, ]
+  val <- do.call(rbind, lapply(names(SPEC_SVM), function(s) { rc <- learn_recipe_svm(dev, s); xf <- build_matrix(dev, rc)
+    xv <- build_matrix(validation, rc); p <- ncol(xf)
+    g <- rbind(expand.grid(Kernel = "linear", Cost = c(.1, 1, 10), Gamma_factor = NA_real_, Weight = c("none", "inverse"), stringsAsFactors = FALSE),
+               expand.grid(Kernel = "radial", Cost = c(.1, 1, 10), Gamma_factor = c(.1, 1, 10), Weight = c("none", "inverse"), stringsAsFactors = FALSE))
+    g$Gamma <- g$Gamma_factor / p
+    do.call(rbind, lapply(seq_len(nrow(g)), function(i) { m <- fit_svm(xf, dev$Outcome, g$Kernel[i], g$Cost[i], g$Gamma[i], g$Weight[i])
+      data.frame(Spec = s, g[i, ], P = p, evaluate_8class(validation$Outcome, predict(m, xv))$overall[1:3]) })) }))
+  val <- val[order(-val$Macro_F1, -val$Weighted_F1, match(val$Spec, names(SPEC_SVM)), match(val$Kernel, c("linear", "radial")),
+                   match(val$Weight, c("none", "inverse")), val$Cost, ifelse(is.na(val$Gamma), 0, val$Gamma)), ]
+  w <- val[1, ]; rc <- learn_recipe_svm(train, w$Spec)
+  m <- fit_svm(build_matrix(train, rc), train$Outcome, w$Kernel, w$Cost, w$Gamma_factor / length(rc$keep), w$Weight)
+  list(val = val, pred = predict(m, build_matrix(test, rc)))
+}
+## Classification tree --------------------------------------------------------------------------------
+run_tree <- function() {
+  r <- learn_recipe(initial_train); xi <- apply_recipe(initial_train, r); xv <- apply_recipe(validation, r)
+  grid <- expand.grid(Spec = names(SPEC3), cp = c(.0005, .001, .005), maxdepth = c(4L, 8L, 12L), minsplit = c(20L, 100L), stringsAsFactors = FALSE)
+  fit_tree <- function(d, g) rpart::rpart(reformulate(SPEC3[[g$Spec]], "Outcome"), data = d, method = "class", parms = list(split = "gini"),
+    control = rpart::rpart.control(cp = g$cp, maxdepth = g$maxdepth, minsplit = g$minsplit, xval = 0))
+  val <- do.call(rbind, lapply(seq_len(nrow(grid)), function(i) { f <- fit_tree(xi, grid[i, ])
+    data.frame(grid[i, ], Leaves = sum(f$frame$var == "<leaf>"), evaluate_8class(xv$Outcome, predict(f, xv, type = "class"))$overall[1:3]) }))
+  val <- val[order(-val$Macro_F1, -val$Weighted_F1, val$Leaves, match(val$Spec, names(SPEC3)), val$maxdepth, -val$cp, -val$minsplit), ]
+  rf <- learn_recipe(train); f <- fit_tree(apply_recipe(train, rf), val[1, ])
+  list(val = val, pred = predict(f, apply_recipe(test, rf), type = "class"))
+}
+```
+
+```{r model-run, echo = FALSE, eval = params$refit != "none"}
+# ---- Re-execute the validation searches and final refits (only when params$refit != "none") ------
+refit <- list(); timing <- list()
+todo <- if (params$refit == "all") c("LR", "LDA", "kNN", "SVM", "Tree") else c("LR", "LDA", "kNN", "Tree")
+runner <- list(LR = run_lr, LDA = run_lda, kNN = run_knn, SVM = run_svm, Tree = run_tree)
+for (m in todo) timing[[m]] <- system.time(refit[[m]] <- runner[[m]]())[["elapsed"]]
+```
+
+```{r load-results, echo = FALSE}
+# ---- Validation tables and Test predictions: frozen v2 outputs, or the re-fitted ones -------------
+rd <- function(...) read.csv(file.path(V2, ...), stringsAsFactors = FALSE, check.names = FALSE,
+                            fileEncoding = "UTF-8-BOM")
+val <- list(LR = rd("results/logistic/audit_ranking.csv"),
+            LDA = rd("results/lda/model_outputs/validation_tuning_results.csv"),
+            kNN = rd("results/knn/model_outputs/validation_tuning_results.csv"),
+            SVM = rd("results/svm/svm_results/validation_candidates.csv"),
+            Tree = rd("results/tree/model_outputs/validation_tuning_results.csv"))
+pred_files <- c(Majority = "results/baseline/independent_export_pred_majority.csv",
+  Random = "results/baseline/independent_export_pred_chance.csv",
+  LR = "results/logistic/independent_export_predicted.csv", LDA = "results/lda/model_outputs/lda_test_predictions.csv",
+  kNN = "results/knn/model_outputs/knn_test_predictions.csv", SVM = "results/svm/svm_results/test_predictions.csv",
+  Tree = "results/tree/model_outputs/decision_tree_test_predictions.csv")
+pred <- lapply(pred_files, function(f) { d <- rd(f)
+  stopifnot(identical(as.integer(d[[1]]), as.integer(test_id)),            # same Test rows, same order
+            identical(as.character(d[[2]]), as.character(test$Outcome)))    # same labels
+  factor(d[[3]], levels = CLASS) })
+if (params$refit != "none") {                                # compare re-fitted with frozen, then use re-fitted
+  key <- list(LR = c("Spec", "Decay"), LDA = c("Specification", "Prior"), kNN = c("Spec", "k", "Weighting"),
+              SVM = c("Spec", "Kernel", "Cost", "Gamma_factor", "Weight"), Tree = c("Spec", "cp", "maxdepth", "minsplit"))
+  best_cfg <- function(d, m) as.character(unlist(d[order(-d$Macro_F1), key[[m]]][1, ]))   # tables may be unsorted
+  same_sel <- function(m) identical(best_cfg(refit[[m]]$val, m), best_cfg(val[[m]], m))
+  repro <- do.call(rbind, lapply(names(refit), function(m) data.frame(
+    Model = m, Same_selection = same_sel(m),
+    Max_validation_diff = max(abs(sort(refit[[m]]$val$Macro_F1) - sort(val[[m]]$Macro_F1))),
+    Identical_predictions = sum(as.character(refit[[m]]$pred) == as.character(pred[[m]])), Test_N = length(test_id),
+    Seconds = round(timing[[m]]), R = R.version.string, Platform = R.version$platform, Date = as.character(Sys.Date()))))
+  write.csv(repro, file.path(SUPP, "reproducibility_check.csv"), row.names = FALSE)
+  for (m in names(refit)) { pred[[m]] <- factor(as.character(refit[[m]]$pred), levels = CLASS)
+                            val[[m]] <- refit[[m]]$val }
+}
+repro_file <- file.path(SUPP, "reproducibility_check.csv")
+repro <- if (file.exists(repro_file)) read.csv(repro_file) else NULL
+ev <- lapply(pred, function(p) evaluate_8class(test$Outcome, p))
+```
+
+```{r bootstrap, echo = FALSE}
+# ---- Test metrics recomputed from row-level predictions; paired bootstrap (5,000 resamples) -------
+yi <- as.integer(test$Outcome)
+idx <- lapply(pred, function(p) yi + 8L * (as.integer(p) - 1L))      # cell index in the 8 x 8 matrix
+mf1 <- function(cells) { cm <- matrix(tabulate(cells, 64L), 8L, 8L); tp <- diag(cm); s <- rowSums(cm); cl <- colSums(cm)
+  p <- ifelse(cl > 0, tp / cl, 0); r <- ifelse(s > 0, tp / s, 0); mean(ifelse(p + r > 0, 2 * p * r / (p + r), 0)) }
+set.seed(20261030); B <- 5000L; n <- length(yi)
+boot <- t(replicate(B, { i <- sample.int(n, n, replace = TRUE); vapply(idx, function(ix) mf1(ix[i]), 0) }))
+qs <- function(x) quantile(x, c(.025, .975), names = FALSE)
+v2b <- rd("independent/paired_bootstrap_macro_f1.csv")         # independent v2 check (other seed)
+v2_svm <- v2b[v2b$Model_A == "v2:SVM" & v2b$Model_B == "v2:Multinomial Logistic Regression", ]
+best_val <- sapply(val, function(d) max(d$Macro_F1))
+res_rows <- c("Majority", "Random", "LR", "LDA", "kNN", "SVM", "Tree")
+never <- sapply(ev, function(e) { z <- e$per_class$Class[e$per_class$Calls == 0]; if (length(z)) paste(CLASS_SHORT[z], collapse = ", ") else "—" })
+tab4 <- data.frame(
+  Model = c("Majority class", "Prior-random draw", unname(MOD)),
+  Val = c("—", "—", f3(best_val[c("LR", "LDA", "kNN", "SVM", "Tree")])),
+  Test = sapply(res_rows, function(m) paste0("<b>", f3(ev[[m]]$overall$Macro_F1), "</b><br><span class='note'>", ci(qs(boot[, m])[1], qs(boot[, m])[2]), "</span>")),
+  Delta = sapply(res_rows, function(m) if (m == "LR") "0 (reference)" else { d <- boot[, m] - boot[, "LR"]
+    paste0(sprintf("%+.3f", ev[[m]]$overall$Macro_F1 - ev$LR$overall$Macro_F1), "<br><span class='note'>", ci(qs(d)[1], qs(d)[2]), "</span>") }),
+  WF1 = sapply(res_rows, function(m) f3(ev[[m]]$overall$Weighted_F1)),
+  Acc = sapply(res_rows, function(m) pc(ev[[m]]$overall$Accuracy)),
+  MR = sapply(res_rows, function(m) f3(ev[[m]]$overall$Macro_R)),
+  Never = never[res_rows])
+names(tab4) <- c("Model", "Validation Macro F1", "Test Macro F1 [95% CI]", "Δ Macro F1 vs LR [95% CI]",
+                 "Weighted F1", "Accuracy", "Macro recall", "Classes never predicted")
+pcs <- lapply(ev, function(e) setNames(e$per_class$Recall, CLASS))
+prec <- lapply(ev, function(e) setNames(e$per_class$Precision, CLASS))
+calls <- lapply(ev, function(e) setNames(e$per_class$Calls, CLASS))
+```
+
+```{r key-numbers, echo = FALSE}
+d_svm <- boot[, "SVM"] - boot[, "LR"]
+rng <- function(cls) { r <- range(pcs$SVM[cls]); sprintf("%.0f&ndash;%.0f%%", 100 * r[1], 100 * r[2]) }
+```
+
+<div class="keybox">
+<div class="tile"><b>`r f3(ev$SVM$overall$Macro_F1)`</b><span>Test Macro F1 of the selected RBF-SVM (majority-class rule: `r f3(ev$Majority$overall$Macro_F1)`)</span></div>
+<div class="tile"><b>`r sprintf("%+.3f", ev$SVM$overall$Macro_F1 - ev$LR$overall$Macro_F1)`</b><span>Macro F1 over multinomial LR; paired-bootstrap 95% CI `r ci(qs(d_svm)[1], qs(d_svm)[2])`</span></div>
+<div class="tile"><b>`r rng(c("Retired", "Student"))`</b><span>SVM recall for life-stage classes (Retired, Student)</span></div>
+<div class="tile"><b>`r rng(c("Part-time", "Unemployed"))`</b><span>SVM recall for labour-market classes (Part-time, Unemployed)</span></div>
+</div>
+
+<div class="answer">**Short answer.** Basic demographic and socioeconomic information predicts *whether a person is at a life stage outside work* (retired, studying, home duties) well, but not *what kind of work arrangement* they have. For a job-support agency, the best model would find only about one in five unemployed people. Information on hours and job search is needed before such a model could guide outreach.</div>
+
+# 1&nbsp; Introduction and problem statement <span class="dt s1">DIP · Frame problem</span>
+
+**Motivation and stakeholder.** Employment status determines income security and access to social protection. Public employment services increasingly use *statistical profiling* to decide who receives scarce intensive support (Desiere et al., 2019). These tools usually rely on administrative work histories. Outreach teams often have much less: a community job-support agency screening a household survey or a registration form sees age, gender, education and income, but not hours worked or job search. **Our stakeholder is such an agency, and the decision is triage: whom to prioritise for proactive contact.** In this setting a missed unemployed or under-employed person (false negative) costs more than an unnecessary contact (false positive). A useful model therefore has to recognise *every* status, especially the small Unemployed and Part-time groups, and high overall accuracy is not enough. This framing, missing from A1, is why we judge models by Macro F1 and per-class recall rather than accuracy (§6).
+
+**Research question.** *To what extent can an individual's demographic characteristics, educational background and socioeconomic circumstances predict their employment status?* We operationalise this as eight-class classification of WVS item Q279 (Full-time, Part-time, Self-employed, Retired, Housewife, Student, Unemployed, Other). It has three parts: **(Q1)** which statuses are predictable; **(Q2)** whether flexible non-linear classifiers improve on linear ones; **(Q3)** whether coarse country context adds information. This is a *predictive* study. Coefficients and splits describe associations, not causal effects. The holdout consists of randomly sampled individuals, not unseen countries or years. Survey weights are not applied because the goal is individual prediction rather than population totals (Solon et al., 2015).
+
+# 2&nbsp; Data: source and justification <span class="dt s2">DIP · Consider &amp; gather data</span>
+
+We use the WVS Wave 7 cross-national file, version 6.0 (Haerpfer et al., 2024): `r num(n_raw)` respondents × `r p_raw` variables from `r n_country` countries and territories (2017–2022). A1 claimed four dataset requirements but evidenced only the multi-class one. Table 1 now evidences five (large, complex, messy, integrated, multi-class) and shows what each implies for modelling.
+
+```{r requirements}
+# ---- Evidence for the five dataset requirements -------------------------------------------------
+col_type <- function(x) {                                    # coded (<= 12 levels), continuous, or text/ID
+  if (!is.numeric(x)) { y <- x[!is.na(x) & x != "Unknown"]
+    if (!length(y) || mean(!is.na(suppressWarnings(as.numeric(y)))) < .99) return("text")
+    x <- y }
+  if (length(unique(x)) <= 12) "coded" else "continuous" }
+all_cols <- if (requireNamespace("data.table", quietly = TRUE)) data.table::fread(clean_path, showProgress = FALSE) else
+  read.csv(clean_path, check.names = FALSE, stringsAsFactors = FALSE)
+col_types <- table(factor(vapply(all_cols, col_type, ""), c("coded", "continuous", "text"))); rm(all_cols); invisible(gc())
+svm_final <- readRDS(file.path(V2, "results/svm/svm_results/final_evaluation.rds"))
+svm_P <- svm_final$P; svm_nsv <- sum(svm_final$Model$nSV); svm_fit_min <- svm_final$Fit_seconds / 60
+valid_codes <- list(Q260 = 1:2, Q273 = 1:6, Q275 = 0:8, Q286 = 1:4, Q287 = 1:5, Q288 = 1:10)
+VARS <- c(Gender = "Q260", Age = "Q262", `Household size` = "Q270", Marital = "Q273", Children = "Q274",
+          Education = "Q275", Savings = "Q286", `Social class` = "Q287", `Income bracket` = "Q288")
+miss_mat <- sapply(VARS, function(v) { x <- raw[[v]]
+  if (v %in% names(valid_codes)) is.na(x) | !(x %in% valid_codes[[v]]) else is.na(x) | x < 0 })
+any_miss <- mean(rowSums(miss_mat) > 0)
+uk_not_asked <- sum(raw$Q287 == -4, na.rm = TRUE)
+maj <- evaluate_8class(test$Outcome, rep("Full-time", nrow(test)))$overall
+req <- data.frame(
+  Requirement = c("<b>Large</b>", "<b>Complex</b>", "<b>Messy</b>", "<b>Integrated</b>", "<b>Multi-class, imbalanced</b>"),
+  Evidence = c(
+    sprintf("%s × %s raw; %s × %s after A1 cleaning; %d countries; final refits use %s rows.",
+            num(n_raw), p_raw, num(n_clean), p_clean, n_country, num(length(train_id))),
+    sprintf("%d columns: %d coded categorical/ordinal items (≤ 12 levels), %d continuous or count variables (age, derived indices, appended country indicators) and %d identifiers; respondents nested in %d countries. Our 10 predictors (3 counts, 6 coded items, 1 country-level) expand to 39–54 encoded columns.",
+            p_clean, col_types[["coded"]], col_types[["continuous"]], col_types[["text"]], n_country),
+    sprintf("%s respondents (%s) lack a valid Q279; %d variables were > 50%% missing; five non-response codes (−1 to −5); %s of retained respondents miss ≥ 1 of the 9 survey predictors; children and social class were never asked in GBR/NIR (%s respondents).",
+            num(n_raw - n_clean), pc((n_raw - n_clean) / n_raw), p_raw - p_clean, pc(any_miss), num(uk_not_asked)),
+    sprintf("Respondents linked to the World Bank FY2021 income classification by ISO-3 country code: %d codes, %d matched to the archived official table, Northern Ireland inheriting the UK's group; join audited cell by cell (§7.1).",
+            n_country, n_country - 1),
+    sprintf("8 classes; Full-time %s vs Other %s (%.1f : 1); entropy %.2f of 3 bits; the majority rule scores %s accuracy but Macro F1 %s.",
+            pc(class_p[["Full-time"]]), pc(class_p[["Other"]]), max(class_n) / min(class_n), H, pc(maj$Accuracy), f3(maj$Macro_F1))),
+  Consequence = c(
+    sprintf("RBF-SVM final fit took %.0f min with %s support vectors, so tuning used stratified subsamples (LR 24,996; SVM 9,997 rows).", svm_fit_min, num(svm_nsv)),
+    "We pre-register 10 predictors instead of all 519: many items are attitudes or consequences of employment (leakage risk), and extra dimensions dilute distance-based models. Encodings differ by model (§4.2); country nesting limits claims to sampled countries.",
+    "Train-only imputation with missing-value flags; inherited A1 imputation treated as a limitation (§4.1).",
+    "A 4-level <code>Income_Group</code> replaces 66 country levels (§3.1, §4.2). Fixed vintage: country context, not survey-year income.",
+    "Macro F1 as primary metric (Sokolova & Lapalme, 2009); stratified splits; class weights tested (He & Garcia, 2009)."))
+ktab(req, caption = "Table 1. Evidence that WVS-7 meets five of the listed dataset requirements, and what each implies for modelling.",
+     align = c("l", "l", "l"))
+```
+
+# 3&nbsp; Exploratory data analysis <span class="dt s4">DIP · Explore &amp; visualise data</span>
+
+## 3.1 How every research-question predictor relates to employment status
+
+```{r eda-prep}
+# ---- Feature-outcome association on the modelling file -------------------------------------------
+cramers_v <- function(x, y) { tab <- table(x, y); tab <- tab[rowSums(tab) > 0, , drop = FALSE]
+  chi <- suppressWarnings(chisq.test(tab, correct = FALSE)$statistic)
+  unname(sqrt(chi / (sum(tab) * (min(dim(tab)) - 1)))) }
+age <- numeric_value(wvs$Q262); hh <- numeric_value(wvs$Q270); kids <- numeric_value(wvs$Q274)
+lv_na <- function(f) { f <- addNA(f); levels(f)[is.na(levels(f))] <- "Unknown"; f }
+eda <- list(
+  Age = cut(age, c(-Inf, 24, 34, 44, 54, 64, Inf), labels = c("16–24", "25–34", "35–44", "45–54", "55–64", "65+")),
+  Gender = factor(wvs$Q260, 1:2, c("Male", "Female")),
+  Marital = factor(wvs$Q273, 1:6, c("Married", "Cohabiting", "Divorced", "Separated", "Widowed", "Single")),
+  Education = factor(wvs$Q275, 0:8, c("None", "Primary", "Lower sec.", "Upper sec.", "Post-sec.",
+                                       "Short tertiary", "Bachelor", "Master", "Doctoral")),
+  `Income bracket` = factor(wvs$Q288, 1:10, c("1 lowest", 2:9, "10 highest")),
+  `Social class` = factor(wvs$Q287, 1:5, c("Upper", "Upper middle", "Lower middle", "Working", "Lower")),
+  Savings = factor(wvs$Q286, 1:4, c("Saved", "Just got by", "Spent savings", "Spent + borrowed")),
+  `Household size` = lv_na(cut(hh, c(0, 1, 2, 3, 4, 5, 6, Inf), labels = c(1:6, "7+"))),
+  Children = lv_na(cut(kids, c(-1, 0, 1, 2, 3, 4, Inf), labels = c(0:4, "5+"))),
+  `Income group` = factor(wvs$Income_Group, c("Low", "Lower-middle", "Upper-middle", "High")))
+V <- sapply(eda, function(x) cramers_v(x, wvs$Outcome))
+V <- c(V, Country = cramers_v(wvs$B_COUNTRY_ALPHA, wvs$Outcome))
+overall_share <- as.numeric(class_p)
+lift <- do.call(rbind, lapply(names(eda), function(v) {
+  tab <- prop.table(table(eda[[v]], wvs$Outcome), 1)
+  d <- as.data.frame(tab, stringsAsFactors = FALSE); names(d) <- c("Level", "Class", "Share")
+  d$Lift <- d$Share / overall_share[match(d$Class, CLASS)]
+  d$Variable <- v; d$Key <- paste(v, d$Level, sep = "::"); d }))
+key_order <- unlist(lapply(names(eda), function(v) paste(v, rev(levels(eda[[v]])), sep = "::")))
+lift$Key <- factor(lift$Key, levels = key_order)            # unique keys keep each panel's own level order
+lift$Variable <- factor(lift$Variable, levels = names(eda))
+lift$Class <- factor(lift$Class, levels = CLASS, labels = CLASS_SHORT)
+L <- function(var, lev, cls) lift$Lift[lift$Variable == var & lift$Level == lev & lift$Class == CLASS_SHORT[[cls]]]
+S <- function(var, lev, cls) lift$Share[lift$Variable == var & lift$Level == lev & lift$Class == CLASS_SHORT[[cls]]]
+# "contrast" of a class = size-weighted mean |log2 share ratio| over all levels of all predictors
+contrast <- rowMeans(sapply(names(eda), function(v) { t <- table(eda[[v]], wvs$Outcome); w <- rowSums(t) / sum(t)
+  colSums(w * abs(log2(sweep(prop.table(t, 1), 2, overall_share, "/")))) }))
+contrast_next <- sort(contrast)[2]
+```
+
+::: {.cols}
+::: {.narrow}
+```{r fig-cramer, fig.width = 3.1, fig.height = 2.45}
+vd <- data.frame(Variable = names(V), V = V, used = names(V) != "Country")
+vd$Variable <- factor(vd$Variable, levels = vd$Variable[order(vd$V)])
+ggplot(vd, aes(V, Variable, fill = used)) +
+  geom_col(width = .66) +
+  geom_text(aes(label = f2(V)), hjust = -.15, size = 2.6, colour = INK2) +
+  scale_fill_manual(values = c(`TRUE` = "#2a78d6", `FALSE` = "#b4b2a9"), guide = "none") +
+  scale_x_continuous(limits = c(0, .43), expand = c(0, 0)) +
+  labs(title = "Association with Q279 (Cramér's V)", x = NULL, y = NULL) +
+  theme_rep(8) + theme(panel.grid.major.y = element_blank())
+```
+<p class="caption">Figure 1. Strength of association between each predictor and employment status (age, household size and children binned). Grey: raw country, which is not used as a predictor.</p>
+:::
+::: {.wide}
+A1 examined only age and gender against the outcome. Figures 1–2 now cover **every predictor in the research question**. Age (V = `r f2(V[["Age"]])`) and gender (`r f2(V[["Gender"]])`) dominate. Marital status (`r f2(V[["Marital"]])`) comes next, but it largely re-encodes age: widowed respondents are `r f2(L("Marital","Widowed","Retired"))`× over-represented among the Retired and single respondents `r f2(L("Marital","Single","Student"))`× among Students. Education (`r f2(V[["Education"]])`), savings, social class and household income (`r f2(V[["Income bracket"]])`) are only weakly associated. **Country** is the third-strongest variable (`r f2(V[["Country"]])`) but has `r n_country` levels. The four-level World Bank group keeps `r pc(V[["Income group"]] / V[["Country"]], 0)` of that association with 1/16 of the levels, which supports the A1 decision to replace raw country by `Income_Group`.
+
+Figure 2 shows *where* the signal lies, as the share of each status within a predictor level relative to its overall share:
+
+* **Life stage is sharp.** Among respondents aged 65+, `r pc(S("Age","65+","Retired"),0)` are retired (`r f2(L("Age","65+","Retired"))`× the base rate); among those aged 16–24, `r pc(S("Age","16–24","Student"),0)` are students.
+* **Housewife is an interaction.** Being female, having low education, living in a low-income country and living in a large household all raise the share at the same time. No single variable isolates the class, so we expected tree and kernel methods to help.
+* **Socioeconomic gradients are monotone but weak.** Full-time work rises from `r pc(S("Education","None","Full-time"),0)` (no schooling) to `r pc(S("Education","Doctoral","Full-time"),0)` (doctorate). Unemployment is `r f2(L("Savings","Spent + borrowed","Unemployed"))`× the base rate among those who spent savings and borrowed.
+* **Part-time barely varies with anything.** Averaged over every level of every predictor, its contrast (size-weighted mean |log<sub>2</sub> ratio|) is `r f2(contrast[["Part-time"]])`, less than half that of any other class (next lowest: `r names(contrast_next)`, `r f2(contrast_next)`). Other does vary, but it covers only `r pc(class_p[["Other"]])` of respondents. *Before any model is fitted*, this tells us that Part-time (no signal) and Other (too few cases) will be the hardest classes, and that gains will have to come from handling the imbalance rather than from model flexibility.
+:::
+:::
+
+```{r fig-lift, fig.width = 7.6, fig.height = 3.15}
+ggplot(lift, aes(Class, Key, fill = pmax(pmin(log2(Lift), 2), -2))) +
+  geom_tile(colour = "white", linewidth = .35) +
+  facet_wrap(~ Variable, scales = "free_y", nrow = 2, labeller = label_wrap_gen(width = 12)) +
+  scale_y_discrete(labels = function(x) sub(".*::", "", x)) +
+  scale_fill_gradient2(low = "#1c5cab", mid = "#f0efec", high = "#d03b3b", midpoint = 0,
+                       limits = c(-2, 2), breaks = -2:2, labels = c("≤ ¼×", "½×", "1×", "2×", "≥ 4×"),
+                       name = "Share vs\noverall") +
+  labs(x = NULL, y = NULL) + theme_rep(7) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5, size = 6.2),
+        axis.text.y = element_text(size = 6.2), panel.grid = element_blank(), legend.position = "right",
+        panel.spacing.x = unit(4, "pt"), panel.spacing.y = unit(3, "pt"))
+```
+<p class="caption">Figure 2. Over- (red) and under-representation (blue) of each employment status within every level of every predictor, as a ratio to its overall share (log scale, capped at 4×). Grey rows are uninformative; note the almost uniformly grey <i>Part</i> column.</p>
+
+## 3.2 Missingness by variable, class and country
+
+```{r missingness}
+# ---- Raw (pre-imputation) missingness, aligned row by row with the modelling file ----------------
+code_lab <- c(`-1` = "Don't know", `-2` = "No answer", `-4` = "Not asked", `-5` = "Missing / other")
+miss_type <- do.call(rbind, lapply(names(VARS), function(nm) { x <- raw[[VARS[[nm]]]]; m <- miss_mat[, nm]
+  code <- ifelse(is.na(x), "-5", ifelse(x %in% c(-1, -2, -4), as.character(x), "-5"))
+  data.frame(Variable = nm, Type = code_lab[code[m]]) }))
+mt <- as.data.frame(table(miss_type$Variable, miss_type$Type)); names(mt) <- c("Variable", "Type", "N")
+mt$Pct <- 100 * mt$N / nrow(raw)
+miss_V <- apply(miss_mat, 2, function(m) cramers_v(m, wvs$Outcome))
+tot <- data.frame(Variable = names(VARS), Pct = 100 * colMeans(miss_mat), V = miss_V)
+ord <- tot$Variable[order(tot$Pct)]
+mt$Variable <- factor(mt$Variable, ord); tot$Variable <- factor(tot$Variable, ord)
+mt$Type <- factor(mt$Type, levels = rev(code_lab))
+by_class <- as.data.frame(as.table(apply(miss_mat, 2, function(m) tapply(m, wvs$Outcome, mean))))
+names(by_class) <- c("Class", "Variable", "Rate"); by_class$Variable <- factor(as.character(by_class$Variable), ord)
+by_class$Class <- factor(CLASS_SHORT[as.character(by_class$Class)], CLASS_SHORT)
+by_ctry <- aggregate(miss_mat[, "Social class"], list(Country = raw$B_COUNTRY_ALPHA), mean)
+by_ctry <- by_ctry[order(-by_ctry$x), ]
+ctry_name <- c(GBR = "Great Britain", NIR = "Northern Ireland", NLD = "the Netherlands", NZL = "New Zealand",
+               CYP = "Cyprus", KAZ = "Kazakhstan", RUS = "Russia", ROU = "Romania")
+cn <- function(code) ifelse(code %in% names(ctry_name), ctry_name[code], code)
+cc_loss <- tapply(rowSums(miss_mat) > 0, wvs$Outcome, mean)
+sc_cls <- tapply(miss_mat[, "Social class"], wvs$Outcome, mean)
+```
+
+```{r fig-missing, fig.width = 7.6, fig.height = 2.15}
+p1 <- ggplot(mt, aes(Pct, Variable, fill = Type)) + geom_col(width = .68) +
+  geom_text(data = tot, aes(Pct, Variable, label = sprintf("%.1f%%  V=%.2f", Pct, V)), inherit.aes = FALSE,
+            hjust = -.06, size = 2.5, colour = INK2) +
+  scale_fill_manual(values = setNames(PAL[c(4, 3, 2, 1)], rev(code_lab)), name = NULL) +
+  scale_x_continuous(limits = c(0, 9.3), expand = c(0, 0)) +
+  labs(title = "A  % missing before imputation (V: missing flag vs Q279)", x = NULL, y = NULL) +
+  theme_rep(7.5) + theme(legend.position = "bottom", legend.margin = margin(-3, 0, 0, 0), panel.grid.major.y = element_blank()) +
+  guides(fill = guide_legend(nrow = 1, reverse = TRUE))
+p2 <- ggplot(by_class, aes(Class, Variable, fill = 100 * Rate)) + geom_tile(colour = "white", linewidth = .4) +
+  geom_text(aes(label = sprintf("%.1f", 100 * Rate), colour = Rate > .07), size = 2.35) +
+  scale_colour_manual(values = c(`FALSE` = INK, `TRUE` = "white"), guide = "none") +
+  scale_fill_gradientn(colours = SEQ, name = "%") +
+  labs(title = "B  Missing (%) within each employment status", x = NULL, y = NULL) + theme_rep(7.5) +
+  theme(axis.text.x = element_text(angle = 0),
+        panel.grid = element_blank(), legend.position = "none")
+p1 + p2 + plot_layout(widths = c(1.1, 1))
+```
+<p class="caption">Figure 3. (A) Pre-imputation missingness of the nine survey predictors by WVS code, with Cramér's V between the missing indicator and Q279. (B) Missingness rate within each employment status.</p>
+Missingness is low for each variable (`r pc(min(colMeans(miss_mat)),2)`–`r pc(max(colMeans(miss_mat)))`), but it is **structured**:
+
+* **By country.** Social class and number of children carry `r num(uk_not_asked)` "not asked" codes: neither question was fielded in Great Britain or Northern Ireland (`r pc(by_ctry$x[1],0)` missing). Outside the UK, social-class non-response peaks in `r cn(by_ctry$Country[3])` (`r pc(by_ctry$x[3],0)`) and `r cn(by_ctry$Country[4])` (`r pc(by_ctry$x[4],0)`).
+* **By class.** Rates are two to four times higher for Retired, Student and Other than for Self-employed or Housewife. Social class, for example, is missing for `r pc(sc_cls[["Retired"]])` of Retired but only `r pc(sc_cls[["Self-employed"]])` of Self-employed respondents.
+* **Missingness is itself informative.** For children, savings and social class, the missing-value indicator is associated with Q279 (V = `r f2(min(miss_V[c("Children","Savings","Social class")]))`–`r f2(max(miss_V[c("Children","Savings","Social class")]))`) about as strongly as household income itself is (`r f2(V[["Income bracket"]])`).
+
+**Modelling consequences.** The data are not missing completely at random (Little & Rubin, 2019), so complete-case deletion would be biased. It would discard `r pc(cc_loss[["Other"]])` of Other and `r pc(cc_loss[["Student"]])` of Students, but only `r pc(cc_loss[["Full-time"]])` of Full-time workers. "Don't know" should therefore be kept as a feature rather than overwritten (§4.1).
+
+# 4&nbsp; Preprocessing, feature engineering and splitting <span class="dt s3">DIP · Process data</span>
+
+## 4.1 Inherited A1 cleaning: rationale and cost
+
+```{r a1-audit}
+# ---- How much did the pre-split A1 mode imputation matter? ---------------------------------------
+cat_vars <- c("Q260", "Q273", "Q275", "Q286", "Q287", "Q288")
+parts <- list(All = seq_len(n_clean), Train = train_id[dev_id], `Train+Val` = train_id,
+              `LR cap` = train_id[lr_cap], `SVM cap` = train_id[dev_id][svm_cap])
+raw_mode <- function(x) { x <- x[x >= 0 & !is.na(x)]; as.integer(names(which.max(table(x)))) }
+modes <- sapply(parts, function(ii) sapply(cat_vars, function(v) raw_mode(raw[[v]][ii])))
+mode_same <- sum(modes == modes[, "All"]); mode_total <- length(modes)
+sc_mode_before <- max(prop.table(table(raw$Q287[raw$Q287 > 0])))
+sc_mode_after <- max(prop.table(table(wvs$Q287)))
+uk_sc <- unique(wvs$Q287[wvs$B_COUNTRY_ALPHA %in% c("GBR", "NIR")])
+```
+
+A1 produced one cleaned file (SHA-256-verified; kept fixed so that all five A2 experiments share an identical input). It removed invalid targets, recoded codebook non-response to missing, and dropped variables with more than 50% missingness. Then, **before any split**, it imputed fixed-choice items with the whole-sample mode and set missing fill-in items (age, household size, children) to "Unknown". The motivation was sound: deletion would have removed a fifth of the rarest class (§3.2). The implementation, however, had two consequences that we document as limitations:
+
+* **Leakage in principle.** The modes were computed on all `r num(n_clean)` rows, including the future Test rows (Kaufman et al., 2012). We checked how much this mattered in practice. For all six imputed categorical predictors, the raw mode is identical in the full data, Train, Train + Validation and both tuning subsamples (`r mode_same`/`r mode_total` comparisons). The imputed *values* would therefore have been the same under split-first imputation.
+* **Information loss.** Imputation erased the informative "don't know / not asked" signal (§3.2) and inflated modal categories; "lower middle class", for example, rose from `r pc(sc_mode_before)` to `r pc(sc_mode_after)`. The most serious case: **every UK respondent (`r num(uk_not_asked)`) received the modal social class (code `r uk_sc`) although the question was never asked**, so that level partly encodes "UK". This is a spurious, country-specific signal. Numeric "Unknown" values survived and are flagged in A2.
+
+## 4.2 Feature engineering and train-only preprocessing
+
+* **Feature policy (pre-registered).** *Core*: age, gender, marital status, education, social class, household-income bracket. *Extended*: core + household size, number of children, savings + `Income_Group`, the World Bank FY2021 classification of each country (Serajuddin & Hamadeh, 2020; Northern Ireland inherits the UK's group). Excluded: raw country (66 levels), identifiers, interview administration, weights, and items defined only once employment status is known (occupation, sector, chief-wage-earner; Q281–Q285), which would leak the target.
+* **Numeric** (age, household size, children): Train median for "Unknown", a binary missing flag, then z-scores with Train mean and SD. All three are re-estimated on the 80% pool for the final refit.
+* **Categorical**: fixed codebook levels plus an explicit `Missing` level. No equal spacing is assumed, and Validation and Test use exactly the same levels.
+* **Model-specific encodings.** LR: treatment contrasts. LDA: treatment contrasts, then removal of columns with zero within-class variance or linear dependence (8 dropped, 39 kept) so the pooled covariance is invertible. kNN: full one-hot with every dummy multiplied by 1/√2, so a mismatch on any categorical variable adds exactly 1 to the squared distance, the same as one SD of a numeric variable. SVM: full one-hot (`r svm_P` columns) with `scale = FALSE`, so e1071 does not rescale the dummies a second time. Tree: raw factors (no scaling needed).
+
+## 4.3 Splitting and validation design
+
+```{r split-table}
+cnt <- rbind(Train = table(initial_train$Outcome), Validation = table(validation$Outcome), Test = table(test$Outcome))
+st <- data.frame(Partition = c("Train (fit candidates)", "Validation (select)", "Test (score once)"),
+                 N = num(rowSums(cnt)), Share = pc(rowSums(cnt) / n_clean, 0),
+                 matrix(num(cnt), 3, dimnames = list(NULL, CLASS_SHORT)), check.names = FALSE)
+ktab(st, caption = sprintf("Table 2. Shared stratified partitions (class counts). Seeds 5003 (80/20) and 5005 (75/25); split reproduced and matched to the frozen v2 tuning rows: %s.", ifelse(split_ok, "yes", "NO")),
+     align = c("l", rep("r", 10)))
+```
+
+Every model used the same split (Table 2). The split was stratified by Q279: first 80/20, with the 20% Test set held out, then 75/25 within the 80% pool, giving about 60/20/20 overall. Candidates were fitted on Train; for cost, LR used a stratified 24,996-row subset and SVM a 9,997-row subset, both drawn from Train only. Candidates were ranked by **Validation Macro F1**, with pre-declared tie-breaks (Weighted F1, then the simpler setting). The winner was refitted on Train + Validation (`r num(length(train_id))` rows), with all recipes re-estimated, and scored **once** on Test. This is the validation design that the A1 feedback found missing. We chose a single holdout over k-fold CV because of cost: the SVM grid alone has 48 candidates, and its final fit takes `r round(svm_fit_min)` min. With 19,199 validation rows, gaps of about 0.01 in Macro F1 can be separated, but smaller gaps are within selection noise (Cawley & Talbot, 2010).
+
+# 5&nbsp; Model implementation and improvement <span class="dt s5">DIP · Consider models</span>
+
+## 5.1 Classifiers fitted
+
+```{r models-table}
+mt5 <- data.frame(
+  Model = c("Baselines", "Multinomial LR", "LDA", "kNN", "SVM", "Decision tree"),
+  Implementation = c("Training majority; one draw from training class priors",
+    "<code>nnet::multinom</code>, softmax over 8 classes (Full-time reference), L2 weight decay; max 2,000 iterations with a hard convergence gate",
+    "<code>MASS::lda</code>: Gaussian classes with a shared covariance give linear boundaries",
+    "<code>FNN</code> kd-tree search; majority or 1/distance-weighted vote",
+    "<code>e1071</code>/LIBSVM C-classification, one-vs-one over 28 binary problems (Chang &amp; Lin, 2011)",
+    "<code>rpart</code> CART, Gini splits (Breiman et al., 1984)"),
+  Why = c("Lower bounds; expose the accuracy paradox",
+    "Interpretable linear benchmark (Venables &amp; Ripley, 2002)",
+    "Second linear benchmark with a generative assumption (A1 backup plan)",
+    "Do similar profiles share a status? Local and non-parametric",
+    "Flexible boundaries for overlapping classes; class weights for rare classes",
+    "Captures the age × gender × context interactions seen in Fig. 2"),
+  Grid = c("—", "3 feature sets × decay {0.001, 0.01} = 6",
+    "3 feature sets × prior {empirical, equal} = 6",
+    "3 sets × k ∈ {1, 5, 11, 21, 31, 51, 75, 101, 151} × {uniform, distance} = 54",
+    "2 sets × {linear; RBF γ ∈ {0.1, 1, 10}/p} × C ∈ {0.1, 1, 10} × weights {none, n/(8n<sub>k</sub>)} = 48",
+    "3 sets × cp {5e-4, 1e-3, 5e-3} × depth {4, 8, 12} × minsplit {20, 100} = 54"),
+  Selected = c("—", "Extended; decay 0.01", "Extended; empirical priors", "Extended; k = 21; distance",
+    sprintf("Extended; RBF; C = 1; γ = 10/%d = %.3f; inverse weights", svm_P, 10 / svm_P),
+    "Extended; cp 5e-4; depth 8; minsplit 100"))
+names(mt5)[3:5] <- c("Rationale", "Pre-specified candidates", "Selected on Validation")
+ktab(mt5, caption = "Table 3. The five classifiers planned in A1 plus two baselines, with their candidate grids and Validation-selected settings.",
+     align = c("l", "l", "l", "l", "l"))
+```
+
+```{r show-model-code, ref.label = c("model-defs", "model-run", "load-results"), eval = FALSE}
+```
+
+
+
+## 5.2 Model improvement: feature selection and hyperparameter tuning
+
+```{r tuning-prep}
+spec_lab <- function(s) ifelse(grepl("^core", s), "Core",
+                         ifelse(grepl("no_income", s), "Extended\n(no IG)",
+                         ifelse(grepl("quadratic", s), "Extended + age²", "Extended\n+ IG")))
+abl <- rbind(
+  data.frame(Model = "LR", Spec = val$LR$Spec, F1 = val$LR$Macro_F1),
+  data.frame(Model = "LDA", Spec = val$LDA$Specification, F1 = val$LDA$Macro_F1),
+  data.frame(Model = "kNN", Spec = val$kNN$Spec, F1 = val$kNN$Macro_F1),
+  data.frame(Model = "SVM", Spec = ifelse(val$SVM$Spec == "core", "core", "extended_linear"), F1 = val$SVM$Macro_F1),
+  data.frame(Model = "Tree", Spec = val$Tree$Spec, F1 = val$Tree$Macro_F1))
+abl <- aggregate(F1 ~ Model + Spec, abl, max); abl$Set <- spec_lab(abl$Spec)
+abl <- abl[abl$Set != "Extended + age²", ]
+abl$Set <- factor(abl$Set, c("Core", "Extended\n(no IG)", "Extended\n+ IG"))
+abl$Model <- factor(abl$Model, names(MOD))
+gain <- sapply(names(MOD), function(m) { a <- abl[abl$Model == m, ]; a$F1[a$Set == "Extended\n+ IG"] - a$F1[a$Set == "Core"] })
+ig_gain <- sapply(c("LDA", "kNN", "Tree"), function(m) { a <- abl[abl$Model == m, ]
+  c(hh = a$F1[a$Set == "Extended\n(no IG)"] - a$F1[a$Set == "Core"],
+    ig = a$F1[a$Set == "Extended\n+ IG"] - a$F1[a$Set == "Extended\n(no IG)"]) })
+quad <- max(val$LR$Macro_F1[val$LR$Spec == "extended_quadratic_age"]) - max(val$LR$Macro_F1[val$LR$Spec == "extended_linear"])
+decay_gap <- abs(diff(val$LR$Macro_F1[val$LR$Spec == "extended_linear"]))
+lda_eq <- val$LDA[val$LDA$Specification == "extended_linear", ]
+kv <- val$kNN[val$kNN$Spec == "extended_linear", ]
+sv <- val$SVM[val$SVM$Spec == "extended", ]
+best_cell <- function(k, w) max(sv$Macro_F1[sv$Kernel == k & sv$Weight == w])
+svm_w_gain <- c(radial = best_cell("radial", "inverse") - best_cell("radial", "none"),
+                linear = best_cell("linear", "inverse") - best_cell("linear", "none"))
+svm_k_gain <- best_cell("radial", "inverse") - best_cell("linear", "inverse")
+tv <- val$Tree[val$Tree$Spec == "extended_linear" & val$Tree$minsplit == 100, ]
+ms <- merge(val$Tree[val$Tree$minsplit == 20, c("Spec", "cp", "maxdepth", "Macro_F1")],
+            val$Tree[val$Tree$minsplit == 100, c("Spec", "cp", "maxdepth", "Macro_F1")], by = c("Spec", "cp", "maxdepth"))
+minsplit_effect <- max(abs(ms$Macro_F1.x - ms$Macro_F1.y))
+```
+
+**Feature selection.** The extended set improved every model (+`r f3(min(gain))` to +`r f3(max(gain))` Macro F1; Fig. 4A). For the three models with a no-income-group control, the source of the gain is clear: household size, children and savings add at most `r f3(max(ig_gain["hh", ]))`, whereas `Income_Group` adds `r f3(min(ig_gain["ig", ]))`–`r f3(max(ig_gain["ig", ]))`. **Country context, not household composition, is what helps** (Q3). A quadratic age term did not help LR (`r sprintf("%+.3f", quad)`), because the categorical life-stage variables already capture the curvature.
+
+**Tuning.** *kNN*: k = 1 overfits (`r f3(kv$Macro_F1[kv$k == 1][1])`). Performance peaks at k = 11–31 and declines as large neighbourhoods are dominated by Full-time, and distance weighting slows that decline (Fig. 4B). *SVM*: class weighting is the largest lever (+`r f3(svm_w_gain[["radial"]])` for RBF, +`r f3(svm_w_gain[["linear"]])` for linear). With weights, RBF beats linear by `r f3(svm_k_gain)`, and the most local kernel (γ = 10/p) is best (Fig. 4C). *Tree*: depth 4 underfits (≤ 10 leaves, `r f3(max(tv$Macro_F1[tv$maxdepth == 4]))`). Depth 8 with cp = 5e-4 is best, depth 12 produces identical trees because cp is binding, and minsplit never changed a tree (maximum difference `r f3(minsplit_effect)`). *LR*: weight decay changed Macro F1 by `r sprintf("%.5f", decay_gap)`, so the decay choice is immaterial. *LDA*: equal priors *lowered* Macro F1 (`r f3(lda_eq$Macro_F1[lda_eq$Prior == "equal"])` vs `r f3(lda_eq$Macro_F1[lda_eq$Prior == "empirical"])`) and accuracy (`r pc(lda_eq$Accuracy[lda_eq$Prior == "equal"],0)` vs `r pc(lda_eq$Accuracy[lda_eq$Prior == "empirical"],0)`). Shifting the priors floods the small classes with false positives rather than separating them better. Because gaps below about 0.005 lie within validation noise, the tie-breaks favoured simpler settings.
+
+
+```{r fig-tuning, fig.width = 7.6, fig.height = 2.55}
+mcol <- setNames(PAL[1:5], names(MOD))
+ends <- abl[abl$Set == "Extended\n+ IG", ]; ends <- ends[order(ends$F1), ]
+ends$y <- ends$F1; for (i in 2:nrow(ends)) ends$y[i] <- max(ends$F1[i], ends$y[i - 1] + .0045)   # de-overlap labels
+pa <- ggplot(abl, aes(Set, F1, colour = Model, group = Model)) + geom_line(linewidth = .55) + geom_point(size = 1.5) +
+  geom_text(data = ends, aes(x = 3.12, y = y, label = Model), hjust = 0, size = 2.35, show.legend = FALSE) +
+  scale_colour_manual(values = mcol, guide = "none") + scale_x_discrete(expand = expansion(add = c(.3, .8))) +
+  labs(title = "A  Feature sets (best per set)", x = NULL, y = "Validation Macro F1") + theme_rep(7)
+kv$Weighting <- factor(kv$Weighting, c("uniform", "distance"))
+pb <- ggplot(val$kNN, aes(k, Macro_F1, colour = spec_lab(Spec), linetype = Weighting)) + geom_line(linewidth = .5) +
+  geom_point(size = .9) + scale_x_log10(breaks = c(1, 5, 21, 51, 151)) +
+  scale_colour_manual(values = setNames(PAL[c(2, 3, 1)], c("Core", "Extended\n(no IG)", "Extended\n+ IG")),
+                      labels = c("Core", "Extended (no IG)", "Extended + IG"), name = NULL) +
+  scale_linetype_manual(values = c(uniform = "22", distance = "solid"), name = NULL) +
+  labs(title = "B  kNN: neighbourhood size", x = "k (log scale)", y = NULL) + theme_rep(7) +
+  guides(colour = guide_legend(order = 1, nrow = 1), linetype = guide_legend(order = 2, nrow = 1))
+sv$Config <- ifelse(sv$Kernel == "linear", "Linear", paste0("RBF γ=", sv$Gamma_factor, "/p"))
+sv$Row <- factor(paste0(sv$Config, ifelse(sv$Weight == "none", "", " · w")),
+                 rev(c(paste0(c("Linear", "RBF γ=0.1/p", "RBF γ=1/p", "RBF γ=10/p")), paste0(c("Linear", "RBF γ=0.1/p", "RBF γ=1/p", "RBF γ=10/p"), " · w"))))
+pc_ <- ggplot(sv, aes(factor(Cost), Row, fill = Macro_F1)) + geom_tile(colour = "white") +
+  geom_text(aes(label = sprintf("%.3f", Macro_F1), colour = Macro_F1 > .33), size = 1.9) +
+  scale_colour_manual(values = c(`FALSE` = INK, `TRUE` = "white"), guide = "none") +
+  scale_fill_gradientn(colours = SEQ, guide = "none") +
+  labs(title = "C  SVM (extended; w = class weights)", x = "Cost C", y = NULL) + theme_rep(7) + theme(panel.grid = element_blank())
+pd <- ggplot(tv, aes(factor(cp), factor(maxdepth), fill = Macro_F1)) + geom_tile(colour = "white") +
+  geom_text(aes(label = sprintf("%.3f\n%d leaves", Macro_F1, Leaves), colour = Macro_F1 > .32), size = 1.85, lineheight = .85) +
+  scale_colour_manual(values = c(`FALSE` = INK, `TRUE` = "white"), guide = "none") +
+  scale_fill_gradientn(colours = SEQ, guide = "none") +
+  labs(title = "D  Tree (extended + IG)", x = "Complexity cp", y = "Max depth") + theme_rep(7) + theme(panel.grid = element_blank())
+pa + pb + pc_ + pd + plot_layout(widths = c(1.05, 1.05, 1.05, .8), guides = "collect") &
+  theme(legend.position = "bottom", legend.box.spacing = unit(1, "pt"))
+```
+<p class="caption">Figure 4. Model improvement on the Validation set only. (A) Feature-set ablation: best candidate per feature set; IG = World Bank income group (the "no IG" control exists for LDA, kNN and the tree). (B) kNN Macro F1 against k. (C) SVM grid; rows marked "w" use inverse-frequency class weights. (D) Tree depth × cp (minsplit had no effect).</p>
+
+# 6&nbsp; Model evaluation and selection <span class="dt s5">DIP · Consider models</span>
+
+
+```{r show-bootstrap, ref.label = "bootstrap", eval = FALSE}
+```
+
+## 6.1 Key findings on the held-out Test set
+
+```{r results-table}
+ktab(tab4, caption = sprintf("Table 4. Test performance (n = %s), recomputed from row-level predictions. Brackets: paired percentile bootstrap, %s resamples of Test respondents. The independent v2 evaluation (5,000 resamples, different seed) gives SVM − LR %s.",
+       num(n), num(B), ci(v2_svm$CI_2_5, v2_svm$CI_97_5)), align = c("l", rep("r", 6), "l"), sel_row = 6)
+```
+
+All five classifiers far exceed both baselines (Table 4). Four of them cluster at `r f3(min(sapply(ev[c("LR","LDA","kNN","Tree")], function(e) e$overall$Macro_F1)))`–`r f3(ev$LR$overall$Macro_F1)`. The **RBF-SVM is the only model clearly ahead** (`r f3(ev$SVM$overall$Macro_F1)`; its interval against LR excludes zero). The Validation and Test rankings agree: the Validation-selected SVM stays first, and each of the other four changes by at most `r f3(max(abs(sapply(c("LR","LDA","kNN","Tree"), function(m) ev[[m]]$overall$Macro_F1) - best_val[c("LR","LDA","kNN","Tree")])))` between the two sets, so selection optimism appears small. The SVM even *gains* `r sprintf("%+.3f", ev$SVM$overall$Macro_F1 - best_val[["SVM"]])` on Test, plausibly because its candidates were fitted on only 9,997 rows while the final model used `r num(length(train_id))`. **Accuracy reverses the ranking.** LR (`r pc(ev$LR$overall$Accuracy)`) and the tree (`r pc(ev$Tree$overall$Accuracy)`) lead, and SVM is last (`r pc(ev$SVM$overall$Accuracy)`). The reason is that accuracy rewards defaulting to Full-time: LR and the tree predict Full-time for `r num(calls$LR[["Full-time"]])` and `r num(calls$Tree[["Full-time"]])` of `r num(n)` respondents (true count `r num(sum(test$Outcome == "Full-time"))`), and they never predict some of the classes at all (last column). This is the accuracy paradox the A1 plan anticipated, now observed directly.
+
+```{r fig-eval, fig.width = 7.6, fig.height = 2.4}
+rec <- do.call(rbind, lapply(names(MOD), function(m) data.frame(Model = MOD[[m]], Class = CLASS_SHORT, Recall = pcs[[m]])))
+rec$Model <- factor(rec$Model, rev(unname(MOD))); rec$Class <- factor(rec$Class, CLASS_SHORT)
+qa <- ggplot(rec, aes(Class, Model, fill = Recall)) + geom_tile(colour = "white", linewidth = .5) +
+  geom_text(aes(label = sprintf("%.0f", 100 * Recall), colour = Recall > .45), size = 2.2) +
+  scale_colour_manual(values = c(`FALSE` = INK, `TRUE` = "white"), guide = "none") +
+  scale_fill_gradientn(colours = SEQ, limits = c(0, 1), guide = "none") +
+  labs(title = "A  Recall by class (%)", x = NULL, y = NULL) + theme_rep(7) +
+  theme(panel.grid = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
+cm_plot <- function(m, ttl) { cm <- ev[[m]]$confusion; rr <- sweep(cm, 1, rowSums(cm), "/")
+  d <- as.data.frame(as.table(rr)); names(d) <- c("True", "Pred", "Rate")
+  d$True <- factor(CLASS_SHORT[as.character(d$True)], rev(CLASS_SHORT)); d$Pred <- factor(CLASS_SHORT[as.character(d$Pred)], CLASS_SHORT)
+  ggplot(d, aes(Pred, True, fill = Rate)) + geom_tile(colour = "white", linewidth = .4) +
+    geom_text(aes(label = ifelse(Rate >= .005, sprintf("%.0f", 100 * Rate), ""), colour = Rate > .45), size = 1.95) +
+    scale_colour_manual(values = c(`FALSE` = INK, `TRUE` = "white"), guide = "none") +
+    scale_fill_gradientn(colours = SEQ, limits = c(0, 1), guide = "none") +
+    labs(title = ttl, x = "Predicted", y = if (m == "LR") "True class" else NULL) + theme_rep(7) +
+    theme(panel.grid = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)) }
+qa + cm_plot("LR", "B  Multinomial LR: row %") + cm_plot("SVM", "C  SVM (selected): row %") + plot_layout(widths = c(1.05, 1, 1))
+```
+<p class="caption">Figure 5. (A) Test recall of every class for every model. (B–C) Row-normalised confusion matrices (% of each true class) for the linear benchmark and the selected SVM; rows are true classes.</p>
+
+**The errors are structured, not random.** Life-stage classes are recognised by every model (Retired `r pc(min(sapply(pcs[names(MOD)], function(x) x[["Retired"]])),0)`–`r pc(max(sapply(pcs[names(MOD)], function(x) x[["Retired"]])),0)`, Student `r pc(min(sapply(pcs[names(MOD)], function(x) x[["Student"]])),0)`–`r pc(max(sapply(pcs[names(MOD)], function(x) x[["Student"]])),0)`). Labour-market classes are not. LR absorbs `r pc(ev$LR$confusion["Part-time","Full-time"]/sum(ev$LR$confusion["Part-time",]),0)` of part-timers and `r pc(ev$LR$confusion["Unemployed","Full-time"]/sum(ev$LR$confusion["Unemployed",]),0)` of the unemployed into Full-time (Fig. 5B). SVM moves these errors towards demographically similar groups outside full-time work (Part-time → Housewife `r pc(ev$SVM$confusion["Part-time","Housewife"]/sum(ev$SVM$confusion["Part-time",]),0)`; Unemployed → Student `r pc(ev$SVM$confusion["Unemployed","Student"]/sum(ev$SVM$confusion["Unemployed",]),0)`). This is the overlap visible in Figure 2: people with the same age, gender and education profile can hold different statuses.
+
+## 6.2 Final model selection and justification
+
+**We select the RBF-SVM** (extended features, C = 1, γ = `r sprintf("%.3f", 10 / svm_P)`, inverse-frequency class weights):
+
+1. **Pre-registered criterion.** It has the highest Validation Macro F1 (`r f3(best_val[["SVM"]])` vs `r f3(sort(best_val, decreasing = TRUE)[2])`), and Test confirms the ranking (`r sprintf("%+.3f", ev$SVM$overall$Macro_F1 - ev$LR$overall$Macro_F1)` vs LR, interval excluding 0).
+2. **Fit to the stakeholder's decision.** It is the only model with recall ≥ `r pc(floor(min(pcs$SVM)*100)/100,0)` in *every* class. It finds `r pc(pcs$SVM[["Unemployed"]])` of the unemployed (LR `r pc(pcs$LR[["Unemployed"]])`) and `r pc(pcs$SVM[["Part-time"]])` of part-timers (LR `r pc(pcs$LR[["Part-time"]])`).
+3. **Trade-off accepted knowingly.** Its accuracy is lower (`r pc(ev$SVM$overall$Accuracy,0)` vs `r pc(ev$LR$overall$Accuracy,0)`) and its Full-time recall falls (`r pc(pcs$SVM[["Full-time"]],0)` vs `r pc(pcs$LR[["Full-time"]],0)`), but its Full-time calls are more precise (`r pc(prec$SVM[["Full-time"]],0)` vs `r pc(prec$LR[["Full-time"]],0)`). It simply stops defaulting to the majority class.
+4. **Costs and caveats.** The final fit took `r round(svm_fit_min)` minutes and kept `r num(svm_nsv)` support vectors (`r pc(svm_nsv / length(train_id), 0)` of training rows), a sign of heavily overlapping classes. It produces no native probabilities and is hard to interpret. **Its advantage also cannot be credited to the kernel alone**: it is the only one of the five models that used class weights, and within the SVM grid the weights were worth more than the kernel (§5.2). For explanation we therefore keep the tree as a companion. Its first splits (age ≥ 62.5 → Retired; age < 22.5 and single → Student; female, at most upper-secondary education, non-high-income country, married/cohabiting/widowed → Housewife) reproduce the EDA story.
+
+# 7&nbsp; Process reflection <span class="dt s6">DIP · the whole cycle</span>
+
+## 7.1 How the Data Investigation Process structured the work
+
+<div class="dip">
+<div class="s1b"><b>Frame problem</b>Q279 as an 8-class task; agency triage decision; Macro F1 fixed in A1</div>
+<div class="s2b"><b>Consider &amp; gather data</b>WVS-7 v6.0; World Bank FY2021 linkage<i>↺ revisited: mapping audit</i></div>
+<div class="s3b"><b>Process data</b>A1 cleaning; A2 train-only recipe, flags, encodings</div>
+<div class="s4b"><b>Explore &amp; visualise</b>predictor × outcome and missingness EDA<i>↺ fed back: keep missing flags</i></div>
+<div class="s5b"><b>Consider models</b>shared split contract; 5 models in parallel; independent re-scoring<i>↺ revisited: LR convergence</i></div>
+<div class="s6b"><b>Communicate &amp; propose action</b>slides; this report; triage recommendation (§8)</div>
+</div>
+
+The DIP gave us explicit hand-offs between stages. In A1 we framed the problem, gathered and processed the data, and fixed the evaluation metric before any model existed. A shared baseline file then froze the split, seeds, recipe and evaluation function, so that five members could consider models in parallel and still produce comparable results. The most useful lesson was that **the cycle is not linear**. Exploring the missingness sent us back to processing (missing-value flags), and an independent re-scoring of the models sent us back twice: once to *Consider & gather data* and once within *Consider models*. These problems were found during internal experimentation and do not affect the corrected results reported above:
+
+* **Inaccurate country mapping (back to *Consider & gather data*).** In our first run, five economies had the wrong income group: Maldives, Romania and Ukraine were mis-grouped, and Taiwan and Venezuela were "Unclassified". This affected 5,893 respondents (6.1%). A cell-by-cell audit against the archived World Bank FY2021 workbook exposed the errors, and we corrected all six source files. Test Macro F1 changed by at most 0.0024 per model, and the selected configurations of LDA, kNN, SVM and the tree were unchanged. The episode taught us that an external join needs a fixed *vintage* and documented provenance.
+* **Logistic-regression non-convergence (within *Consider models*).** With our original limit of 250 iterations, one candidate and the final 80% refit stopped at the iteration limit (`convergence = 1`), yet the file rendered without error. We raised the limit to 2,000 and added hard gates that stop selection or Test scoring if any fit has not converged. A Train/Validation-only pre-flight confirmed convergence before Test was touched. The selected decay changed from 0.001 to 0.01, a Validation difference of 0.00007, so the original choice had effectively been decided by optimiser noise. **A model that runs is not necessarily a valid model.**
+* **Test reuse (disclosed).** The corrected run re-scored the same Test set. Grids, seeds and selection rules were frozen beforehand, so no choice was informed by Test, but strictly the set is no longer unseen.
+
+## 7.2 Internal exploratory experiment: linear vs RBF SVM
+
+```{r probes, eval = params$run_probes}
+# ---- Validation-only check (Test untouched): per-class behaviour of the best linear and RBF SVMs --
+dev <- initial_train[svm_cap, ]; rc <- learn_recipe_svm(dev, "extended"); xf <- build_matrix(dev, rc); xv <- build_matrix(validation, rc)
+sv_ext <- val$SVM[val$SVM$Spec == "extended", ]
+cells <- do.call(rbind, lapply(c("linear", "radial"), function(k) do.call(rbind, lapply(c("none", "inverse"), function(w) {
+  s <- sv_ext[sv_ext$Kernel == k & sv_ext$Weight == w, ]; s[which.max(s$Macro_F1), ] }))))
+probe <- do.call(rbind, lapply(seq_len(nrow(cells)), function(i) { c_ <- cells[i, ]
+  m <- fit_svm(xf, dev$Outcome, c_$Kernel, c_$Cost, c_$Gamma_factor / ncol(xf), c_$Weight)
+  e <- evaluate_8class(validation$Outcome, predict(m, xv))
+  stopifnot(abs(e$overall$Macro_F1 - c_$Macro_F1) < 1e-9)          # reproduces the frozen grid exactly
+  data.frame(Kernel = c_$Kernel, Weight = c_$Weight, Cost = c_$Cost, Gamma_factor = c_$Gamma_factor, e$per_class) }))
+write.csv(probe, file.path(SUPP, "svm_linear_vs_rbf_validation_per_class.csv"), row.names = FALSE)
+```
+
+```{r probe-table}
+probe <- read.csv(file.path(SUPP, "svm_linear_vs_rbf_validation_per_class.csv"))
+cfg <- unique(probe[, c("Kernel", "Weight", "Cost", "Gamma_factor")])
+pt <- do.call(rbind, lapply(seq_len(nrow(cfg)), function(i) {
+  d <- probe[probe$Kernel == cfg$Kernel[i] & probe$Weight == cfg$Weight[i], ]
+  g <- function(cl, col) d[[col]][d$Class == cl]
+  data.frame(SVM = paste0(ifelse(cfg$Kernel[i] == "linear", "Linear", "RBF"), ", C = ", cfg$Cost[i],
+                          ifelse(is.na(cfg$Gamma_factor[i]), "", paste0(", γ = ", cfg$Gamma_factor[i], "/p")),
+                          ifelse(cfg$Weight[i] == "none", ", no weights", ", class weights")),
+             MF1 = f3(mean(d$F1)), FT = pc(g("Full-time", "Recall"), 0),
+             PT = sprintf("%s (%s)", pc(g("Part-time", "Recall")), num(g("Part-time", "Calls"))),
+             UN = sprintf("%s (%s)", pc(g("Unemployed", "Recall")), num(g("Unemployed", "Calls"))),
+             OT = sprintf("%s (%s)", pc(g("Other", "Recall")), num(g("Other", "Calls"))),
+             OTp = pc(g("Other", "Precision"))) }))
+names(pt) <- c("Best configuration in cell", "Val. Macro F1", "Full-time recall", "Part-time recall (calls)",
+               "Unemployed recall (calls)", "Other recall (calls)", "Other precision")
+lin0 <- probe[probe$Kernel == "linear" & probe$Weight == "none", ]; lin1 <- probe[probe$Kernel == "linear" & probe$Weight == "inverse", ]
+rbf1 <- probe[probe$Kernel == "radial" & probe$Weight == "inverse", ]; rbf0 <- probe[probe$Kernel == "radial" & probe$Weight == "none", ]
+z0 <- paste(lin0$Class[lin0$Calls == 0], collapse = " and ")
+ktab(pt, caption = "Table 5. Validation-only refit of the best candidate in each kernel × weighting cell (same 9,997 fitting rows; Macro F1 reproduces the frozen grid exactly). Calls = number of Validation respondents assigned to the class.",
+     align = c("l", rep("r", 6)), sel_row = 4)
+```
+
+We tested whether a linear SVM would suffice before committing to the 28-minute RBF fit (Table 5). Without weights, the linear SVM **never predicted `r z0`** and recalled only `r pc(lin0$Recall[lin0$Class == "Unemployed"])` of the unemployed, so it effectively did not detect the rare groups, confirming our initial impression. With class weights, the linear SVM does start to predict them, but it recalls only `r pc(lin1$Recall[lin1$Class == "Part-time"])` of part-timers (RBF `r pc(rbf1$Recall[rbf1$Class == "Part-time"])`), and its `r num(lin1$Calls[lin1$Class == "Other"])` "Other" calls are `r pc(lin1$Precision[lin1$Class == "Other"],0)` precise. The unweighted RBF SVM also never predicts Part-time or Other. Our refined conclusion is therefore more specific than "linear is worse": **class weighting makes rare classes visible, and the RBF kernel adds about `r f3(svm_k_gain)` on top**, mainly through Part-time and Unemployed.
+
+## 7.3 What we would do differently, and new measures for the next iteration
+
+1. **Split first, then impute** inside the training data only, and keep "don't know" / "not asked" as explicit levels instead of mode-filling them (§4.1). The UK's "not asked" social class shows how much a pre-split fill can distort a feature.
+2. **Cross imbalance handling with every model family.** Only SVM used class weights, which confounds "model family" with "imbalance treatment". Weights, priors and thresholds should be a shared, crossed factor.
+3. **Add class-weighted ensembles to the pre-registered set.** The candidate set was fixed by the A1 plan. A random forest (Breiman, 2001; Chen et al., 2004), followed by gradient boosting, is the natural next candidate, because the single tree showed two specific weaknesses: high bias (16 leaves) and no class weighting, under which it never predicted Part-time, Unemployed or Other. A weighted ensemble of deep trees addresses both and remains cheap to fit compared with the RBF-SVM.
+4. **Use resampling for selection and transport.** Repeated stratified k-fold CV would stabilise the selection, and country-grouped CV would test predictions in unseen countries. A never-touched final holdout should be reserved for corrected reruns.
+5. **Make the decision cost explicit.** Calibrated probabilities with thresholds set by the agency's relative cost of a missed versus a wasted contact would replace the implicit 0/1 loss.
+
+# 8&nbsp; Conclusion, insights and proposed action <span class="dt s6">DIP · Communicate &amp; propose action</span>
+
+* **Q1: partly predictable.** Life-stage statuses are predictable from basic information (SVM recall: Retired `r pc(pcs$SVM[["Retired"]],0)`, Student `r pc(pcs$SVM[["Student"]],0)`, Housewife `r pc(pcs$SVM[["Housewife"]],0)`). Labour-market arrangements are not (Part-time `r pc(pcs$SVM[["Part-time"]],0)`, Unemployed `r pc(pcs$SVM[["Unemployed"]],0)`, Other `r pc(pcs$SVM[["Other"]],0)`; per-class F1 ≤ `r f2(max(ev$SVM$per_class$F1[ev$SVM$per_class$Class %in% c("Part-time","Unemployed","Other")]))`). This is not only a modelling failure. Unemployment and part-time work are *defined* by job search and hours worked (ILO, 2013), which none of our predictors measure, and the EDA showed flat Part-time profiles before any model was fitted.
+* **Q2: flexibility helps modestly, and only together with imbalance handling.** The weighted RBF-SVM gains +`r f3(ev$SVM$overall$Macro_F1 - ev$LR$overall$Macro_F1)` over LR, while the unweighted flexible models (kNN, tree) do not beat LR.
+* **Q3: country context matters.** `Income_Group` gave the largest feature-set gain for three models, and raw country is the third-strongest single variable. Pooled predictions therefore partly reflect where a person lives.
+* **Proposed action for the stakeholder.** As a triage tool, the SVM flags `r num(calls$SVM[["Unemployed"]])` Test respondents as unemployed, of whom `r pc(prec$SVM[["Unemployed"]],0)` are, and still misses `r pc(1 - pcs$SVM[["Unemployed"]],0)` of the unemployed. It is not adequate on its own. **We recommend that the agency (i) not use demographics alone to decide whom to contact, (ii) add two short screening questions on hours worked and active job search, which measure what defines the hard classes, and (iii) use the model at most as a first-pass ranking**, with a fairness audit before any deployment, because gender and country drive its predictions (Allhutter et al., 2020).
+
+```{r repro-line, results = "asis"}
+if (!is.null(repro)) cat(sprintf('<p class="note"><b>Reproducibility.</b> Every number is recomputed while knitting from the frozen v2 data and row-level predictions. A from-scratch re-execution of all five searches and refits (<code>params$refit = "all"</code>) on %s/%s (%s), unlike the original R 4.6.1/Windows runs, reproduced all validation scores (within %s), the same selected configurations and identical predictions for %s.</p>',
+  sub("R version ([0-9.]+).*", "R \\1", repro$R[1]), sub("x86_64-pc-linux-gnu", "Linux", repro$Platform[1]), repro$Date[1], format(signif(max(repro$Max_validation_diff), 1), scientific = TRUE),
+  if (all(repro$Identical_predictions == repro$Test_N)) sprintf("all %s Test respondents in each model", num(repro$Test_N[1])) else
+    paste(sprintf("%s %s/%s", repro$Model, num(repro$Identical_predictions), num(repro$Test_N)), collapse = "; "))) else
+  cat('<p class="note"><b>Reproducibility.</b> All figures and tables are recomputed while knitting from the frozen v2 data, tuning tables and row-level predictions (input MD5-checked; split re-derived and matched). Set <code>params$refit</code> to re-execute every search and refit.</p>')
+```
+
+# References
+
+::: {.refs}
+Allhutter, D., Cech, F., Fischer, F., Grill, G., & Mager, A. (2020). Algorithmic profiling of job seekers in Austria: How austerity politics are made effective. *Frontiers in Big Data, 3*, Article 5. https://doi.org/10.3389/fdata.2020.00005
+
+Breiman, L. (2001). Random forests. *Machine Learning, 45*(1), 5–32. https://doi.org/10.1023/A:1010933404324
+
+Breiman, L., Friedman, J. H., Olshen, R. A., & Stone, C. J. (1984). *Classification and regression trees*. Wadsworth.
+
+Cawley, G. C., & Talbot, N. L. C. (2010). On over-fitting in model selection and subsequent selection bias in performance evaluation. *Journal of Machine Learning Research, 11*, 2079–2107.
+
+Chang, C.-C., & Lin, C.-J. (2011). LIBSVM: A library for support vector machines. *ACM Transactions on Intelligent Systems and Technology, 2*(3), Article 27. https://doi.org/10.1145/1961189.1961199
+
+Chen, C., Liaw, A., & Breiman, L. (2004). *Using random forest to learn imbalanced data* (Technical Report No. 666). Department of Statistics, University of California, Berkeley.
+
+Desiere, S., Langenbucher, K., & Struyven, L. (2019). *Statistical profiling in public employment services: An international comparison* (OECD Social, Employment and Migration Working Papers No. 224). OECD Publishing. https://doi.org/10.1787/b5e5f16e-en
+
+Haerpfer, C., Inglehart, R., Moreno, A., Welzel, C., Kizilova, K., Diez-Medrano, J., Lagos, M., Norris, P., Ponarin, E., & Puranen, B. (2024). *World Values Survey Wave 7 (2017–2022) cross-national data-set* (Version 6.0.0) [Data set]. World Values Survey Association. https://doi.org/10.14281/18241.24
+
+He, H., & Garcia, E. A. (2009). Learning from imbalanced data. *IEEE Transactions on Knowledge and Data Engineering, 21*(9), 1263–1284. https://doi.org/10.1109/TKDE.2008.239
+
+International Labour Organization. (2013). *Resolution concerning statistics of work, employment and labour underutilization* (19th International Conference of Labour Statisticians). https://www.ilo.org/resource/resolution-concerning-statistics-work-employment-and-labour
+
+Kaufman, S., Rosset, S., Perlich, C., & Stitelman, O. (2012). Leakage in data mining: Formulation, detection, and avoidance. *ACM Transactions on Knowledge Discovery from Data, 6*(4), Article 15. https://doi.org/10.1145/2382577.2382579
+
+Little, R. J. A., & Rubin, D. B. (2019). *Statistical analysis with missing data* (3rd ed.). Wiley. https://doi.org/10.1002/9781119482260
+
+Serajuddin, U., & Hamadeh, N. (2020, July 1). *New World Bank country classifications by income level: 2020–2021*. World Bank Blogs. https://blogs.worldbank.org/en/opendata/new-world-bank-country-classifications-income-level-2020-2021
+
+Sokolova, M., & Lapalme, G. (2009). A systematic analysis of performance measures for classification tasks. *Information Processing & Management, 45*(4), 427–437. https://doi.org/10.1016/j.ipm.2009.03.002
+
+Solon, G., Haider, S. J., & Wooldridge, J. M. (2015). What are we weighting for? *Journal of Human Resources, 50*(2), 301–316. https://doi.org/10.3368/jhr.50.2.301
+
+Venables, W. N., & Ripley, B. D. (2002). *Modern applied statistics with S* (4th ed.). Springer. https://doi.org/10.1007/978-0-387-21706-2
+:::
+
+**AI use statement.** We acknowledge the use of Claude (Opus 5.5, Anthropic, https://claude.ai) to help structure and draft this report, design its R Markdown layout and figures, check reported numbers against our saved outputs, and run the validation-only SVM check in §7.2. We also acknowledge the use of ChatGPT (OpenAI, https://chatgpt.com) during the experiment stage for code review, the independent audit of the income-group mapping and logistic-regression convergence, and language polishing. All modelling decisions, experiments and interpretations were made and verified by the group.
+
+<details><summary>Computational environment (session information)</summary>
+```{r session, echo = FALSE, comment = ""}
+sessionInfo()
+```
+</details>

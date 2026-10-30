@@ -1,0 +1,6 @@
+"Model","Same_selection","Max_validation_diff","Identical_predictions","Test_N","Seconds","R","Platform","Date","Note"
+"LR",TRUE,2.08761697492732e-05,19201,19201,130,"R version 4.3.3 (2024-02-29)","x86_64-pc-linux-gnu","2026-10-30",""
+"LDA",TRUE,2.67045927894172e-05,19201,19201,6,"R version 4.3.3 (2024-02-29)","x86_64-pc-linux-gnu","2026-10-30",""
+"kNN",TRUE,4.44089209850063e-16,19201,19201,201,"R version 4.3.3 (2024-02-29)","x86_64-pc-linux-gnu","2026-10-30",""
+"SVM",TRUE,4.9960036108132e-16,19201,19201,2760,"R version 4.3.3 (2024-02-29)","x86_64-pc-linux-gnu","2026-10-30","Same_selection corrected from FALSE: the frozen SVM candidate table is stored in grid order and the first check compared its first row rather than its best row (bug fixed in the Rmd). Identical predictions for all 19,201 Test rows and validation scores agreeing to within 5e-16 confirm the same configuration (extended, RBF, C = 1, gamma = 10/p, inverse weights)."
+"Tree",TRUE,4.9960036108132e-16,19201,19201,8,"R version 4.3.3 (2024-02-29)","x86_64-pc-linux-gnu","2026-10-30",""
